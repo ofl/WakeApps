@@ -1,11 +1,12 @@
-createWindow = () ->
+createWindow = (tab) ->
   Schedule = app.models.Schedule
   mix = app.helpers.util.mix
+  dateToString = app.helpers.util.dateToString
   trace = app.helpers.util.trace
   $$ = app.helpers.style.views.edit
   
   repeats = app.properties.repeats
-  data = null
+  schedule = null
   lastTitle = null
   lastScheme = null  
         
@@ -15,7 +16,7 @@ createWindow = () ->
   
   isOpenKeyborad = false
   isOpenPicker = false
-  isOpenCdPicker = false
+  isOpenDtPicker = false
 
   doneBtn = Ti.UI.createButton $$.doneBtn
       
@@ -30,16 +31,16 @@ createWindow = () ->
   activeSwitch = Ti.UI.createSwitch $$.switches
   activeRow.add activeSwitch
   
-  minRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    header: 'Time'
+  dateRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
+    header: 'Date'
     hasChild: true
   repeatRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: 'Repeat'    
     hasChild: true
     
-  rows = [titleRow, schemeRow, activeRow, minRow, repeatRow]
+  rows = [titleRow, schemeRow, activeRow, dateRow, repeatRow]
   
-  cdPicker = Ti.UI.createPicker $$.cdPicker    
+  dtPicker = Ti.UI.createPicker $$.dtPicker    
   picker = Ti.UI.createPicker $$.picker
   do ()->
     choice = []
@@ -51,47 +52,57 @@ createWindow = () ->
   tableView.setData rows
   
   refresh = (data)->
-    activeSwitch.value = data.active
+    schedule = data
+    activeSwitch.value = if data.active then true else false 
     window.title =  data.title or 'Schedule'
     lastTitle = data.title
     lastScheme = data.options.scheme
-    schemeRow.title = data.options.scheme
+    schemeField.value = data.options.scheme
     titleField.value = data.title
-    minRow.title = '' + data.options.min + 'min'
+    date = data.options.date
+    if date is null
+      date = dateToString(new Date())
+    dateRow.title = '' + date
     repeatRow.title = repeats[data.options.repeat]
+    return
 
-  minRow.addEventListener 'click' , ()->
+  dateRow.addEventListener 'click' , ()->
     window.setRightNavButton doneBtn    
     titleField.blur()
     isOpenKeyborad = false
     if isOpenPicker
       window.remove picker
       isOpenPicker = false
-    window.add cdPicker
-    isOpenCdPicker = true
+    if schedule.options.date is null
+      dtPicker.value = new Date()
+    else
+      dtPicker.value = new Date(schedule.options.date)
+    window.add dtPicker
+    isOpenDtPicker = true
     tableView.height = 200
     return
   repeatRow.addEventListener 'click' , ()->
     window.setRightNavButton doneBtn    
     titleField.blur()
     isOpenKeyborad = false
-    if isOpenCdPicker
-      window.remove cdPicker
-      isOpenCdPicker = false
+    if isOpenDtPicker
+      window.remove dtPicker
+      isOpenDtPicker = false
+    picker.setSelectedRow 0, schedule.options.repeat
     window.add picker
     isOpenPicker = true
     tableView.height = 200
     return
-  cdPicker.addEventListener 'change' , (e)->
-    minutes = e.value.getDate() * 1440 + e.value.getHours() * 60 + e.value.getMinutes() - 43181
-    minRow.title = '' + minutes + 'min'
-    data.options.min = minutes
-    data.save()
+  dtPicker.addEventListener 'change' , (e)->
+    date = dateToString e.value
+    dateRow.title = date
+    schedule.options.date = date
+    schedule.save()
     return
   picker.addEventListener 'change' , (e)->
     repeatRow.title = repeats[e.rowIndex]
-    data.repeat = e.rowIndex
-    data.save()
+    schedule.options.repeat = e.rowIndex
+    schedule.save()
     return
   titleField.addEventListener 'return' , ()->
     schemeRow.fireEvent 'click'
@@ -102,14 +113,14 @@ createWindow = () ->
     if isOpenPicker
       window.remove picker
       isOpenPicker = false
-    if isOpenCdPicker
-      window.remove cdPicker
-      isOpenCdPicker = false
+    if isOpenDtPicker
+      window.remove dtPicker
+      isOpenDtPicker = false
     # tableView.height = 200
     return
 
   schemeField.addEventListener 'return' , ()->
-    minRow.fireEvent 'click'
+    dateRow.fireEvent 'click'
     return  
   schemeField.addEventListener 'focus' , ()->
     window.setRightNavButton doneBtn    
@@ -117,18 +128,18 @@ createWindow = () ->
     if isOpenPicker
       window.remove picker
       isOpenPicker = false
-    if isOpenCdPicker
-      window.remove cdPicker
-      isOpenCdPicker = false
+    if isOpenDtPicker
+      window.remove dtPicker
+      isOpenDtPicker = false
     # tableView.height = 200
     return
 
   doneBtn.addEventListener 'click' , ()->
     titleField.blur()
     isOpenKeyborad = false
-    if isOpenCdPicker
-      window.remove cdPicker
-      isOpenCdPicker = false
+    if isOpenDtPicker
+      window.remove dtPicker
+      isOpenDtPicker = false
     if isOpenPicker
       window.remove picker
       isOpenPicker = false
@@ -137,20 +148,16 @@ createWindow = () ->
     return
 
   activeSwitch.addEventListener 'change', (e)->
-    data.active = e.value
-    data.save()
-  
-  window.addEventListener 'open' , ()->
-    setTimeout titleField.focus, 300
-    return
+    schedule.active = if e.value then 1 else 0
+    schedule.save()
   
   window.addEventListener 'close' , ()->
     if lastTitle isnt titleField.value
-      data.title = titleField.value
-      data.save()
+      schedule.title = titleField.value
+      schedule.save()
     stack = app.views.windowStack
-    if stack.length > 0 and data.saved
-      stack[stack.length - 1].refresh data
+    if stack.length > 0 and schedule.saved
+      stack[stack.length - 1].refresh schedule
     return
     
   window.refresh = refresh  
@@ -158,10 +165,11 @@ createWindow = () ->
   return window
           
 exports.win = 
-  open: (data) ->
+  open: (tab, data) ->
     trace = app.helpers.util.trace    
-    window = createWindow()
+    window = createWindow tab
     window.refresh data
-    window.open modal:true
+    app.views.windowStack.push window
+    tab.open window
     return
   createWindow: createWindow

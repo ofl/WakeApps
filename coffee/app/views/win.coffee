@@ -1,4 +1,4 @@
-createWindow = () ->
+createWindow = (tab) ->
 #   グローバル変数をローカル変数に代入。
   Schedule = app.models.Schedule
   mix = app.helpers.util.mix
@@ -17,9 +17,6 @@ createWindow = () ->
   tableView = Ti.UI.createTableView $$.tableView
   
   window.setRightNavButton addBtn  
-  if !isiPad  
-    doneBtn = Ti.UI.createButton $$.doneBtn
-    window.setLeftNavButton doneBtn  
   window.add tableView  
     
   refresh = () ->
@@ -37,19 +34,18 @@ createWindow = () ->
         text: prettyDate schedule.updated
       rows.push row
     tableView.setData rows
-    window.title = 'Templates'
+    window.title = 'Schedules'
     return
 
   _tableViewHandler = (e)->
+    schedule = Schedule.findById e.row.id
     switch e.type
       when 'click'
-        Ti.App.fireEvent 'root.updateWindow', id: e.row.id
         if isiPad
           Ti.App.fireEvent 'root.closeMasterNavigationGroup'    
         else
-          window.close()
+          app.views.edit.win.open tab, schedule
       when 'delete'
-        schedule = Schedule.findById e.row.id
         if Ti.App.Properties.getInt('lastSchedule') is e.row.id
           nextScheduleId = null
           schedule.del ()->
@@ -63,9 +59,6 @@ createWindow = () ->
               window.close()
         else
           schedule.del()        
-      when 'move'
-        data = Schedule.findById e.row.id
-        data.move e.index + 1
     return
 
   tableView.addEventListener 'click' , _tableViewHandler
@@ -73,12 +66,11 @@ createWindow = () ->
   tableView.addEventListener 'move' , _tableViewHandler
   
   addBtn.addEventListener 'click', (e) -> 
-#   addBtnをクリックすると新規作成
-    Ti.App.fireEvent 'root.updateWindow', id: null
-    if !isiPad
+    schedule = new Schedule 'Open Google in Safari'
+    if isiPad
       window.close()
     else
-      Ti.App.fireEvent 'root.closeMasterNavigationGroup'    
+      app.views.edit.win.open tab, schedule
     return
 
   editBtn.addEventListener 'click', (e) -> 
@@ -95,11 +87,6 @@ createWindow = () ->
     tableView.moving = false
     return
     
-  if !isiPad
-    doneBtn.addEventListener 'click', (e) -> 
-      window.close()
-      return
-
   window.refresh = refresh
 
   Ti.App.addEventListener 'list.refresh', (e)->
@@ -111,10 +98,10 @@ createWindow = () ->
 exports.win = 
   open: () ->
     trace = app.helpers.util.trace
-    window = createWindow()
-    window.refresh()
     
     if app.properties.isiPad
+      window = createWindow()
+      window.refresh()
       Schedule = app.models.Schedule
       id = Ti.App.Properties.getInt 'lastSchedule'    
       schedule = null
@@ -136,7 +123,7 @@ exports.win =
       # splitwin.addEventListener 'visible', (e)->
         # if e.view is 'detail'
           # app.properties.isPortrait = true
-          # e.button.title = "Templates"
+          # e.button.title = "Schedules"
           # window.leftNavButton = e.button
         # else if e.view is 'master'
           # app.properties.isPortrait = false
@@ -152,11 +139,11 @@ exports.win =
         
       splitwin.open()   
     else     
-      tab = Ti.UI.createTab
-        window: window    
-      tabGroup = Ti.UI.createTabGroup()
-      tabGroup.addTab tab
-      tabGroup.open()
+      tab = Ti.UI.createTab()      
+      tab.window = createWindow tab
+      app.views.windowStack.push tab.window
+      tab.window.refresh()
+      Ti.UI.createTabGroup({tabs:[tab]}).open()
     return
 
  

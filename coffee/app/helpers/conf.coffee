@@ -4,15 +4,9 @@ do ->
   app.properties.isPortrait = true
   app.properties.repeats = [
     'None', 
-    'Every Day', 
-    'Sunday', 
-    'Monday', 
-    'Tuesday', 
-    'Wendsday', 
-    'Thurthday', 
-    'Friday', 
-    'Saturday'
-    'Monthly'
+    'Daily', 
+    'Weekly', 
+    'Monthly', 
     ]
 
 exports = {}

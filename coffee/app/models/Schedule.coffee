@@ -1,21 +1,21 @@
 db = Ti.Database.open 'db'
 db.execute "CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, OPTIONS TEXT, UPDATED TEXT)"
 ops = 
-  min: 1
+  date: null
   repeat: 0
-  scheme: 'http://www.googl.co.jp'
+  scheme: 'http://www.google.com'
 
 class Schedule
 #   itype -1, history 0, timer 1, favorite 2,  folder 3 
   constructor: (@title, @active = 0, @updated = -1, @id = null, @options = ops, @saved = false) ->    
         
   save: () ->
+    now = (new Date()).getTime()
     if @id is null
-      db.execute "INSERT INTO SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)", @title, @active, @updated, JSON.stringify(@options)
+      db.execute "INSERT INTO SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)", @title, @active, now, JSON.stringify(@options)
       @id = db.lastInsertRowId
     else
-      db.execute "UPDATE SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)  WHERE id = ?", @title, @active, @updated, JSON.stringify(@options), @id
-      # db.execute "UPDATE SCHEDULEDB SET TITLE = ?,SID = ?,PLACE = ?,ITYPE = ? ,ACTIVE = ? ,POSITION = ? ,UPDATED = ? ,OPTIONS = ?   WHERE id = ?", @title, @sid, @place, @itype, @active, @position, @updated, JSON.stringify(@options), @id
+      db.execute "UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, now, JSON.stringify(@options), @id
     @saved = true
     return this
     

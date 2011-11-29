@@ -1,6 +1,6 @@
 var createWindow;
-createWindow = function() {
-  var $$, Schedule, addBtn, doneBtn, editBtn, editDoneBtn, fs, isiPad, mix, refresh, tableView, trace, window, _tableViewHandler;
+createWindow = function(tab) {
+  var $$, Schedule, addBtn, editBtn, editDoneBtn, fs, isiPad, mix, refresh, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -15,10 +15,6 @@ createWindow = function() {
   }));
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
-  if (!isiPad) {
-    doneBtn = Ti.UI.createButton($$.doneBtn);
-    window.setLeftNavButton(doneBtn);
-  }
   window.add(tableView);
   refresh = function() {
     var prettyDate, row, rows, schedule, schedules, _i, _len;
@@ -40,23 +36,20 @@ createWindow = function() {
       rows.push(row);
     }
     tableView.setData(rows);
-    window.title = 'Templates';
+    window.title = 'Schedules';
   };
   _tableViewHandler = function(e) {
-    var data, nextScheduleId, schedule;
+    var nextScheduleId, schedule;
+    schedule = Schedule.findById(e.row.id);
     switch (e.type) {
       case 'click':
-        Ti.App.fireEvent('root.updateWindow', {
-          id: e.row.id
-        });
         if (isiPad) {
           Ti.App.fireEvent('root.closeMasterNavigationGroup');
         } else {
-          window.close();
+          app.views.edit.win.open(tab, schedule);
         }
         break;
       case 'delete':
-        schedule = Schedule.findById(e.row.id);
         if (Ti.App.Properties.getInt('lastSchedule') === e.row.id) {
           nextScheduleId = null;
           schedule.del(function() {
@@ -75,23 +68,18 @@ createWindow = function() {
         } else {
           schedule.del();
         }
-        break;
-      case 'move':
-        data = Schedule.findById(e.row.id);
-        data.move(e.index + 1);
     }
   };
   tableView.addEventListener('click', _tableViewHandler);
   tableView.addEventListener('delete', _tableViewHandler);
   tableView.addEventListener('move', _tableViewHandler);
   addBtn.addEventListener('click', function(e) {
-    Ti.App.fireEvent('root.updateWindow', {
-      id: null
-    });
-    if (!isiPad) {
+    var schedule;
+    schedule = new Schedule('Open Google in Safari');
+    if (isiPad) {
       window.close();
     } else {
-      Ti.App.fireEvent('root.closeMasterNavigationGroup');
+      app.views.edit.win.open(tab, schedule);
     }
   });
   editBtn.addEventListener('click', function(e) {
@@ -106,11 +94,6 @@ createWindow = function() {
     tableView.editing = false;
     tableView.moving = false;
   });
-  if (!isiPad) {
-    doneBtn.addEventListener('click', function(e) {
-      window.close();
-    });
-  }
   window.refresh = refresh;
   Ti.App.addEventListener('list.refresh', function(e) {
     return refresh();
@@ -119,11 +102,11 @@ createWindow = function() {
 };
 exports.win = {
   open: function() {
-    var Schedule, detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, tabGroup, trace, window;
+    var Schedule, detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, trace, window;
     trace = app.helpers.util.trace;
-    window = createWindow();
-    window.refresh();
     if (app.properties.isiPad) {
+      window = createWindow();
+      window.refresh();
       Schedule = app.models.Schedule;
       id = Ti.App.Properties.getInt('lastSchedule');
       schedule = null;
@@ -148,12 +131,13 @@ exports.win = {
       });
       splitwin.open();
     } else {
-      tab = Ti.UI.createTab({
-        window: window
-      });
-      tabGroup = Ti.UI.createTabGroup();
-      tabGroup.addTab(tab);
-      tabGroup.open();
+      tab = Ti.UI.createTab();
+      tab.window = createWindow(tab);
+      app.views.windowStack.push(tab.window);
+      tab.window.refresh();
+      Ti.UI.createTabGroup({
+        tabs: [tab]
+      }).open();
     }
   }
 };

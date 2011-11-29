@@ -59,12 +59,12 @@ properties =
   
   GroupedTableView: 
     style: Ti.UI.iPhone.TableViewStyle.GROUPED
-    backgroundColor: '#eee'    
     rowHeight:44
+    # backgroundColor: '#eee'    
   
   GroupedTableViewRow: 
     selectionStyle: Ti.UI.iPhone.TableViewCellSelectionStyle.NONE
-    backgroundColor: '#fff'    
+    # backgroundColor: '#fff'    
   
   TextField: 
     borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
@@ -148,9 +148,8 @@ views =
       properties.GroupedTableViewRow
     picker:
       bottom: 0
-    cdPicker:
-      type:Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER
-      countDownDuration:60000
+    dtPicker:
+      type:Ti.UI.PICKER_TYPE_DATE_AND_TIME
       bottom: 0
     switches:
       right: 10

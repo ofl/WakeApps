@@ -63,8 +63,15 @@ exports =
       html += escapeHTML template
     return html
     
-
-#日付を見やすい形で返す。
+  dateToString: (date) ->
+    text = '' + date.getFullYear() + '/'
+    m = date.getMonth() + 1
+    text += (if m > 9 then m else '0' + m) + '/'
+    text += (if date.getDate() > 9 then date.getDate() else '0' + date.getDate()) + ' '
+    text += (if date.getHours() > 9 then date.getHours() else '0' + date.getHours()) + ':'
+    text += (if date.getMinutes() > 9 then date.getMinutes() else '0' + date.getMinutes())
+    return text
+    
   prettyDate: (now) ->
     timeNow = now.getTime()
 

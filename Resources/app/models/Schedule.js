@@ -2,9 +2,9 @@ var Schedule, db, exports, ops;
 db = Ti.Database.open('db');
 db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 ops = {
-  min: 1,
+  date: null,
   repeat: 0,
-  scheme: 'http://www.googl.co.jp'
+  scheme: 'http://www.google.com'
 };
 Schedule = (function() {
   function Schedule(title, active, updated, id, options, saved) {
@@ -16,11 +16,13 @@ Schedule = (function() {
     this.saved = saved != null ? saved : false;
   }
   Schedule.prototype.save = function() {
+    var now;
+    now = (new Date()).getTime();
     if (this.id === null) {
-      db.execute("INSERT INTO SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)", this.title, this.active, this.updated, JSON.stringify(this.options));
+      db.execute("INSERT INTO SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)", this.title, this.active, now, JSON.stringify(this.options));
       this.id = db.lastInsertRowId;
     } else {
-      db.execute("UPDATE SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)  WHERE id = ?", this.title, this.active, this.updated, JSON.stringify(this.options), this.id);
+      db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, now, JSON.stringify(this.options), this.id);
     }
     this.saved = true;
     return this;
