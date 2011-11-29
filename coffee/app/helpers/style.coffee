@@ -1,0 +1,160 @@
+mix = app.helpers.util.mix
+
+theme = 
+  textColor: '#000000'
+  barColor: '#333333'
+  backgroundColor: '#fff'
+  blueText: '#336699'
+  darkBlue: '#93caed'
+  fontFamily: 'Helvetica Neue'
+
+if Ti.Platform.displayCaps.dpi > 300
+  images = 
+    email: 'image/021-Email@2x.png'
+    photos: 'image/161-Photos@2x.png'
+else
+  images = 
+    email: 'image/021-Email.png'
+    photos: 'image/161-Photos.png'
+
+app.properties.platformWidth = Ti.Platform.displayCaps.platformWidth
+app.properties.platformHeight = Ti.Platform.displayCaps.platformHeight
+app.properties.navToolHeight = 108
+app.properties.navHeight = 64
+
+# Ti.Gesture.addEventListener 'orientationchange', (e)->
+  # if e.orientation < 3
+    # app.properties.navToolHeight = 108
+    # app.properties.navHeight = 64
+  # else
+    # app.properties.navToolHeight = 100
+    # app.properties.navHeight = 60
+  # return
+
+properties = 
+  Window: 
+    barColor: theme.barColor
+    backgroundColor: theme.backgroundColor
+    tabBarHidden: true
+    orientationModes: if app.properties.isiPad then [
+        Ti.UI.PORTRAIT
+        Ti.UI.LANDSCAPE_LEFT
+        Ti.UI.LANDSCAPE_RIGHT ] 
+      else [Ti.UI.PORTRAIT]  
+  Label: 
+    color: theme.textColor
+    font: 
+      fontFamily: theme.fontFamily
+      fontSize: 18  
+    height: 'auto'
+  
+  TableView: 
+    backgroundColor: theme.backgroundColor
+  
+  TableViewRow: 
+    selectedBackgroundColor: theme.darkBlue
+    backgroundSelectedColor: theme.darkBlue
+    hasChild: true
+    className: 'tvRow'
+  
+  GroupedTableView: 
+    style: Ti.UI.iPhone.TableViewStyle.GROUPED
+    backgroundColor: '#eee'    
+    rowHeight:44
+  
+  GroupedTableViewRow: 
+    selectionStyle: Ti.UI.iPhone.TableViewCellSelectionStyle.NONE
+    backgroundColor: '#fff'    
+  
+  TextField: 
+    borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
+    appearance:Ti.UI.KEYBOARD_APPEARANCE_DEFAULT       
+    clearButtonMode: Ti.UI.INPUT_BUTTONMODE_ONFOCUS
+    autocapitalization:Ti.UI.TEXT_AUTOCAPITALIZATION_NONE
+    keyboardType:Ti.UI.KEYBOARD_DEFAULT
+    returnKeyType:Ti.UI.RETURNKEY_DEFAULT
+    suppressReturn: false
+    height:30
+  
+  TextArea: 
+    top: 0
+    font:{fontSize:16}
+    textAlign:'left'
+    autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
+    backgroundColor: theme.backgroundColor
+    appearance:Ti.UI.KEYBOARD_APPEARANCE_DEFAULT       
+    keyboardType:Ti.UI.KEYBOARD_DEFAULT
+    returnKeyType:Ti.UI.RETURNKEY_DEFAULT
+    suppressReturn: false
+
+views =
+  root: 
+    window: 
+      properties.Window
+    tableView: mix(
+      properties.TableView,
+      editable: true
+      moveable:true
+      allowsSelectionDuringEditing:false)
+    tableViewRow: mix(
+      properties.TableViewRow,
+      editable: true )
+    editBtn: 
+      systemButton: Ti.UI.iPhone.SystemButton.EDIT
+    doneBtn: 
+      systemButton: Ti.UI.iPhone.SystemButton.DONE
+    addBtn: 
+      systemButton: Ti.UI.iPhone.SystemButton.ADD
+    fs:
+      systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+    popOver:
+      width: 240
+      height:140
+    titleLabel: mix(properties.Label,
+      left: 5
+      top: 12
+      width: 200
+      color: '#8b4513'
+      height: 20)
+    dateLabel: mix( properties.Label,
+      right: 20
+      top: 15
+      width: 60
+      height: 20
+      textAlign: 'right'
+      font: 
+        fontFamily: theme.fontFamily
+        fontSize: 14  
+      color: '#669'
+      )
+  edit:
+    window: mix(properties.Window,
+      title: 'Edit template')
+    doneBtn: 
+      systemButton: Ti.UI.iPhone.SystemButton.DONE
+    textField: mix(properties.TextField,
+      borderStyle: Ti.UI.INPUT_BORDERSTYLE_NONE
+      returnKeyType:Ti.UI.RETURNKEY_NEXT
+      color: theme.blueText
+      height: 35
+      left: 10
+      right: 10
+      )
+       
+    tableView: mix(properties.GroupedTableView,
+      top: 0
+      )
+    tableViewRow:
+      properties.GroupedTableViewRow
+    picker:
+      bottom: 0
+    cdPicker:
+      type:Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER
+      countDownDuration:60000
+      bottom: 0
+    switches:
+      right: 10
+         
+      
+exports = 
+  views: views
