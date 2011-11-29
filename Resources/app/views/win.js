@@ -1,11 +1,12 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, editBtn, editDoneBtn, fs, isiPad, mix, refresh, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, editBtn, editDoneBtn, fs, isiPad, mix, refresh, service, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
   isiPad = app.properties.isiPad;
+  service = null;
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
   editDoneBtn = Ti.UI.createButton($$.doneBtn);
@@ -16,13 +17,43 @@ createWindow = function(tab) {
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
   window.add(tableView);
-  refresh = function() {
-    var prettyDate, row, rows, schedule, schedules, _i, _len;
+  refresh = function(data) {
+    var prettyDate, repeat, row, rows, saved, schedule, schedules, _i, _j, _len, _len2;
+    if (data && data.saved) {
+      Ti.App.iOS.cancelAllLocalNotifications();
+      schedules = Schedule.findAllActive();
+      for (_i = 0, _len = schedules.length; _i < _len; _i++) {
+        schedule = schedules[_i];
+        if (schedule.options.repeat > 0) {
+          repeat = ['None', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat];
+          Ti.App.iOS.scheduleLocalNotification({
+            date: new Date(schedule.options.date),
+            repeat: repeat,
+            alertBody: schedule.title,
+            alertAction: 'Launch!',
+            sound: 'sounds/Alarm0014.wav',
+            userInfo: {
+              scheme: schedule.options.scheme
+            }
+          });
+        } else {
+          Ti.App.iOS.scheduleLocalNotification({
+            date: new Date(schedule.options.date),
+            alertBody: schedule.title,
+            alertAction: 'Launch!',
+            sound: 'sounds/Alarm0014.wav',
+            userInfo: {
+              scheme: schedule.options.scheme
+            }
+          });
+        }
+      }
+    }
     schedules = Schedule.all();
     rows = [];
     prettyDate = app.helpers.util.prettyDate(new Date());
-    for (_i = 0, _len = schedules.length; _i < _len; _i++) {
-      schedule = schedules[_i];
+    for (_j = 0, _len2 = schedules.length; _j < _len2; _j++) {
+      schedule = schedules[_j];
       row = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
         id: schedule.id,
         text: schedule.text
@@ -37,6 +68,7 @@ createWindow = function(tab) {
     }
     tableView.setData(rows);
     window.title = 'Schedules';
+    saved = false;
   };
   _tableViewHandler = function(e) {
     var nextScheduleId, schedule;
@@ -72,7 +104,6 @@ createWindow = function(tab) {
   };
   tableView.addEventListener('click', _tableViewHandler);
   tableView.addEventListener('delete', _tableViewHandler);
-  tableView.addEventListener('move', _tableViewHandler);
   addBtn.addEventListener('click', function(e) {
     var schedule;
     schedule = new Schedule('Open Google in Safari');
@@ -94,10 +125,10 @@ createWindow = function(tab) {
     tableView.editing = false;
     tableView.moving = false;
   });
-  window.refresh = refresh;
-  Ti.App.addEventListener('list.refresh', function(e) {
-    return refresh();
+  Ti.App.iOS.addEventListener('notification', function(e) {
+    return Ti.Platform.openURL(e.userInfo.scheme);
   });
+  window.refresh = refresh;
   return window;
 };
 exports.win = {

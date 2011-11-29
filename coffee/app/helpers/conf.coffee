@@ -7,6 +7,7 @@ do ->
     'Daily', 
     'Weekly', 
     'Monthly', 
+    'Yearly'
     ]
 
 exports = {}

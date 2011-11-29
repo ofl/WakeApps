@@ -94,7 +94,6 @@ views =
     tableView: mix(
       properties.TableView,
       editable: true
-      moveable:true
       allowsSelectionDuringEditing:false)
     tableViewRow: mix(
       properties.TableViewRow,

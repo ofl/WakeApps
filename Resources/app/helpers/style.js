@@ -83,7 +83,6 @@ views = {
     window: properties.Window,
     tableView: mix(properties.TableView, {
       editable: true,
-      moveable: true,
       allowsSelectionDuringEditing: false
     }),
     tableViewRow: mix(properties.TableViewRow, {

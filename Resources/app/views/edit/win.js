@@ -164,6 +164,7 @@ createWindow = function(tab) {
       schedule.save();
     }
     stack = app.views.windowStack;
+    stack.pop();
     if (stack.length > 0 && schedule.saved) {
       stack[stack.length - 1].refresh(schedule);
     }

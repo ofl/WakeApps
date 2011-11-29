@@ -5,7 +5,9 @@ createWindow = (tab) ->
   trace = app.helpers.util.trace
   $$ = app.helpers.style.views.root
   isiPad = app.properties.isiPad
-    
+  
+  service = null
+  
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
   editDoneBtn = Ti.UI.createButton $$.doneBtn
@@ -19,7 +21,32 @@ createWindow = (tab) ->
   window.setRightNavButton addBtn  
   window.add tableView  
     
-  refresh = () ->
+  refresh = (data) ->
+    if data and data.saved
+      # service = Ti.App.iOS.registerBackgroundService 
+        # url: 'app/lib/background.js'
+
+      Ti.App.iOS.cancelAllLocalNotifications()
+      schedules = Schedule.findAllActive()
+      for schedule in schedules
+        if schedule.options.repeat > 0
+          repeat = ['None', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat]
+          Ti.App.iOS.scheduleLocalNotification
+            date: new Date(schedule.options.date)
+            repeat: repeat
+            alertBody: schedule.title
+            alertAction: 'Launch!'
+            sound: 'sounds/Alarm0014.wav'
+            userInfo: {scheme: schedule.options.scheme}
+        else
+          Ti.App.iOS.scheduleLocalNotification
+            date: new Date(schedule.options.date)
+            alertBody: schedule.title
+            alertAction: 'Launch!'
+            sound: 'sounds/Alarm0014.wav'
+            userInfo: {scheme: schedule.options.scheme}
+      
+      
     schedules = Schedule.all()
     rows = []
 #     カリー化
@@ -35,6 +62,7 @@ createWindow = (tab) ->
       rows.push row
     tableView.setData rows
     window.title = 'Schedules'
+    saved = false
     return
 
   _tableViewHandler = (e)->
@@ -63,7 +91,6 @@ createWindow = (tab) ->
 
   tableView.addEventListener 'click' , _tableViewHandler
   tableView.addEventListener 'delete' , _tableViewHandler
-  tableView.addEventListener 'move' , _tableViewHandler
   
   addBtn.addEventListener 'click', (e) -> 
     schedule = new Schedule 'Open Google in Safari'
@@ -86,11 +113,11 @@ createWindow = (tab) ->
     tableView.editing = false
     tableView.moving = false
     return
+
+  Ti.App.iOS.addEventListener 'notification', (e)->
+    Ti.Platform.openURL e.userInfo.scheme
     
   window.refresh = refresh
-
-  Ti.App.addEventListener 'list.refresh', (e)->
-    refresh()
     
   return window
 

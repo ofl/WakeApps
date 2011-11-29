@@ -156,6 +156,7 @@ createWindow = (tab) ->
       schedule.title = titleField.value
       schedule.save()
     stack = app.views.windowStack
+    stack.pop()
     if stack.length > 0 and schedule.saved
       stack[stack.length - 1].refresh schedule
     return
