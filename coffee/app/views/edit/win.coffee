@@ -23,13 +23,19 @@ createWindow = (tab) ->
   titleRow = Ti.UI.createTableViewRow $$.tableViewRow
   titleField = Ti.UI.createTextField $$.textField
   titleRow.add titleField
-  schemeRow = Ti.UI.createTableViewRow $$.tableViewRow
-  schemeField = Ti.UI.createTextField $$.textField
-  schemeRow.add schemeField
   activeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     title: 'Active'
   activeSwitch = Ti.UI.createSwitch $$.switches
   activeRow.add activeSwitch
+  schemeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
+    header: 'URL Scheme'
+  schemeField = Ti.UI.createTextField $$.textField
+  schemeRow.add schemeField
+  testRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
+    title: 'Test action'
+    color: '#090'
+    backgroundColor: '#ddc'
+    hasChild: true
   
   dateRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: 'Date'
@@ -38,7 +44,7 @@ createWindow = (tab) ->
     header: 'Repeat'    
     hasChild: true
     
-  rows = [titleRow, schemeRow, activeRow, dateRow, repeatRow]
+  rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow]
   
   dtPicker = Ti.UI.createPicker $$.dtPicker    
   picker = Ti.UI.createPicker $$.picker
@@ -56,16 +62,16 @@ createWindow = (tab) ->
     activeSwitch.value = if data.active then true else false 
     window.title =  data.title or 'Schedule'
     lastTitle = data.title
-    lastScheme = data.options.scheme
-    schemeField.value = data.options.scheme
+    lastScheme = data.scheme
+    schemeField.value = data.scheme
     titleField.value = data.title
-    date = data.options.date
-    if date is null
-      date = dateToString(new Date())
-    dateRow.title = '' + date
-    repeatRow.title = repeats[data.options.repeat]
+    dateRow.title = dateToString(new Date(data.date))
+    repeatRow.title = repeats[data.repeat]
     return
 
+  testRow.addEventListener 'click' , ()->
+    Ti.Platform.openURL schemeField.value    
+    return
   dateRow.addEventListener 'click' , ()->
     window.setRightNavButton doneBtn    
     titleField.blur()
@@ -73,10 +79,10 @@ createWindow = (tab) ->
     if isOpenPicker
       window.remove picker
       isOpenPicker = false
-    if schedule.options.date is null
+    if schedule.date is null
       dtPicker.value = new Date()
     else
-      dtPicker.value = new Date(schedule.options.date)
+      dtPicker.value = new Date(schedule.date)
     window.add dtPicker
     isOpenDtPicker = true
     tableView.height = 200
@@ -88,7 +94,7 @@ createWindow = (tab) ->
     if isOpenDtPicker
       window.remove dtPicker
       isOpenDtPicker = false
-    picker.setSelectedRow 0, schedule.options.repeat
+    picker.setSelectedRow 0, schedule.repeat
     window.add picker
     isOpenPicker = true
     tableView.height = 200
@@ -96,12 +102,12 @@ createWindow = (tab) ->
   dtPicker.addEventListener 'change' , (e)->
     date = dateToString e.value
     dateRow.title = date
-    schedule.options.date = date
+    schedule.date = e.value.getTime()
     schedule.save()
     return
   picker.addEventListener 'change' , (e)->
     repeatRow.title = repeats[e.rowIndex]
-    schedule.options.repeat = e.rowIndex
+    schedule.repeat = e.rowIndex
     schedule.save()
     return
   titleField.addEventListener 'return' , ()->
@@ -154,11 +160,13 @@ createWindow = (tab) ->
         alert 'Schedule can be activate up to 60. Please Turn off unnecessary schedule'
     else
       schedule.active = 0
+    schedule.save()
     return
   
   window.addEventListener 'close' , ()->
-    if lastTitle isnt titleField.value
+    if lastTitle isnt titleField.value or lastScheme isnt schemeField.value
       schedule.title = titleField.value
+      schedule.scheme = schemeField.value
       schedule.save()
     stack = app.views.windowStack
     stack.pop()

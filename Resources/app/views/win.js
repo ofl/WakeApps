@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, editBtn, editDoneBtn, fs, isiPad, mix, refresh, service, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, doneEditBtn, editBtn, fs, isiPad, mix, refresh, service, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -9,7 +9,7 @@ createWindow = function(tab) {
   service = null;
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
-  editDoneBtn = Ti.UI.createButton($$.doneBtn);
+  doneEditBtn = Ti.UI.createButton($$.doneBtn);
   fs = Ti.UI.createButton($$.fs);
   window = Ti.UI.createWindow(mix($$.window, {
     toolbar: [editBtn, fs]
@@ -24,32 +24,29 @@ createWindow = function(tab) {
       schedules = Schedule.findAllActive();
       for (_i = 0, _len = schedules.length; _i < _len; _i++) {
         schedule = schedules[_i];
-        if (schedule.options.repeat > 0) {
-          trace(schedule.options.scheme);
-          trace(schedule.options.repeat);
-          trace(schedule.options.date);
+        if (schedule.repeat > 0) {
           Ti.App.iOS.scheduleLocalNotification({
-            date: new Date(schedule.options.date),
-            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat],
+            date: new Date(schedule.date),
+            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat],
             alertBody: schedule.title,
             alertAction: 'Launch!',
             sound: 'sounds/Alarm0014.wav',
             userInfo: {
-              scheme: schedule.options.scheme,
-              repeat: schedule.options.repeat,
-              date: schedule.options.date
+              scheme: schedule.scheme,
+              repeat: schedule.repeat,
+              date: schedule.date
             }
           });
         } else {
           Ti.App.iOS.scheduleLocalNotification({
-            date: new Date(schedule.options.date),
+            date: new Date(schedule.date),
             alertBody: schedule.title,
             alertAction: 'Launch!',
             sound: 'sounds/Alarm0014.wav',
             userInfo: {
-              scheme: schedule.options.scheme,
-              repeat: schedule.options.repeat,
-              date: schedule.options.date
+              scheme: schedule.scheme,
+              repeat: schedule.repeat,
+              date: schedule.date
             }
           });
         }
@@ -121,11 +118,11 @@ createWindow = function(tab) {
   });
   editBtn.addEventListener('click', function(e) {
     window.setRightNavButton(null);
-    window.toolbar = [editDoneBtn, fs];
+    window.toolbar = [doneEditBtn, fs];
     tableView.editing = true;
     tableView.moving = true;
   });
-  editDoneBtn.addEventListener('click', function(e) {
+  doneEditBtn.addEventListener('click', function(e) {
     window.setRightNavButton(addBtn);
     window.toolbar = [editBtn, fs];
     tableView.editing = false;

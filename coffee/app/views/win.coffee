@@ -10,7 +10,7 @@ createWindow = (tab) ->
   
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
-  editDoneBtn = Ti.UI.createButton $$.doneBtn
+  doneEditBtn = Ti.UI.createButton $$.doneBtn
   fs = Ti.UI.createButton $$.fs
   
   window = Ti.UI.createWindow mix $$.window,
@@ -26,33 +26,27 @@ createWindow = (tab) ->
       Ti.App.iOS.cancelAllLocalNotifications()
       schedules = Schedule.findAllActive()
       for schedule in schedules
-        if schedule.options.repeat > 0
-          trace schedule.options.scheme
-          trace schedule.options.repeat
-          trace schedule.options.date
-
-          
-          
+        if schedule.repeat > 0
           Ti.App.iOS.scheduleLocalNotification
-            date: new Date(schedule.options.date)
-            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat]
+            date: new Date(schedule.date)
+            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat]
             alertBody: schedule.title
             alertAction: 'Launch!'
             sound: 'sounds/Alarm0014.wav'
             userInfo: 
-              scheme: schedule.options.scheme
-              repeat: schedule.options.repeat
-              date: schedule.options.date
+              scheme: schedule.scheme
+              repeat: schedule.repeat
+              date: schedule.date
         else
           Ti.App.iOS.scheduleLocalNotification
-            date: new Date(schedule.options.date)
+            date: new Date(schedule.date)
             alertBody: schedule.title
             alertAction: 'Launch!'
             sound: 'sounds/Alarm0014.wav'
             userInfo: 
-              scheme: schedule.options.scheme
-              repeat: schedule.options.repeat
-              date: schedule.options.date      
+              scheme: schedule.scheme
+              repeat: schedule.repeat
+              date: schedule.date      
       
     schedules = Schedule.all()
     rows = []
@@ -109,12 +103,12 @@ createWindow = (tab) ->
 
   editBtn.addEventListener 'click', (e) -> 
     window.setRightNavButton null
-    window.toolbar = [editDoneBtn, fs] 
+    window.toolbar = [doneEditBtn, fs] 
     tableView.editing = true
     tableView.moving = true
     return
 
-  editDoneBtn.addEventListener 'click', (e) -> 
+  doneEditBtn.addEventListener 'click', (e) -> 
     window.setRightNavButton addBtn
     window.toolbar = [editBtn, fs]    
     tableView.editing = false

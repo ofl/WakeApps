@@ -1,28 +1,26 @@
-var Schedule, db, exports, ops;
+var Schedule, db, exports;
 db = Ti.Database.open('db');
-db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, OPTIONS TEXT, UPDATED TEXT)");
-ops = {
-  date: '2012/01/01 09:00',
-  repeat: 0,
-  scheme: 'http://www.google.com'
-};
+db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
-  function Schedule(title, active, updated, id, options, saved) {
+  function Schedule(title, active, updated, id, date, scheme, repeat, options, saved) {
     this.title = title;
     this.active = active != null ? active : 0;
     this.updated = updated != null ? updated : -1;
     this.id = id != null ? id : null;
-    this.options = options != null ? options : ops;
+    this.date = date != null ? date : (new Date()).getTime();
+    this.scheme = scheme != null ? scheme : 'http://www.google.com';
+    this.repeat = repeat != null ? repeat : 0;
+    this.options = options != null ? options : {};
     this.saved = saved != null ? saved : false;
   }
   Schedule.prototype.save = function() {
     var now;
     now = (new Date()).getTime();
     if (this.id === null) {
-      db.execute("INSERT INTO SCHEDULEDB (TITLE, ACTIVE, UPDATED, OPTIONS ) VALUES(?,?,?,?)", this.title, this.active, now, JSON.stringify(this.options));
+      db.execute("INSERT INTO SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options));
       this.id = db.lastInsertRowId;
     } else {
-      db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, now, JSON.stringify(this.options), this.id);
+      db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
     }
     this.saved = true;
     return this;
@@ -39,8 +37,10 @@ Schedule = (function() {
       results.push({
         title: rows.fieldByName('TITLE'),
         active: rows.fieldByName('ACTIVE'),
+        date: parseInt(rows.fieldByName('DATE'), 10),
+        scheme: rows.fieldByName('SCHEME'),
+        repeat: rows.fieldByName('REPEAT'),
         updated: parseInt(rows.fieldByName('UPDATED'), 10),
-        options: JSON.parse(rows.fieldByName('OPTIONS')),
         id: rows.fieldByName('ID')
       });
       rows.next();
@@ -54,7 +54,7 @@ Schedule = (function() {
     rows = db.execute(sql);
     if (rows.isValidRow()) {
       f = rows.fieldByName;
-      schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('UPDATED'), 10), f('ID'), JSON.parse(f('OPTIONS')));
+      schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('UPDATED'), 10), f('ID'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')));
     }
     rows.close();
     return schedule;

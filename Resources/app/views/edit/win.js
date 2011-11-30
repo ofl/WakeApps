@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, dateRow, dateToString, doneBtn, dtPicker, isOpenDtPicker, isOpenKeyborad, isOpenPicker, lastScheme, lastTitle, mix, picker, refresh, repeatRow, repeats, rows, schedule, schemeField, schemeRow, tableView, titleField, titleRow, trace, window;
+  var $$, Schedule, activeRow, activeSwitch, dateRow, dateToString, doneBtn, dtPicker, isOpenDtPicker, isOpenKeyborad, isOpenPicker, lastScheme, lastTitle, mix, picker, refresh, repeatRow, repeats, rows, schedule, schemeField, schemeRow, tableView, testRow, titleField, titleRow, trace, window;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -20,14 +20,22 @@ createWindow = function(tab) {
   titleRow = Ti.UI.createTableViewRow($$.tableViewRow);
   titleField = Ti.UI.createTextField($$.textField);
   titleRow.add(titleField);
-  schemeRow = Ti.UI.createTableViewRow($$.tableViewRow);
-  schemeField = Ti.UI.createTextField($$.textField);
-  schemeRow.add(schemeField);
   activeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     title: 'Active'
   }));
   activeSwitch = Ti.UI.createSwitch($$.switches);
   activeRow.add(activeSwitch);
+  schemeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    header: 'URL Scheme'
+  }));
+  schemeField = Ti.UI.createTextField($$.textField);
+  schemeRow.add(schemeField);
+  testRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    title: 'Test action',
+    color: '#090',
+    backgroundColor: '#ddc',
+    hasChild: true
+  }));
   dateRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     header: 'Date',
     hasChild: true
@@ -36,7 +44,7 @@ createWindow = function(tab) {
     header: 'Repeat',
     hasChild: true
   }));
-  rows = [titleRow, schemeRow, activeRow, dateRow, repeatRow];
+  rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow];
   dtPicker = Ti.UI.createPicker($$.dtPicker);
   picker = Ti.UI.createPicker($$.picker);
   (function() {
@@ -52,21 +60,19 @@ createWindow = function(tab) {
   })();
   tableView.setData(rows);
   refresh = function(data) {
-    var date;
     schedule = data;
     activeSwitch.value = data.active ? true : false;
     window.title = data.title || 'Schedule';
     lastTitle = data.title;
-    lastScheme = data.options.scheme;
-    schemeField.value = data.options.scheme;
+    lastScheme = data.scheme;
+    schemeField.value = data.scheme;
     titleField.value = data.title;
-    date = data.options.date;
-    if (date === null) {
-      date = dateToString(new Date());
-    }
-    dateRow.title = '' + date;
-    repeatRow.title = repeats[data.options.repeat];
+    dateRow.title = dateToString(new Date(data.date));
+    repeatRow.title = repeats[data.repeat];
   };
+  testRow.addEventListener('click', function() {
+    Ti.Platform.openURL(schemeField.value);
+  });
   dateRow.addEventListener('click', function() {
     window.setRightNavButton(doneBtn);
     titleField.blur();
@@ -75,10 +81,10 @@ createWindow = function(tab) {
       window.remove(picker);
       isOpenPicker = false;
     }
-    if (schedule.options.date === null) {
+    if (schedule.date === null) {
       dtPicker.value = new Date();
     } else {
-      dtPicker.value = new Date(schedule.options.date);
+      dtPicker.value = new Date(schedule.date);
     }
     window.add(dtPicker);
     isOpenDtPicker = true;
@@ -92,7 +98,7 @@ createWindow = function(tab) {
       window.remove(dtPicker);
       isOpenDtPicker = false;
     }
-    picker.setSelectedRow(0, schedule.options.repeat);
+    picker.setSelectedRow(0, schedule.repeat);
     window.add(picker);
     isOpenPicker = true;
     tableView.height = 200;
@@ -101,12 +107,12 @@ createWindow = function(tab) {
     var date;
     date = dateToString(e.value);
     dateRow.title = date;
-    schedule.options.date = date;
+    schedule.date = e.value.getTime();
     schedule.save();
   });
   picker.addEventListener('change', function(e) {
     repeatRow.title = repeats[e.rowIndex];
-    schedule.options.repeat = e.rowIndex;
+    schedule.repeat = e.rowIndex;
     schedule.save();
   });
   titleField.addEventListener('return', function() {
@@ -162,11 +168,13 @@ createWindow = function(tab) {
     } else {
       schedule.active = 0;
     }
+    schedule.save();
   });
   window.addEventListener('close', function() {
     var stack;
-    if (lastTitle !== titleField.value) {
+    if (lastTitle !== titleField.value || lastScheme !== schemeField.value) {
       schedule.title = titleField.value;
+      schedule.scheme = schemeField.value;
       schedule.save();
     }
     stack = app.views.windowStack;
