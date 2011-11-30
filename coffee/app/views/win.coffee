@@ -23,29 +23,36 @@ createWindow = (tab) ->
     
   refresh = (data) ->
     if data and data.saved
-      # service = Ti.App.iOS.registerBackgroundService 
-        # url: 'app/lib/background.js'
-
       Ti.App.iOS.cancelAllLocalNotifications()
       schedules = Schedule.findAllActive()
       for schedule in schedules
         if schedule.options.repeat > 0
-          repeat = ['None', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat]
+          trace schedule.options.scheme
+          trace schedule.options.repeat
+          trace schedule.options.date
+
+          
+          
           Ti.App.iOS.scheduleLocalNotification
             date: new Date(schedule.options.date)
-            repeat: repeat
+            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat]
             alertBody: schedule.title
             alertAction: 'Launch!'
             sound: 'sounds/Alarm0014.wav'
-            userInfo: {scheme: schedule.options.scheme}
+            userInfo: 
+              scheme: schedule.options.scheme
+              repeat: schedule.options.repeat
+              date: schedule.options.date
         else
           Ti.App.iOS.scheduleLocalNotification
             date: new Date(schedule.options.date)
             alertBody: schedule.title
             alertAction: 'Launch!'
             sound: 'sounds/Alarm0014.wav'
-            userInfo: {scheme: schedule.options.scheme}
-      
+            userInfo: 
+              scheme: schedule.options.scheme
+              repeat: schedule.options.repeat
+              date: schedule.options.date      
       
     schedules = Schedule.all()
     rows = []
@@ -115,7 +122,11 @@ createWindow = (tab) ->
     return
 
   Ti.App.iOS.addEventListener 'notification', (e)->
-    Ti.Platform.openURL e.userInfo.scheme
+    if e.userInfo.repeat < 1 and (new Date()).getTime() - 300000 > (new Date(e.userInfo.date)).getTime()
+      return
+    else 
+      Ti.Platform.openURL e.userInfo.scheme
+      return
     
   window.refresh = refresh
     

@@ -2,7 +2,7 @@ var Schedule, db, exports, ops;
 db = Ti.Database.open('db');
 db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 ops = {
-  date: null,
+  date: '2012/01/01 09:00',
   repeat: 0,
   scheme: 'http://www.google.com'
 };
@@ -59,11 +59,19 @@ Schedule = (function() {
     rows.close();
     return schedule;
   };
+  Schedule.count = function(sql) {
+    var rows;
+    rows = db.execute(sql);
+    return rows.rowCount;
+  };
   Schedule.all = function() {
     return Schedule.findAll("SELECT * FROM SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000");
   };
   Schedule.findAllActive = function() {
     return Schedule.findAll("SELECT * FROM SCHEDULEDB WHERE ACTIVE > 0 ORDER BY UPDATED DESC LIMIT 60");
+  };
+  Schedule.countAllActive = function() {
+    return Schedule.count("SELECT ID FROM SCHEDULEDB WHERE ACTIVE > 0");
   };
   Schedule.findById = function(id) {
     Ti.App.Properties.setInt('lastSchedule', id);

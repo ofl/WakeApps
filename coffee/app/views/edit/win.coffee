@@ -148,8 +148,13 @@ createWindow = (tab) ->
     return
 
   activeSwitch.addEventListener 'change', (e)->
-    schedule.active = if e.value then 1 else 0
-    schedule.save()
+    if e.value
+      schedule.active = 1
+      if Schedule.countAllActive() > 60
+        alert 'Schedule can be activate up to 60. Please Turn off unnecessary schedule'
+    else
+      schedule.active = 0
+    return
   
   window.addEventListener 'close' , ()->
     if lastTitle isnt titleField.value

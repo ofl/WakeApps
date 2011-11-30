@@ -154,8 +154,14 @@ createWindow = function(tab) {
     window.setRightNavButton(null);
   });
   activeSwitch.addEventListener('change', function(e) {
-    schedule.active = e.value ? 1 : 0;
-    return schedule.save();
+    if (e.value) {
+      schedule.active = 1;
+      if (Schedule.countAllActive() > 60) {
+        alert('Schedule can be activate up to 60. Please Turn off unnecessary schedule');
+      }
+    } else {
+      schedule.active = 0;
+    }
   });
   window.addEventListener('close', function() {
     var stack;

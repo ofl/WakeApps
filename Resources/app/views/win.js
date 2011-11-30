@@ -18,22 +18,26 @@ createWindow = function(tab) {
   window.setRightNavButton(addBtn);
   window.add(tableView);
   refresh = function(data) {
-    var prettyDate, repeat, row, rows, saved, schedule, schedules, _i, _j, _len, _len2;
+    var prettyDate, row, rows, saved, schedule, schedules, _i, _j, _len, _len2;
     if (data && data.saved) {
       Ti.App.iOS.cancelAllLocalNotifications();
       schedules = Schedule.findAllActive();
       for (_i = 0, _len = schedules.length; _i < _len; _i++) {
         schedule = schedules[_i];
         if (schedule.options.repeat > 0) {
-          repeat = ['None', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat];
+          trace(schedule.options.scheme);
+          trace(schedule.options.repeat);
+          trace(schedule.options.date);
           Ti.App.iOS.scheduleLocalNotification({
             date: new Date(schedule.options.date),
-            repeat: repeat,
+            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.options.repeat],
             alertBody: schedule.title,
             alertAction: 'Launch!',
             sound: 'sounds/Alarm0014.wav',
             userInfo: {
-              scheme: schedule.options.scheme
+              scheme: schedule.options.scheme,
+              repeat: schedule.options.repeat,
+              date: schedule.options.date
             }
           });
         } else {
@@ -43,7 +47,9 @@ createWindow = function(tab) {
             alertAction: 'Launch!',
             sound: 'sounds/Alarm0014.wav',
             userInfo: {
-              scheme: schedule.options.scheme
+              scheme: schedule.options.scheme,
+              repeat: schedule.options.repeat,
+              date: schedule.options.date
             }
           });
         }
@@ -126,7 +132,9 @@ createWindow = function(tab) {
     tableView.moving = false;
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
-    return Ti.Platform.openURL(e.userInfo.scheme);
+    if (e.userInfo.repeat < 1 && (new Date()).getTime() - 300000 > (new Date(e.userInfo.date)).getTime()) {} else {
+      Ti.Platform.openURL(e.userInfo.scheme);
+    }
   });
   window.refresh = refresh;
   return window;

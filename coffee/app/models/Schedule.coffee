@@ -1,7 +1,7 @@
 db = Ti.Database.open 'db'
 db.execute "CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, OPTIONS TEXT, UPDATED TEXT)"
 ops = 
-  date: null
+  date: '2012/01/01 09:00'
   repeat: 0
   scheme: 'http://www.google.com'
 
@@ -47,11 +47,18 @@ class Schedule
     rows.close()    
     return schedule    
     
+  @count: (sql) ->
+    rows = db.execute sql
+    return rows.rowCount    
+    
   @all: () ->
     Schedule.findAll "SELECT * FROM SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000"
     
   @findAllActive: () ->
     Schedule.findAll "SELECT * FROM SCHEDULEDB WHERE ACTIVE > 0 ORDER BY UPDATED DESC LIMIT 60"
+
+  @countAllActive: () ->
+    Schedule.count "SELECT ID FROM SCHEDULEDB WHERE ACTIVE > 0"
     
   @findById: (id) ->
     Ti.App.Properties.setInt 'lastSchedule',  id
