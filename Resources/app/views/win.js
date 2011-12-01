@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, doneEditBtn, editBtn, fs, isiPad, mix, refresh, service, tableView, trace, window, _setNotification, _tableViewHandler;
+  var $$, Schedule, addBtn, doneEditBtn, editBtn, fs, isiPad, mix, refresh, service, tableView, trace, window, _setNotification, _showMessage, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -19,7 +19,9 @@ createWindow = function(tab) {
   window.add(tableView);
   refresh = function(data) {
     var prettyDate, row, rows, saved, schedule, schedules, _i, _len;
+    trace('asoko');
     if (data && data.saved) {
+      trace('goko');
       Ti.App.iOS.cancelAllLocalNotifications();
       setTimeout(_setNotification, 100);
     }
@@ -46,6 +48,7 @@ createWindow = function(tab) {
   };
   _setNotification = function() {
     var ima, now, schedule, schedules, _i, _len;
+    trace('koko');
     schedules = Schedule.findAllActive();
     now = (new Date()).getTime() - 60000;
     ima = (new Date()).toLocaleString();
@@ -76,6 +79,27 @@ createWindow = function(tab) {
         });
       }
     }
+    _showMessage();
+  };
+  _showMessage = function() {
+    var label, messageWindow, props, view;
+    messageWindow = Ti.UI.createWindow($$.messageWindow);
+    view = Ti.UI.createView($$.messageView);
+    label = Ti.UI.createLabel($$.messageLabel);
+    messageWindow.add(view);
+    messageWindow.add(label);
+    messageWindow.open();
+    if (Ti.Platform.osname === "iPhone OS") {
+      props = mix($$.messageAnimation, {
+        transform: Ti.UI.create2DMatrix().translate(-200, 200).scale(0)
+      });
+    } else {
+      props = $$.messageAnimation;
+    }
+    messageWindow.animate(props, function() {
+      messageWindow.close();
+    });
+    trace('animated');
   };
   _tableViewHandler = function(e) {
     var nextScheduleId, schedule;

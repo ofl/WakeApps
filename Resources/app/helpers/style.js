@@ -122,7 +122,36 @@ views = {
         fontSize: 14
       },
       color: '#669'
-    })
+    }),
+    messageWindow: {
+      height: 80,
+      width: 200,
+      touchEnabled: false
+    },
+    messageView: {
+      height: 80,
+      width: 200,
+      backgroundColor: '#000',
+      borderRadius: 10,
+      opacity: 0.8,
+      touchEnabled: false
+    },
+    messageLabel: {
+      text: 'Schedule updated',
+      color: '#fff',
+      textAlign: 'center',
+      font: {
+        fontSize: 18,
+        fontWeight: 'bold'
+      },
+      height: 'auto',
+      width: 'auto'
+    },
+    messageAnimation: {
+      delay: 1500,
+      duration: 1000,
+      opacity: 0.1
+    }
   },
   edit: {
     window: mix(properties.Window, {
