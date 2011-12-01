@@ -80,7 +80,9 @@ properties = {
 };
 views = {
   root: {
-    window: properties.Window,
+    window: mix(properties.Window, {
+      title: 'Edit Schedule'
+    }),
     tableView: mix(properties.TableView, {
       editable: true,
       allowsSelectionDuringEditing: false
@@ -172,10 +174,24 @@ views = {
       top: 0
     }),
     tableViewRow: properties.GroupedTableViewRow,
-    picker: {
+    repeatPicker: {
       bottom: 0
     },
-    dtPicker: {
+    pickerContainer: {
+      width: 320,
+      height: 216,
+      bottom: -216,
+      visible: false
+    },
+    openPickerAnimation: {
+      bottom: 0,
+      duration: 300
+    },
+    closePickerAnimation: {
+      bottom: -216,
+      duration: 300
+    },
+    datePicker: {
       type: Ti.UI.PICKER_TYPE_DATE_AND_TIME,
       bottom: 0
     },

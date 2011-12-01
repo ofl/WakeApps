@@ -9,58 +9,71 @@ createWindow = (tab) ->
   schedule = null
   lastTitle = null
   lastScheme = null  
-        
+          
   window = Ti.UI.createWindow $$.window
   tableView = Ti.UI.createTableView mix $$.tableView
   window.add tableView
-  
-  isOpenKeyborad = false
-  isOpenPicker = false
-  isOpenDtPicker = false
 
   doneBtn = Ti.UI.createButton $$.doneBtn
       
-  titleRow = Ti.UI.createTableViewRow $$.tableViewRow
+  titleRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
+    idx: 0
   titleField = Ti.UI.createTextField $$.textField
   titleRow.add titleField
+  
   activeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     title: 'Active'
+    idx: 1
   activeSwitch = Ti.UI.createSwitch $$.switches
   activeRow.add activeSwitch
+  
   schemeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: 'URL Scheme'
+    idx: 2
   schemeField = Ti.UI.createTextField $$.textField
   schemeRow.add schemeField
+  
   testRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     title: 'Test action'
     color: '#090'
     backgroundColor: '#ddc'
     hasChild: true
+    idx: 3
   
   dateRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: 'Date'
     hasChild: true
+    idx: 4
+    
   repeatRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: 'Repeat'    
     hasChild: true
+    idx: 5
     
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow]
   
-  dtPicker = Ti.UI.createPicker $$.dtPicker    
-  picker = Ti.UI.createPicker $$.picker
+  datePicker = Ti.UI.createPicker $$.datePicker    
+  repeatPicker = Ti.UI.createPicker $$.repeatPicker
+
+  datePickerContainer = Ti.UI.createView $$.pickerContainer
+  datePickerContainer.add datePicker
+  repeatPickerContainer = Ti.UI.createView $$.pickerContainer
+  repeatPickerContainer.add repeatPicker  
+  window.add datePickerContainer
+  window.add repeatPickerContainer
+  
   do ()->
     choice = []
     for repeat in repeats
       choice.push Ti.UI.createPickerRow
         title: repeat
-    picker.add choice
+    repeatPicker.add choice
     
   tableView.setData rows
   
   refresh = (data)->
     schedule = data
     activeSwitch.value = if data.active then true else false 
-    window.title =  data.title or 'Schedule'
     lastTitle = data.title
     lastScheme = data.scheme
     schemeField.value = data.scheme
@@ -69,91 +82,81 @@ createWindow = (tab) ->
     repeatRow.title = repeats[data.repeat]
     return
 
-  testRow.addEventListener 'click' , ()->
+  _blur = (index)->
+    if index isnt 0
+      titleField.blur()
+    if index isnt 2
+      schemeField.blur()
+    if index isnt 4
+      if datePickerContainer.visible
+        datePickerContainer.animate $$.closePickerAnimation, ()->
+          datePickerContainer.visible = false
+    if index isnt 5
+      if repeatPickerContainer.visible
+        repeatPickerContainer.animate $$.closePickerAnimation, ()->
+          repeatPickerContainer.visible = false
+    return        
+
+  testRow.addEventListener 'click' , (e)->
+    _blur(e.source.idx)
     Ti.Platform.openURL schemeField.value    
     return
-  dateRow.addEventListener 'click' , ()->
+  dateRow.addEventListener 'click' , (e)->
+    _blur(e.source.idx)
     window.setRightNavButton doneBtn    
-    titleField.blur()
-    isOpenKeyborad = false
-    if isOpenPicker
-      window.remove picker
-      isOpenPicker = false
     if schedule.date is null
-      dtPicker.value = new Date()
+      datePicker.value = new Date()
     else
-      dtPicker.value = new Date(schedule.date)
-    window.add dtPicker
-    isOpenDtPicker = true
-    tableView.height = 200
+      datePicker.value = new Date(schedule.date)      
+    if !datePickerContainer.visible
+      datePickerContainer.visible = true
+      datePickerContainer.animate $$.openPickerAnimation, ()->
+        tableView.height = 200
     return
-  repeatRow.addEventListener 'click' , ()->
+  repeatRow.addEventListener 'click' , (e)->
+    _blur(e.source.idx)
     window.setRightNavButton doneBtn    
-    titleField.blur()
-    isOpenKeyborad = false
-    if isOpenDtPicker
-      window.remove dtPicker
-      isOpenDtPicker = false
-    picker.setSelectedRow 0, schedule.repeat
-    window.add picker
-    isOpenPicker = true
-    tableView.height = 200
+    repeatPicker.setSelectedRow 0, schedule.repeat
+    if !repeatPickerContainer.visible
+      repeatPickerContainer.visible = true
+      repeatPickerContainer.animate $$.openPickerAnimation, ()->
+        tableView.height = 200
     return
-  dtPicker.addEventListener 'change' , (e)->
+  datePicker.addEventListener 'change' , (e)->
     date = dateToString e.value
     dateRow.title = date
     schedule.date = (new Date(date)).getTime()
     schedule.save()
     return
-  picker.addEventListener 'change' , (e)->
+  repeatPicker.addEventListener 'change' , (e)->
     repeatRow.title = repeats[e.rowIndex]
     schedule.repeat = e.rowIndex
     schedule.save()
     return
-  titleField.addEventListener 'return' , ()->
+  titleField.addEventListener 'return' , (e)->
     schemeRow.fireEvent 'click'
     return  
-  titleField.addEventListener 'focus' , ()->
+  titleField.addEventListener 'focus' , (e)->
+    _blur(e.source.parent.idx)
     window.setRightNavButton doneBtn    
-    isOpenKeyborad = true
-    if isOpenPicker
-      window.remove picker
-      isOpenPicker = false
-    if isOpenDtPicker
-      window.remove dtPicker
-      isOpenDtPicker = false
-    # tableView.height = 200
     return
 
-  schemeField.addEventListener 'return' , ()->
+  schemeField.addEventListener 'return' , (e)->
     dateRow.fireEvent 'click'
     return  
-  schemeField.addEventListener 'focus' , ()->
+  schemeField.addEventListener 'focus' , (e)->
+    _blur(e.source.parent.idx)
     window.setRightNavButton doneBtn    
-    isOpenKeyborad = true
-    if isOpenPicker
-      window.remove picker
-      isOpenPicker = false
-    if isOpenDtPicker
-      window.remove dtPicker
-      isOpenDtPicker = false
-    # tableView.height = 200
     return
 
   doneBtn.addEventListener 'click' , ()->
-    titleField.blur()
-    isOpenKeyborad = false
-    if isOpenDtPicker
-      window.remove dtPicker
-      isOpenDtPicker = false
-    if isOpenPicker
-      window.remove picker
-      isOpenPicker = false
+    _blur(-1)
     tableView.height = 416
     window.setRightNavButton null    
     return
 
   activeSwitch.addEventListener 'change', (e)->
+    _blur(e.source.idx)
     if e.value
       schedule.active = 1
       if Schedule.countAllActive() > 60
@@ -170,7 +173,7 @@ createWindow = (tab) ->
       schedule.save()
     stack = app.views.windowStack
     stack.pop()
-    if stack.length > 0 and schedule.saved
+    if stack.length > 0 and schedule.isChanged
       stack[stack.length - 1].refresh schedule
     return
     

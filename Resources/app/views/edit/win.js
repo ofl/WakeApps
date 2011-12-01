@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, dateRow, dateToString, doneBtn, dtPicker, isOpenDtPicker, isOpenKeyborad, isOpenPicker, lastScheme, lastTitle, mix, picker, refresh, repeatRow, repeats, rows, schedule, schemeField, schemeRow, tableView, testRow, titleField, titleRow, trace, window;
+  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, dateRow, dateToString, doneBtn, lastScheme, lastTitle, mix, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeats, rows, schedule, schemeField, schemeRow, tableView, testRow, titleField, titleRow, trace, window, _blur;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -13,20 +13,21 @@ createWindow = function(tab) {
   window = Ti.UI.createWindow($$.window);
   tableView = Ti.UI.createTableView(mix($$.tableView));
   window.add(tableView);
-  isOpenKeyborad = false;
-  isOpenPicker = false;
-  isOpenDtPicker = false;
   doneBtn = Ti.UI.createButton($$.doneBtn);
-  titleRow = Ti.UI.createTableViewRow($$.tableViewRow);
+  titleRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    idx: 0
+  }));
   titleField = Ti.UI.createTextField($$.textField);
   titleRow.add(titleField);
   activeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
-    title: 'Active'
+    title: 'Active',
+    idx: 1
   }));
   activeSwitch = Ti.UI.createSwitch($$.switches);
   activeRow.add(activeSwitch);
   schemeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
-    header: 'URL Scheme'
+    header: 'URL Scheme',
+    idx: 2
   }));
   schemeField = Ti.UI.createTextField($$.textField);
   schemeRow.add(schemeField);
@@ -34,19 +35,28 @@ createWindow = function(tab) {
     title: 'Test action',
     color: '#090',
     backgroundColor: '#ddc',
-    hasChild: true
+    hasChild: true,
+    idx: 3
   }));
   dateRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     header: 'Date',
-    hasChild: true
+    hasChild: true,
+    idx: 4
   }));
   repeatRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     header: 'Repeat',
-    hasChild: true
+    hasChild: true,
+    idx: 5
   }));
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow];
-  dtPicker = Ti.UI.createPicker($$.dtPicker);
-  picker = Ti.UI.createPicker($$.picker);
+  datePicker = Ti.UI.createPicker($$.datePicker);
+  repeatPicker = Ti.UI.createPicker($$.repeatPicker);
+  datePickerContainer = Ti.UI.createView($$.pickerContainer);
+  datePickerContainer.add(datePicker);
+  repeatPickerContainer = Ti.UI.createView($$.pickerContainer);
+  repeatPickerContainer.add(repeatPicker);
+  window.add(datePickerContainer);
+  window.add(repeatPickerContainer);
   (function() {
     var choice, repeat, _i, _len;
     choice = [];
@@ -56,13 +66,12 @@ createWindow = function(tab) {
         title: repeat
       }));
     }
-    return picker.add(choice);
+    return repeatPicker.add(choice);
   })();
   tableView.setData(rows);
   refresh = function(data) {
     schedule = data;
     activeSwitch.value = data.active ? true : false;
-    window.title = data.title || 'Schedule';
     lastTitle = data.title;
     lastScheme = data.scheme;
     schemeField.value = data.scheme;
@@ -70,96 +79,91 @@ createWindow = function(tab) {
     dateRow.title = dateToString(new Date(data.date));
     repeatRow.title = repeats[data.repeat];
   };
-  testRow.addEventListener('click', function() {
+  _blur = function(index) {
+    if (index !== 0) {
+      titleField.blur();
+    }
+    if (index !== 2) {
+      schemeField.blur();
+    }
+    if (index !== 4) {
+      if (datePickerContainer.visible) {
+        datePickerContainer.animate($$.closePickerAnimation, function() {
+          return datePickerContainer.visible = false;
+        });
+      }
+    }
+    if (index !== 5) {
+      if (repeatPickerContainer.visible) {
+        repeatPickerContainer.animate($$.closePickerAnimation, function() {
+          return repeatPickerContainer.visible = false;
+        });
+      }
+    }
+  };
+  testRow.addEventListener('click', function(e) {
+    _blur(e.source.idx);
     Ti.Platform.openURL(schemeField.value);
   });
-  dateRow.addEventListener('click', function() {
+  dateRow.addEventListener('click', function(e) {
+    _blur(e.source.idx);
     window.setRightNavButton(doneBtn);
-    titleField.blur();
-    isOpenKeyborad = false;
-    if (isOpenPicker) {
-      window.remove(picker);
-      isOpenPicker = false;
-    }
     if (schedule.date === null) {
-      dtPicker.value = new Date();
+      datePicker.value = new Date();
     } else {
-      dtPicker.value = new Date(schedule.date);
+      datePicker.value = new Date(schedule.date);
     }
-    window.add(dtPicker);
-    isOpenDtPicker = true;
-    tableView.height = 200;
+    if (!datePickerContainer.visible) {
+      datePickerContainer.visible = true;
+      datePickerContainer.animate($$.openPickerAnimation, function() {
+        return tableView.height = 200;
+      });
+    }
   });
-  repeatRow.addEventListener('click', function() {
+  repeatRow.addEventListener('click', function(e) {
+    _blur(e.source.idx);
     window.setRightNavButton(doneBtn);
-    titleField.blur();
-    isOpenKeyborad = false;
-    if (isOpenDtPicker) {
-      window.remove(dtPicker);
-      isOpenDtPicker = false;
+    repeatPicker.setSelectedRow(0, schedule.repeat);
+    if (!repeatPickerContainer.visible) {
+      repeatPickerContainer.visible = true;
+      repeatPickerContainer.animate($$.openPickerAnimation, function() {
+        return tableView.height = 200;
+      });
     }
-    picker.setSelectedRow(0, schedule.repeat);
-    window.add(picker);
-    isOpenPicker = true;
-    tableView.height = 200;
   });
-  dtPicker.addEventListener('change', function(e) {
+  datePicker.addEventListener('change', function(e) {
     var date;
     date = dateToString(e.value);
     dateRow.title = date;
     schedule.date = (new Date(date)).getTime();
     schedule.save();
   });
-  picker.addEventListener('change', function(e) {
+  repeatPicker.addEventListener('change', function(e) {
     repeatRow.title = repeats[e.rowIndex];
     schedule.repeat = e.rowIndex;
     schedule.save();
   });
-  titleField.addEventListener('return', function() {
+  titleField.addEventListener('return', function(e) {
     schemeRow.fireEvent('click');
   });
-  titleField.addEventListener('focus', function() {
+  titleField.addEventListener('focus', function(e) {
+    _blur(e.source.parent.idx);
     window.setRightNavButton(doneBtn);
-    isOpenKeyborad = true;
-    if (isOpenPicker) {
-      window.remove(picker);
-      isOpenPicker = false;
-    }
-    if (isOpenDtPicker) {
-      window.remove(dtPicker);
-      isOpenDtPicker = false;
-    }
   });
-  schemeField.addEventListener('return', function() {
+  schemeField.addEventListener('return', function(e) {
     dateRow.fireEvent('click');
   });
-  schemeField.addEventListener('focus', function() {
+  schemeField.addEventListener('focus', function(e) {
+    _blur(e.source.parent.idx);
     window.setRightNavButton(doneBtn);
-    isOpenKeyborad = true;
-    if (isOpenPicker) {
-      window.remove(picker);
-      isOpenPicker = false;
-    }
-    if (isOpenDtPicker) {
-      window.remove(dtPicker);
-      isOpenDtPicker = false;
-    }
   });
   doneBtn.addEventListener('click', function() {
-    titleField.blur();
-    isOpenKeyborad = false;
-    if (isOpenDtPicker) {
-      window.remove(dtPicker);
-      isOpenDtPicker = false;
-    }
-    if (isOpenPicker) {
-      window.remove(picker);
-      isOpenPicker = false;
-    }
+    _blur(-1);
     tableView.height = 416;
     window.setRightNavButton(null);
   });
   activeSwitch.addEventListener('change', function(e) {
+    _blur(e.source.idx);
     if (e.value) {
       schedule.active = 1;
       if (Schedule.countAllActive() > 60) {
@@ -179,7 +183,7 @@ createWindow = function(tab) {
     }
     stack = app.views.windowStack;
     stack.pop();
-    if (stack.length > 0 && schedule.saved) {
+    if (stack.length > 0 && schedule.isChanged) {
       stack[stack.length - 1].refresh(schedule);
     }
   });

@@ -22,9 +22,7 @@ createWindow = (tab) ->
   window.add tableView  
     
   refresh = (data) ->
-    trace 'asoko'
     if data and data.saved
-      trace 'goko'
       Ti.App.iOS.cancelAllLocalNotifications()
       setTimeout _setNotification, 100
     schedules = Schedule.all()
@@ -46,7 +44,6 @@ createWindow = (tab) ->
     return
 
   _setNotification = ()->
-    trace 'koko'
     schedules = Schedule.findAllActive()
     now = (new Date()).getTime() - 60000
     ima = (new Date()).toLocaleString()
@@ -75,10 +72,8 @@ createWindow = (tab) ->
 
   _showMessage = ()->
     messageWindow = Ti.UI.createWindow $$.messageWindow
-    view = Ti.UI.createView $$.messageView
-    label = Ti.UI.createLabel $$.messageLabel
-    messageWindow.add view
-    messageWindow.add label
+    messageWindow.add Ti.UI.createView $$.messageView
+    messageWindow.add Ti.UI.createLabel $$.messageLabel
     messageWindow.open()
      
     if Ti.Platform.osname == "iPhone OS" 
@@ -89,7 +84,6 @@ createWindow = (tab) ->
     messageWindow.animate props, ()->
       messageWindow.close()
       return
-    trace 'animated'
     return
 
   _tableViewHandler = (e)->

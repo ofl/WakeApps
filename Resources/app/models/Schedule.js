@@ -2,7 +2,7 @@ var Schedule, db, exports;
 db = Ti.Database.open('db');
 db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
-  function Schedule(title, active, updated, id, date, scheme, repeat, options, saved) {
+  function Schedule(title, active, updated, id, date, scheme, repeat, options, isChanged) {
     this.title = title;
     this.active = active != null ? active : 0;
     this.updated = updated != null ? updated : -1;
@@ -11,7 +11,7 @@ Schedule = (function() {
     this.scheme = scheme != null ? scheme : 'http://www.google.com';
     this.repeat = repeat != null ? repeat : 0;
     this.options = options != null ? options : {};
-    this.saved = saved != null ? saved : false;
+    this.isChanged = isChanged != null ? isChanged : false;
   }
   Schedule.prototype.save = function() {
     var now;
@@ -22,7 +22,6 @@ Schedule = (function() {
     } else {
       db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
     }
-    this.saved = true;
     return this;
   };
   Schedule.prototype.del = function() {

@@ -19,9 +19,7 @@ createWindow = function(tab) {
   window.add(tableView);
   refresh = function(data) {
     var prettyDate, row, rows, saved, schedule, schedules, _i, _len;
-    trace('asoko');
     if (data && data.saved) {
-      trace('goko');
       Ti.App.iOS.cancelAllLocalNotifications();
       setTimeout(_setNotification, 100);
     }
@@ -48,7 +46,6 @@ createWindow = function(tab) {
   };
   _setNotification = function() {
     var ima, now, schedule, schedules, _i, _len;
-    trace('koko');
     schedules = Schedule.findAllActive();
     now = (new Date()).getTime() - 60000;
     ima = (new Date()).toLocaleString();
@@ -82,12 +79,10 @@ createWindow = function(tab) {
     _showMessage();
   };
   _showMessage = function() {
-    var label, messageWindow, props, view;
+    var messageWindow, props;
     messageWindow = Ti.UI.createWindow($$.messageWindow);
-    view = Ti.UI.createView($$.messageView);
-    label = Ti.UI.createLabel($$.messageLabel);
-    messageWindow.add(view);
-    messageWindow.add(label);
+    messageWindow.add(Ti.UI.createView($$.messageView));
+    messageWindow.add(Ti.UI.createLabel($$.messageLabel));
     messageWindow.open();
     if (Ti.Platform.osname === "iPhone OS") {
       props = mix($$.messageAnimation, {
@@ -99,7 +94,6 @@ createWindow = function(tab) {
     messageWindow.animate(props, function() {
       messageWindow.close();
     });
-    trace('animated');
   };
   _tableViewHandler = function(e) {
     var nextScheduleId, schedule;

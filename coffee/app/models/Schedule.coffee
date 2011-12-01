@@ -6,7 +6,7 @@ db.execute "CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE
 
 class Schedule
 #   itype -1, history 0, timer 1, favorite 2,  folder 3 
-  constructor: (@title, @active = 0, @updated = -1, @id = null, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @options = {}, @saved = false) ->    
+  constructor: (@title, @active = 0, @updated = -1, @id = null, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @options = {}, @isChanged = false) ->    
         
   save: () ->
     now = (new Date()).getTime()
@@ -15,7 +15,6 @@ class Schedule
       @id = db.lastInsertRowId
     else
       db.execute "UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options), @id
-    @saved = true
     return this
     
   del: () ->
