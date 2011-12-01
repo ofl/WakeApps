@@ -102,7 +102,7 @@ createWindow = (tab) ->
   dtPicker.addEventListener 'change' , (e)->
     date = dateToString e.value
     dateRow.title = date
-    schedule.date = e.value.getTime()
+    schedule.date = (new Date(date)).getTime()
     schedule.save()
     return
   picker.addEventListener 'change' , (e)->

@@ -60,9 +60,11 @@ Schedule = (function() {
     return schedule;
   };
   Schedule.count = function(sql) {
-    var rows;
+    var count, rows;
     rows = db.execute(sql);
-    return rows.rowCount;
+    count = rows.rowCount;
+    rows.close();
+    return count;
   };
   Schedule.all = function() {
     return Schedule.findAll("SELECT * FROM SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000");

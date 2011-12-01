@@ -50,7 +50,9 @@ class Schedule
     
   @count: (sql) ->
     rows = db.execute sql
-    return rows.rowCount    
+    count = rows.rowCount
+    rows.close()    
+    return count
     
   @all: () ->
     Schedule.findAll "SELECT * FROM SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000"

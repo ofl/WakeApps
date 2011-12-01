@@ -107,7 +107,7 @@ createWindow = function(tab) {
     var date;
     date = dateToString(e.value);
     dateRow.title = date;
-    schedule.date = e.value.getTime();
+    schedule.date = (new Date(date)).getTime();
     schedule.save();
   });
   picker.addEventListener('change', function(e) {

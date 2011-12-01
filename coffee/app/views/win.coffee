@@ -24,30 +24,7 @@ createWindow = (tab) ->
   refresh = (data) ->
     if data and data.saved
       Ti.App.iOS.cancelAllLocalNotifications()
-      schedules = Schedule.findAllActive()
-      for schedule in schedules
-        if schedule.repeat > 0
-          Ti.App.iOS.scheduleLocalNotification
-            date: new Date(schedule.date)
-            repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat]
-            alertBody: schedule.title
-            alertAction: 'Launch!'
-            sound: 'sounds/Alarm0014.wav'
-            userInfo: 
-              scheme: schedule.scheme
-              repeat: schedule.repeat
-              date: schedule.date
-        else
-          Ti.App.iOS.scheduleLocalNotification
-            date: new Date(schedule.date)
-            alertBody: schedule.title
-            alertAction: 'Launch!'
-            sound: 'sounds/Alarm0014.wav'
-            userInfo: 
-              scheme: schedule.scheme
-              repeat: schedule.repeat
-              date: schedule.date      
-      
+      setTimeout _setNotification, 100
     schedules = Schedule.all()
     rows = []
 #     カリー化
@@ -64,6 +41,32 @@ createWindow = (tab) ->
     tableView.setData rows
     window.title = 'Schedules'
     saved = false
+    return
+
+  _setNotification = ()->
+    schedules = Schedule.findAllActive()
+    now = (new Date()).getTime() - 60000
+    ima = (new Date()).toLocaleString()
+    for schedule in schedules
+      if schedule.repeat > 0
+        Ti.App.iOS.scheduleLocalNotification
+          date: new Date(schedule.date)
+          repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat]
+          alertBody: schedule.title + ima
+          alertAction: 'Launch!'
+          sound: 'sounds/Alarm0014.wav'
+          userInfo: 
+            scheme: schedule.scheme
+            title: schedule.title
+      else if schedule.date > now
+        Ti.App.iOS.scheduleLocalNotification
+          date: new Date(schedule.date)
+          alertBody: schedule.title + ima
+          alertAction: 'Launch!'
+          sound: 'sounds/Alarm0014.wav'
+          userInfo: 
+            scheme: schedule.scheme
+            title: schedule.title
     return
 
   _tableViewHandler = (e)->
@@ -116,11 +119,37 @@ createWindow = (tab) ->
     return
 
   Ti.App.iOS.addEventListener 'notification', (e)->
-    if e.userInfo.repeat < 1 and (new Date()).getTime() - 300000 > (new Date(e.userInfo.date)).getTime()
-      return
-    else 
-      Ti.Platform.openURL e.userInfo.scheme
-      return
+    Ti.Platform.openURL e.userInfo.scheme
+    return
+    # trace 'fire notification'
+    # if app.properties.isActive
+      # (Ti.Media.createSound url:"sounds/Alarm0014.wav").play()
+      # dialog = Ti.UI.createAlertDialog
+        # title: e.userInfo.title
+        # buttonNames: ['Launch!!','Cancel']
+      # dialog.addEventListener 'click', (ev)->
+        # if ev.index is 0
+          # Ti.Platform.openURL e.userInfo.scheme
+        # return        
+      # dialog.show()
+      # return
+    # else 
+      # Ti.Platform.openURL e.userInfo.scheme
+      # return
+
+  window.addEventListener 'open', (e) -> 
+    app.properties.isActive = true
+    return
+
+  Ti.App.addEventListener 'pause', (e) -> 
+    trace 'paused'
+    app.properties.isActive = false
+    return
+
+  Ti.App.addEventListener 'resume', (e) -> 
+    trace 'resumed'
+    app.properties.isActive = true
+    return
     
   window.refresh = refresh
     
