@@ -102,10 +102,6 @@ views = {
     fs: {
       systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
     },
-    popOver: {
-      width: 240,
-      height: 140
-    },
     titleLabel: mix(properties.Label, {
       left: 5,
       top: 12,
@@ -162,6 +158,16 @@ views = {
     doneBtn: {
       systemButton: Ti.UI.iPhone.SystemButton.DONE
     },
+    trashBtn: {
+      systemButton: Ti.UI.iPhone.SystemButton.TRASH
+    },
+    saveBtn: {
+      systemButton: Ti.UI.iPhone.SystemButton.SAVE,
+      enabled: false
+    },
+    fs: {
+      systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+    },
     textField: mix(properties.TextField, {
       borderStyle: Ti.UI.INPUT_BORDERSTYLE_NONE,
       returnKeyType: Ti.UI.RETURNKEY_NEXT,
@@ -194,6 +200,16 @@ views = {
     datePicker: {
       type: Ti.UI.PICKER_TYPE_DATE_AND_TIME,
       bottom: 0
+    },
+    popOver: {
+      width: 320,
+      height: 216
+    },
+    dummyView: {
+      height: 20,
+      width: 1,
+      top: 0,
+      right: 50
     },
     switches: {
       right: 10

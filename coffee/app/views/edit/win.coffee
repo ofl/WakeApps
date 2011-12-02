@@ -3,22 +3,23 @@ createWindow = (tab) ->
   mix = app.helpers.util.mix
   dateToString = app.helpers.util.dateToString
   trace = app.helpers.util.trace
+  isiPad = app.properties.isiPad
   $$ = app.helpers.style.views.edit
   
-  repeats = app.properties.repeats
   schedule = null
-  lastTitle = null
-  lastScheme = null  
-          
-  window = Ti.UI.createWindow $$.window
-  tableView = Ti.UI.createTableView mix $$.tableView
-  window.add tableView
-
-  doneBtn = Ti.UI.createButton $$.doneBtn
+  repeats = app.properties.repeats
+  timerId = null
+  
+  trashBtn =  Ti.UI.createButton $$.trashBtn
+  saveBtn =  Ti.UI.createButton $$.saveBtn
+  fs = Ti.UI.createButton $$.fs
+  window = Ti.UI.createWindow mix $$.window,
+    toolbar: [trashBtn, fs, saveBtn]
       
   titleRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     idx: 0
-  titleField = Ti.UI.createTextField $$.textField
+  titleField = Ti.UI.createTextField mix $$.textField,
+    fieldName: 'title'
   titleRow.add titleField
   
   activeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
@@ -30,13 +31,13 @@ createWindow = (tab) ->
   schemeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: 'URL Scheme'
     idx: 2
-  schemeField = Ti.UI.createTextField $$.textField
+  schemeField = Ti.UI.createTextField mix $$.textField,
+    fieldName: 'scheme'
   schemeRow.add schemeField
   
   testRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    title: 'Test action'
-    color: '#090'
-    backgroundColor: '#ddc'
+    title: 'Test Action'
+    color: '#f00'
     hasChild: true
     idx: 3
   
@@ -49,37 +50,60 @@ createWindow = (tab) ->
     header: 'Repeat'    
     hasChild: true
     idx: 5
-    
+  
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow]
+  tableView = Ti.UI.createTableView mix $$.tableView, 
+    data: rows
+  window.add tableView
   
   datePicker = Ti.UI.createPicker $$.datePicker    
-  repeatPicker = Ti.UI.createPicker $$.repeatPicker
 
-  datePickerContainer = Ti.UI.createView $$.pickerContainer
-  datePickerContainer.add datePicker
-  repeatPickerContainer = Ti.UI.createView $$.pickerContainer
-  repeatPickerContainer.add repeatPicker  
-  window.add datePickerContainer
-  window.add repeatPickerContainer
-  
-  do ()->
-    choice = []
-    for repeat in repeats
-      choice.push Ti.UI.createPickerRow
-        title: repeat
-    repeatPicker.add choice
-    
-  tableView.setData rows
+  if isiPad
+    dummyView1 = Ti.UI.createView $$.dummyView
+    dateRow.add dummyView1    
+    dummyView2 = Ti.UI.createView $$.dummyView
+    repeatRow.add dummyView2
+    repeatTableView = Ti.UI.createTableView()
+    do ()->
+      choice = []
+      for repeat in repeats
+        choice.push title: repeat
+      repeatTableView.setData choice
+    datePickerPopOver = Ti.UI.iPad.createPopover mix $$.popOver,
+      title: 'Date'
+      arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
+    datePickerPopOver.add datePicker
+    repeatTablePopOver = Ti.UI.iPad.createPopover mix $$.popOver,
+      title: 'Repeat'
+      arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
+    repeatTablePopOver.add repeatTableView
+  else
+    doneBtn = Ti.UI.createButton $$.doneBtn
+    repeatPicker = Ti.UI.createPicker $$.repeatPicker
+    do ()->
+      choice = []
+      for repeat in repeats
+        choice.push Ti.UI.createPickerRow
+          title: repeat
+      repeatPicker.add choice
+    datePickerContainer = Ti.UI.createView $$.pickerContainer
+    datePickerContainer.add datePicker
+    repeatPickerContainer = Ti.UI.createView $$.pickerContainer
+    repeatPickerContainer.add repeatPicker  
+    window.add datePickerContainer
+    window.add repeatPickerContainer      
   
   refresh = (data)->
     schedule = data
     activeSwitch.value = if data.active then true else false 
-    lastTitle = data.title
-    lastScheme = data.scheme
     schemeField.value = data.scheme
     titleField.value = data.title
     dateRow.title = dateToString(new Date(data.date))
     repeatRow.title = repeats[data.repeat]
+    return
+  
+  _scheduleDataWasChanged = ()->
+    saveBtn.enabled = true
     return
 
   _blur = (index)->
@@ -87,15 +111,34 @@ createWindow = (tab) ->
       titleField.blur()
     if index isnt 2
       schemeField.blur()
-    if index isnt 4
-      if datePickerContainer.visible
-        datePickerContainer.animate $$.closePickerAnimation, ()->
-          datePickerContainer.visible = false
-    if index isnt 5
-      if repeatPickerContainer.visible
-        repeatPickerContainer.animate $$.closePickerAnimation, ()->
-          repeatPickerContainer.visible = false
+    if !isiPad
+      if index isnt 4
+        if datePickerContainer.visible
+          datePickerContainer.animate $$.closePickerAnimation, ()->
+            datePickerContainer.visible = false
+      if index isnt 5
+        if repeatPickerContainer.visible
+          repeatPickerContainer.animate $$.closePickerAnimation, ()->
+            repeatPickerContainer.visible = false            
     return        
+
+  _textFieldFandler = (e)->
+    switch e.type
+      when 'focus'
+        _blur(e.source.parent.idx)
+        if !isiPad
+          window.setRightNavButton doneBtn    
+      # when 'blur'
+        # formBtn.enabled = false
+      when 'return'
+        rows[e.source.parent.idx + 2].fireEvent 'click'
+      when 'change'
+        trace e.source.value
+        trace e.source.fieldName
+        schedule[e.source.fieldName] = e.source.value
+        trace schedule.title
+        _scheduleDataWasChanged()
+    return    
 
   testRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
@@ -103,57 +146,74 @@ createWindow = (tab) ->
     return
   dateRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
-    window.setRightNavButton doneBtn    
     if schedule.date is null
       datePicker.value = new Date()
     else
-      datePicker.value = new Date(schedule.date)      
-    if !datePickerContainer.visible
+      datePicker.value = new Date(schedule.date)
+    if isiPad
+      datePickerPopOver.show
+        view: dummyView1
+        animate: true
+    else if !datePickerContainer.visible
+      window.setRightNavButton doneBtn    
       datePickerContainer.visible = true
-      datePickerContainer.animate $$.openPickerAnimation, ()->
-        tableView.height = 200
+      datePickerContainer.animate $$.openPickerAnimation
     return
   repeatRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
-    window.setRightNavButton doneBtn    
-    repeatPicker.setSelectedRow 0, schedule.repeat
-    if !repeatPickerContainer.visible
+    if isiPad
+      repeatTableView.data[0].rows[schedule.repeat].hasCheck = true
+      repeatTablePopOver.show
+        view: dummyView2
+        animate: true
+    else if !repeatPickerContainer.visible
+      window.setRightNavButton doneBtn    
+      repeatPicker.setSelectedRow 0, schedule.repeat
       repeatPickerContainer.visible = true
-      repeatPickerContainer.animate $$.openPickerAnimation, ()->
-        tableView.height = 200
+      repeatPickerContainer.animate $$.openPickerAnimation
     return
   datePicker.addEventListener 'change' , (e)->
     date = dateToString e.value
     dateRow.title = date
     schedule.date = (new Date(date)).getTime()
-    schedule.save()
+    _scheduleDataWasChanged()
     return
-  repeatPicker.addEventListener 'change' , (e)->
-    repeatRow.title = repeats[e.rowIndex]
-    schedule.repeat = e.rowIndex
-    schedule.save()
-    return
-  titleField.addEventListener 'return' , (e)->
-    schemeRow.fireEvent 'click'
-    return  
-  titleField.addEventListener 'focus' , (e)->
-    _blur(e.source.parent.idx)
-    window.setRightNavButton doneBtn    
-    return
+  
+  if isiPad
+    repeatTableView.addEventListener 'click' , (e)->
+      for row in repeatTableView.data[0].rows
+        row.hasCheck = false
+      repeatRow.title = repeats[e.index]
+      schedule.repeat = e.index
+      _scheduleDataWasChanged()
+      repeatTablePopOver.hide()
+      return
+  else
+    repeatPicker.addEventListener 'change' , (e)->
+      repeatRow.title = repeats[e.rowIndex]
+      schedule.repeat = e.rowIndex
+      _scheduleDataWasChanged()
+      return
 
-  schemeField.addEventListener 'return' , (e)->
-    dateRow.fireEvent 'click'
-    return  
-  schemeField.addEventListener 'focus' , (e)->
-    _blur(e.source.parent.idx)
-    window.setRightNavButton doneBtn    
+    doneBtn.addEventListener 'click' , ()->
+      _blur(-1)
+      window.setRightNavButton null    
+      return
+    
+  titleRow.addEventListener 'click' , ()->
+    titleField.focus()
     return
-
-  doneBtn.addEventListener 'click' , ()->
-    _blur(-1)
-    tableView.height = 416
-    window.setRightNavButton null    
+  
+  schemeRow.addEventListener 'click' , ()->
+    schemeField.focus()
     return
+  
+  titleField.addEventListener 'return' ,_textFieldFandler
+  titleField.addEventListener 'focus' , _textFieldFandler
+  titleField.addEventListener 'change' , _textFieldFandler
+  schemeField.addEventListener 'return' , _textFieldFandler
+  schemeField.addEventListener 'focus' , _textFieldFandler
+  schemeField.addEventListener 'change' , _textFieldFandler
 
   activeSwitch.addEventListener 'change', (e)->
     _blur(e.source.idx)
@@ -163,18 +223,24 @@ createWindow = (tab) ->
         alert 'Schedule can be activate up to 60. Please Turn off unnecessary schedule'
     else
       schedule.active = 0
+    _scheduleDataWasChanged()
+    return
+  
+  saveBtn.addEventListener 'click' , ()->
     schedule.save()
+    app.views.windowStack[0].refresh schedule
+    saveBtn.enabled = false
+    return
+  
+  trashBtn.addEventListener 'click' , ()->
+    schemeField.focus()
     return
   
   window.addEventListener 'close' , ()->
-    if lastTitle isnt titleField.value or lastScheme isnt schemeField.value
-      schedule.title = titleField.value
-      schedule.scheme = schemeField.value
-      schedule.save()
     stack = app.views.windowStack
     stack.pop()
-    if stack.length > 0 and schedule.isChanged
-      stack[stack.length - 1].refresh schedule
+    if stack.length > 0 and saveBtn.enabled
+      stack[stack.length - 1].confirm schedule
     return
     
   window.refresh = refresh  

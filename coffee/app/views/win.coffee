@@ -6,7 +6,7 @@ createWindow = (tab) ->
   $$ = app.helpers.style.views.root
   isiPad = app.properties.isiPad
   
-  service = null
+  lastSceduledAt = null
   
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
@@ -21,10 +21,7 @@ createWindow = (tab) ->
   window.setRightNavButton addBtn  
   window.add tableView  
     
-  refresh = (data) ->
-    if data and data.saved
-      Ti.App.iOS.cancelAllLocalNotifications()
-      setTimeout _setNotification, 100
+  refresh = () ->
     schedules = Schedule.all()
     rows = []
 #     カリー化
@@ -40,15 +37,30 @@ createWindow = (tab) ->
       rows.push row
     tableView.setData rows
     window.title = 'Schedules'
-    saved = false
     return
 
-  _setNotification = ()->
+  confirm = (data)->
+    dialog = Ti.UI.createAlertDialog
+      title: 'Your changes have not been saved. Discard changes?'
+      buttonNames: ['Save changes','Cancel']
+    dialog.addEventListener 'click', (e)->
+      if e.index is 0
+        data.save()
+        Ti.App.iOS.cancelAllLocalNotifications()
+        lastSceduledAt = (new Date()).getTime()
+        setTimeout _setNotifications, 1000
+        refresh()
+      return        
+    dialog.show()
+    return    
+    
+  _setNotifications = ()->
     schedules = Schedule.findAllActive()
     now = (new Date()).getTime() - 60000
     ima = (new Date()).toLocaleString()
     for schedule in schedules
       if schedule.repeat > 0
+        trace 'Scheduled repeat event'
         Ti.App.iOS.scheduleLocalNotification
           date: new Date(schedule.date)
           repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat]
@@ -58,7 +70,9 @@ createWindow = (tab) ->
           userInfo: 
             scheme: schedule.scheme
             title: schedule.title
+            date: schedule.date
       else if schedule.date > now
+        trace 'Scheduled One time event'
         Ti.App.iOS.scheduleLocalNotification
           date: new Date(schedule.date)
           alertBody: schedule.title + ima
@@ -67,10 +81,11 @@ createWindow = (tab) ->
           userInfo: 
             scheme: schedule.scheme
             title: schedule.title
-    _showMessage()
+            date: schedule.date
+    showMessage()
     return
 
-  _showMessage = ()->
+  showMessage = ()->
     messageWindow = Ti.UI.createWindow $$.messageWindow
     messageWindow.add Ti.UI.createView $$.messageView
     messageWindow.add Ti.UI.createLabel $$.messageLabel
@@ -136,13 +151,18 @@ createWindow = (tab) ->
     return
 
   Ti.App.iOS.addEventListener 'notification', (e)->
-    Ti.Platform.openURL e.userInfo.scheme
+    # Ti.Platform.openURL e.userInfo.scheme
+    # return
+    trace 'fire notification'
+    now = (new Date()).getTime()
+    lastSceduledAt = lastSceduledAt or now
+    if now - lastSceduledAt > 3000
+      Ti.Platform.openURL e.userInfo.scheme
     return
-    # trace 'fire notification'
-    # if app.properties.isActive
       # (Ti.Media.createSound url:"sounds/Alarm0014.wav").play()
       # dialog = Ti.UI.createAlertDialog
         # title: e.userInfo.title
+        # message: 'Already past the scheduled time'
         # buttonNames: ['Launch!!','Cancel']
       # dialog.addEventListener 'click', (ev)->
         # if ev.index is 0
@@ -159,16 +179,20 @@ createWindow = (tab) ->
     return
 
   Ti.App.addEventListener 'pause', (e) -> 
-    trace 'paused'
+    date = (new Date()).toLocaleString()
+    trace 'paused' + date
     app.properties.isActive = false
     return
 
   Ti.App.addEventListener 'resume', (e) -> 
-    trace 'resumed'
+    date = (new Date()).toLocaleString()
+    trace 'resumed' + date
     app.properties.isActive = true
     return
     
   window.refresh = refresh
+  window.confirm = confirm
+  window.showMessage = showMessage
     
   return window
 

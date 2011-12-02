@@ -1,23 +1,27 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, dateRow, dateToString, doneBtn, lastScheme, lastTitle, mix, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeats, rows, schedule, schemeField, schemeRow, tableView, testRow, titleField, titleRow, trace, window, _blur;
+  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, mix, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldFandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
   trace = app.helpers.util.trace;
+  isiPad = app.properties.isiPad;
   $$ = app.helpers.style.views.edit;
-  repeats = app.properties.repeats;
   schedule = null;
-  lastTitle = null;
-  lastScheme = null;
-  window = Ti.UI.createWindow($$.window);
-  tableView = Ti.UI.createTableView(mix($$.tableView));
-  window.add(tableView);
-  doneBtn = Ti.UI.createButton($$.doneBtn);
+  repeats = app.properties.repeats;
+  timerId = null;
+  trashBtn = Ti.UI.createButton($$.trashBtn);
+  saveBtn = Ti.UI.createButton($$.saveBtn);
+  fs = Ti.UI.createButton($$.fs);
+  window = Ti.UI.createWindow(mix($$.window, {
+    toolbar: [trashBtn, fs, saveBtn]
+  }));
   titleRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     idx: 0
   }));
-  titleField = Ti.UI.createTextField($$.textField);
+  titleField = Ti.UI.createTextField(mix($$.textField, {
+    fieldName: 'title'
+  }));
   titleRow.add(titleField);
   activeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     title: 'Active',
@@ -29,12 +33,13 @@ createWindow = function(tab) {
     header: 'URL Scheme',
     idx: 2
   }));
-  schemeField = Ti.UI.createTextField($$.textField);
+  schemeField = Ti.UI.createTextField(mix($$.textField, {
+    fieldName: 'scheme'
+  }));
   schemeRow.add(schemeField);
   testRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
-    title: 'Test action',
-    color: '#090',
-    backgroundColor: '#ddc',
+    title: 'Test Action',
+    color: '#f00',
     hasChild: true,
     idx: 3
   }));
@@ -49,35 +54,69 @@ createWindow = function(tab) {
     idx: 5
   }));
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow];
+  tableView = Ti.UI.createTableView(mix($$.tableView, {
+    data: rows
+  }));
+  window.add(tableView);
   datePicker = Ti.UI.createPicker($$.datePicker);
-  repeatPicker = Ti.UI.createPicker($$.repeatPicker);
-  datePickerContainer = Ti.UI.createView($$.pickerContainer);
-  datePickerContainer.add(datePicker);
-  repeatPickerContainer = Ti.UI.createView($$.pickerContainer);
-  repeatPickerContainer.add(repeatPicker);
-  window.add(datePickerContainer);
-  window.add(repeatPickerContainer);
-  (function() {
-    var choice, repeat, _i, _len;
-    choice = [];
-    for (_i = 0, _len = repeats.length; _i < _len; _i++) {
-      repeat = repeats[_i];
-      choice.push(Ti.UI.createPickerRow({
-        title: repeat
-      }));
-    }
-    return repeatPicker.add(choice);
-  })();
-  tableView.setData(rows);
+  if (isiPad) {
+    dummyView1 = Ti.UI.createView($$.dummyView);
+    dateRow.add(dummyView1);
+    dummyView2 = Ti.UI.createView($$.dummyView);
+    repeatRow.add(dummyView2);
+    repeatTableView = Ti.UI.createTableView();
+    (function() {
+      var choice, repeat, _i, _len;
+      choice = [];
+      for (_i = 0, _len = repeats.length; _i < _len; _i++) {
+        repeat = repeats[_i];
+        choice.push({
+          title: repeat
+        });
+      }
+      return repeatTableView.setData(choice);
+    })();
+    datePickerPopOver = Ti.UI.iPad.createPopover(mix($$.popOver, {
+      title: 'Date',
+      arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
+    }));
+    datePickerPopOver.add(datePicker);
+    repeatTablePopOver = Ti.UI.iPad.createPopover(mix($$.popOver, {
+      title: 'Repeat',
+      arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
+    }));
+    repeatTablePopOver.add(repeatTableView);
+  } else {
+    doneBtn = Ti.UI.createButton($$.doneBtn);
+    repeatPicker = Ti.UI.createPicker($$.repeatPicker);
+    (function() {
+      var choice, repeat, _i, _len;
+      choice = [];
+      for (_i = 0, _len = repeats.length; _i < _len; _i++) {
+        repeat = repeats[_i];
+        choice.push(Ti.UI.createPickerRow({
+          title: repeat
+        }));
+      }
+      return repeatPicker.add(choice);
+    })();
+    datePickerContainer = Ti.UI.createView($$.pickerContainer);
+    datePickerContainer.add(datePicker);
+    repeatPickerContainer = Ti.UI.createView($$.pickerContainer);
+    repeatPickerContainer.add(repeatPicker);
+    window.add(datePickerContainer);
+    window.add(repeatPickerContainer);
+  }
   refresh = function(data) {
     schedule = data;
     activeSwitch.value = data.active ? true : false;
-    lastTitle = data.title;
-    lastScheme = data.scheme;
     schemeField.value = data.scheme;
     titleField.value = data.title;
     dateRow.title = dateToString(new Date(data.date));
     repeatRow.title = repeats[data.repeat];
+  };
+  _scheduleDataWasChanged = function() {
+    saveBtn.enabled = true;
   };
   _blur = function(index) {
     if (index !== 0) {
@@ -86,19 +125,40 @@ createWindow = function(tab) {
     if (index !== 2) {
       schemeField.blur();
     }
-    if (index !== 4) {
-      if (datePickerContainer.visible) {
-        datePickerContainer.animate($$.closePickerAnimation, function() {
-          return datePickerContainer.visible = false;
-        });
+    if (!isiPad) {
+      if (index !== 4) {
+        if (datePickerContainer.visible) {
+          datePickerContainer.animate($$.closePickerAnimation, function() {
+            return datePickerContainer.visible = false;
+          });
+        }
+      }
+      if (index !== 5) {
+        if (repeatPickerContainer.visible) {
+          repeatPickerContainer.animate($$.closePickerAnimation, function() {
+            return repeatPickerContainer.visible = false;
+          });
+        }
       }
     }
-    if (index !== 5) {
-      if (repeatPickerContainer.visible) {
-        repeatPickerContainer.animate($$.closePickerAnimation, function() {
-          return repeatPickerContainer.visible = false;
-        });
-      }
+  };
+  _textFieldFandler = function(e) {
+    switch (e.type) {
+      case 'focus':
+        _blur(e.source.parent.idx);
+        if (!isiPad) {
+          window.setRightNavButton(doneBtn);
+        }
+        break;
+      case 'return':
+        rows[e.source.parent.idx + 2].fireEvent('click');
+        break;
+      case 'change':
+        trace(e.source.value);
+        trace(e.source.fieldName);
+        schedule[e.source.fieldName] = e.source.value;
+        trace(schedule.title);
+        _scheduleDataWasChanged();
     }
   };
   testRow.addEventListener('click', function(e) {
@@ -107,28 +167,35 @@ createWindow = function(tab) {
   });
   dateRow.addEventListener('click', function(e) {
     _blur(e.source.idx);
-    window.setRightNavButton(doneBtn);
     if (schedule.date === null) {
       datePicker.value = new Date();
     } else {
       datePicker.value = new Date(schedule.date);
     }
-    if (!datePickerContainer.visible) {
-      datePickerContainer.visible = true;
-      datePickerContainer.animate($$.openPickerAnimation, function() {
-        return tableView.height = 200;
+    if (isiPad) {
+      datePickerPopOver.show({
+        view: dummyView1,
+        animate: true
       });
+    } else if (!datePickerContainer.visible) {
+      window.setRightNavButton(doneBtn);
+      datePickerContainer.visible = true;
+      datePickerContainer.animate($$.openPickerAnimation);
     }
   });
   repeatRow.addEventListener('click', function(e) {
     _blur(e.source.idx);
-    window.setRightNavButton(doneBtn);
-    repeatPicker.setSelectedRow(0, schedule.repeat);
-    if (!repeatPickerContainer.visible) {
-      repeatPickerContainer.visible = true;
-      repeatPickerContainer.animate($$.openPickerAnimation, function() {
-        return tableView.height = 200;
+    if (isiPad) {
+      repeatTableView.data[0].rows[schedule.repeat].hasCheck = true;
+      repeatTablePopOver.show({
+        view: dummyView2,
+        animate: true
       });
+    } else if (!repeatPickerContainer.visible) {
+      window.setRightNavButton(doneBtn);
+      repeatPicker.setSelectedRow(0, schedule.repeat);
+      repeatPickerContainer.visible = true;
+      repeatPickerContainer.animate($$.openPickerAnimation);
     }
   });
   datePicker.addEventListener('change', function(e) {
@@ -136,32 +203,44 @@ createWindow = function(tab) {
     date = dateToString(e.value);
     dateRow.title = date;
     schedule.date = (new Date(date)).getTime();
-    schedule.save();
+    _scheduleDataWasChanged();
   });
-  repeatPicker.addEventListener('change', function(e) {
-    repeatRow.title = repeats[e.rowIndex];
-    schedule.repeat = e.rowIndex;
-    schedule.save();
+  if (isiPad) {
+    repeatTableView.addEventListener('click', function(e) {
+      var row, _i, _len, _ref;
+      _ref = repeatTableView.data[0].rows;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        row = _ref[_i];
+        row.hasCheck = false;
+      }
+      repeatRow.title = repeats[e.index];
+      schedule.repeat = e.index;
+      _scheduleDataWasChanged();
+      repeatTablePopOver.hide();
+    });
+  } else {
+    repeatPicker.addEventListener('change', function(e) {
+      repeatRow.title = repeats[e.rowIndex];
+      schedule.repeat = e.rowIndex;
+      _scheduleDataWasChanged();
+    });
+    doneBtn.addEventListener('click', function() {
+      _blur(-1);
+      window.setRightNavButton(null);
+    });
+  }
+  titleRow.addEventListener('click', function() {
+    titleField.focus();
   });
-  titleField.addEventListener('return', function(e) {
-    schemeRow.fireEvent('click');
+  schemeRow.addEventListener('click', function() {
+    schemeField.focus();
   });
-  titleField.addEventListener('focus', function(e) {
-    _blur(e.source.parent.idx);
-    window.setRightNavButton(doneBtn);
-  });
-  schemeField.addEventListener('return', function(e) {
-    dateRow.fireEvent('click');
-  });
-  schemeField.addEventListener('focus', function(e) {
-    _blur(e.source.parent.idx);
-    window.setRightNavButton(doneBtn);
-  });
-  doneBtn.addEventListener('click', function() {
-    _blur(-1);
-    tableView.height = 416;
-    window.setRightNavButton(null);
-  });
+  titleField.addEventListener('return', _textFieldFandler);
+  titleField.addEventListener('focus', _textFieldFandler);
+  titleField.addEventListener('change', _textFieldFandler);
+  schemeField.addEventListener('return', _textFieldFandler);
+  schemeField.addEventListener('focus', _textFieldFandler);
+  schemeField.addEventListener('change', _textFieldFandler);
   activeSwitch.addEventListener('change', function(e) {
     _blur(e.source.idx);
     if (e.value) {
@@ -172,19 +251,22 @@ createWindow = function(tab) {
     } else {
       schedule.active = 0;
     }
+    _scheduleDataWasChanged();
+  });
+  saveBtn.addEventListener('click', function() {
     schedule.save();
+    app.views.windowStack[0].refresh(schedule);
+    saveBtn.enabled = false;
+  });
+  trashBtn.addEventListener('click', function() {
+    schemeField.focus();
   });
   window.addEventListener('close', function() {
     var stack;
-    if (lastTitle !== titleField.value || lastScheme !== schemeField.value) {
-      schedule.title = titleField.value;
-      schedule.scheme = schemeField.value;
-      schedule.save();
-    }
     stack = app.views.windowStack;
     stack.pop();
-    if (stack.length > 0 && schedule.isChanged) {
-      stack[stack.length - 1].refresh(schedule);
+    if (stack.length > 0 && saveBtn.enabled) {
+      stack[stack.length - 1].confirm(schedule);
     }
   });
   window.refresh = refresh;
