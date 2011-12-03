@@ -15,6 +15,7 @@ class Schedule
       @id = db.lastInsertRowId
     else
       db.execute "UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options), @id
+    @isChanged = false
     return this
     
   del: () ->

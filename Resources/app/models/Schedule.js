@@ -22,6 +22,7 @@ Schedule = (function() {
     } else {
       db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
     }
+    this.isChanged = false;
     return this;
   };
   Schedule.prototype.del = function() {

@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, mix, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldFandler;
+  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, mix, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -142,7 +142,7 @@ createWindow = function(tab) {
       }
     }
   };
-  _textFieldFandler = function(e) {
+  _textFieldHandler = function(e) {
     switch (e.type) {
       case 'focus':
         _blur(e.source.parent.idx);
@@ -154,8 +154,6 @@ createWindow = function(tab) {
         rows[e.source.parent.idx + 2].fireEvent('click');
         break;
       case 'change':
-        trace(e.source.value);
-        trace(e.source.fieldName);
         schedule[e.source.fieldName] = e.source.value;
         trace(schedule.title);
         _scheduleDataWasChanged();
@@ -235,12 +233,12 @@ createWindow = function(tab) {
   schemeRow.addEventListener('click', function() {
     schemeField.focus();
   });
-  titleField.addEventListener('return', _textFieldFandler);
-  titleField.addEventListener('focus', _textFieldFandler);
-  titleField.addEventListener('change', _textFieldFandler);
-  schemeField.addEventListener('return', _textFieldFandler);
-  schemeField.addEventListener('focus', _textFieldFandler);
-  schemeField.addEventListener('change', _textFieldFandler);
+  titleField.addEventListener('return', _textFieldHandler);
+  titleField.addEventListener('focus', _textFieldHandler);
+  titleField.addEventListener('change', _textFieldHandler);
+  schemeField.addEventListener('return', _textFieldHandler);
+  schemeField.addEventListener('focus', _textFieldHandler);
+  schemeField.addEventListener('change', _textFieldHandler);
   activeSwitch.addEventListener('change', function(e) {
     _blur(e.source.idx);
     if (e.value) {
@@ -254,7 +252,6 @@ createWindow = function(tab) {
     _scheduleDataWasChanged();
   });
   saveBtn.addEventListener('click', function() {
-    schedule.save();
     app.views.windowStack[0].refresh(schedule);
     saveBtn.enabled = false;
   });

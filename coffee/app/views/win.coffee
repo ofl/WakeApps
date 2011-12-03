@@ -7,6 +7,7 @@ createWindow = (tab) ->
   isiPad = app.properties.isiPad
   
   lastSceduledAt = null
+  service = null
   
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
@@ -21,10 +22,16 @@ createWindow = (tab) ->
   window.setRightNavButton addBtn  
   window.add tableView  
     
-  refresh = () ->
+  refresh = (data) ->
+    if arguments.length > 0
+      data.save()
+      if service isnt null
+        service.unregister()
+      service = Ti.App.iOS.registerBackgroundService 
+        url: 'app/lib/background.js'
+        
     schedules = Schedule.all()
     rows = []
-#     カリー化
     prettyDate = app.helpers.util.prettyDate new Date()
     for schedule in schedules
       row = Ti.UI.createTableViewRow mix $$.tableViewRow,
@@ -45,11 +52,11 @@ createWindow = (tab) ->
       buttonNames: ['Save changes','Cancel']
     dialog.addEventListener 'click', (e)->
       if e.index is 0
-        data.save()
-        Ti.App.iOS.cancelAllLocalNotifications()
-        lastSceduledAt = (new Date()).getTime()
-        setTimeout _setNotifications, 1000
-        refresh()
+        # data.save()
+        # Ti.App.iOS.cancelAllLocalNotifications()
+        # lastSceduledAt = (new Date()).getTime()
+        # setTimeout _setNotifications, 1000
+        refresh data
       return        
     dialog.show()
     return    
@@ -154,11 +161,15 @@ createWindow = (tab) ->
     # Ti.Platform.openURL e.userInfo.scheme
     # return
     trace 'fire notification'
-    now = (new Date()).getTime()
-    lastSceduledAt = lastSceduledAt or now
-    if now - lastSceduledAt > 3000
-      Ti.Platform.openURL e.userInfo.scheme
+    Ti.Platform.openURL e.userInfo.scheme
+
+    
+    # now = (new Date()).getTime()
+    # lastSceduledAt = lastSceduledAt or now
+    # if now - lastSceduledAt > 3000
+      # Ti.Platform.openURL e.userInfo.scheme
     return
+    
       # (Ti.Media.createSound url:"sounds/Alarm0014.wav").play()
       # dialog = Ti.UI.createAlertDialog
         # title: e.userInfo.title

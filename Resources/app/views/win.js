@@ -1,12 +1,13 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isiPad, lastSceduledAt, mix, refresh, showMessage, tableView, trace, window, _setNotifications, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isiPad, lastSceduledAt, mix, refresh, service, showMessage, tableView, trace, window, _setNotifications, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
   isiPad = app.properties.isiPad;
   lastSceduledAt = null;
+  service = null;
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
   doneEditBtn = Ti.UI.createButton($$.doneBtn);
@@ -17,8 +18,17 @@ createWindow = function(tab) {
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
   window.add(tableView);
-  refresh = function() {
+  refresh = function(data) {
     var prettyDate, row, rows, schedule, schedules, _i, _len;
+    if (arguments.length > 0) {
+      data.save();
+      if (service !== null) {
+        service.unregister();
+      }
+      service = Ti.App.iOS.registerBackgroundService({
+        url: 'app/lib/background.js'
+      });
+    }
     schedules = Schedule.all();
     rows = [];
     prettyDate = app.helpers.util.prettyDate(new Date());
@@ -47,11 +57,7 @@ createWindow = function(tab) {
     });
     dialog.addEventListener('click', function(e) {
       if (e.index === 0) {
-        data.save();
-        Ti.App.iOS.cancelAllLocalNotifications();
-        lastSceduledAt = (new Date()).getTime();
-        setTimeout(_setNotifications, 1000);
-        refresh();
+        refresh(data);
       }
     });
     dialog.show();
@@ -167,13 +173,8 @@ createWindow = function(tab) {
     tableView.moving = false;
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
-    var now;
     trace('fire notification');
-    now = (new Date()).getTime();
-    lastSceduledAt = lastSceduledAt || now;
-    if (now - lastSceduledAt > 3000) {
-      Ti.Platform.openURL(e.userInfo.scheme);
-    }
+    Ti.Platform.openURL(e.userInfo.scheme);
   });
   window.addEventListener('open', function(e) {
     app.properties.isActive = true;

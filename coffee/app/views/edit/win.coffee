@@ -122,7 +122,7 @@ createWindow = (tab) ->
             repeatPickerContainer.visible = false            
     return        
 
-  _textFieldFandler = (e)->
+  _textFieldHandler = (e)->
     switch e.type
       when 'focus'
         _blur(e.source.parent.idx)
@@ -133,8 +133,6 @@ createWindow = (tab) ->
       when 'return'
         rows[e.source.parent.idx + 2].fireEvent 'click'
       when 'change'
-        trace e.source.value
-        trace e.source.fieldName
         schedule[e.source.fieldName] = e.source.value
         trace schedule.title
         _scheduleDataWasChanged()
@@ -208,12 +206,12 @@ createWindow = (tab) ->
     schemeField.focus()
     return
   
-  titleField.addEventListener 'return' ,_textFieldFandler
-  titleField.addEventListener 'focus' , _textFieldFandler
-  titleField.addEventListener 'change' , _textFieldFandler
-  schemeField.addEventListener 'return' , _textFieldFandler
-  schemeField.addEventListener 'focus' , _textFieldFandler
-  schemeField.addEventListener 'change' , _textFieldFandler
+  titleField.addEventListener 'return' ,_textFieldHandler
+  titleField.addEventListener 'focus' , _textFieldHandler
+  titleField.addEventListener 'change' , _textFieldHandler
+  schemeField.addEventListener 'return' , _textFieldHandler
+  schemeField.addEventListener 'focus' , _textFieldHandler
+  schemeField.addEventListener 'change' , _textFieldHandler
 
   activeSwitch.addEventListener 'change', (e)->
     _blur(e.source.idx)
@@ -227,7 +225,6 @@ createWindow = (tab) ->
     return
   
   saveBtn.addEventListener 'click' , ()->
-    schedule.save()
     app.views.windowStack[0].refresh schedule
     saveBtn.enabled = false
     return
