@@ -176,21 +176,6 @@ createWindow = function(tab) {
     trace('fire notification');
     Ti.Platform.openURL(e.userInfo.scheme);
   });
-  window.addEventListener('open', function(e) {
-    app.properties.isActive = true;
-  });
-  Ti.App.addEventListener('pause', function(e) {
-    var date;
-    date = (new Date()).toLocaleString();
-    trace('paused' + date);
-    app.properties.isActive = false;
-  });
-  Ti.App.addEventListener('resume', function(e) {
-    var date;
-    date = (new Date()).toLocaleString();
-    trace('resumed' + date);
-    app.properties.isActive = true;
-  });
   window.refresh = refresh;
   window.confirm = confirm;
   window.showMessage = showMessage;

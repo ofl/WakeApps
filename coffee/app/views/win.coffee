@@ -161,6 +161,7 @@ createWindow = (tab) ->
     # Ti.Platform.openURL e.userInfo.scheme
     # return
     trace 'fire notification'
+    
     Ti.Platform.openURL e.userInfo.scheme
 
     
@@ -185,21 +186,21 @@ createWindow = (tab) ->
       # Ti.Platform.openURL e.userInfo.scheme
       # return
 
-  window.addEventListener 'open', (e) -> 
-    app.properties.isActive = true
-    return
-
-  Ti.App.addEventListener 'pause', (e) -> 
-    date = (new Date()).toLocaleString()
-    trace 'paused' + date
-    app.properties.isActive = false
-    return
-
-  Ti.App.addEventListener 'resume', (e) -> 
-    date = (new Date()).toLocaleString()
-    trace 'resumed' + date
-    app.properties.isActive = true
-    return
+  # window.addEventListener 'open', (e) -> 
+    # app.properties.isActive = true
+    # return
+# 
+  # Ti.App.addEventListener 'pause', (e) -> 
+    # date = (new Date()).toLocaleString()
+    # trace 'paused' + date
+    # app.properties.isActive = false
+    # return
+# 
+  # Ti.App.addEventListener 'resume', (e) -> 
+    # date = (new Date()).toLocaleString()
+    # trace 'resumed' + date
+    # app.properties.isActive = true
+    # return
     
   window.refresh = refresh
   window.confirm = confirm
