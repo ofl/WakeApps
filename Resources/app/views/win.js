@@ -22,12 +22,6 @@ createWindow = function(tab) {
     var prettyDate, row, rows, schedule, schedules, _i, _len;
     if (arguments.length > 0) {
       data.save();
-      if (service !== null) {
-        service.unregister();
-      }
-      service = Ti.App.iOS.registerBackgroundService({
-        url: 'app/lib/background.js'
-      });
     }
     schedules = Schedule.all();
     rows = [];
@@ -174,7 +168,30 @@ createWindow = function(tab) {
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
     trace('fire notification');
+    if (service !== null) {
+      service.unregister();
+    }
+    service = Ti.App.iOS.registerBackgroundService({
+      url: 'app/lib/background.js'
+    });
     Ti.Platform.openURL(e.userInfo.scheme);
+  });
+  window.addEventListener('open', function(e) {
+    trace('opened');
+    if (service !== null) {
+      service.unregister();
+    }
+    service = Ti.App.iOS.registerBackgroundService({
+      url: 'app/lib/background.js'
+    });
+  });
+  Ti.App.addEventListener('resume', function(e) {
+    if (service !== null) {
+      service.unregister();
+    }
+    service = Ti.App.iOS.registerBackgroundService({
+      url: 'app/lib/background.js'
+    });
   });
   window.refresh = refresh;
   window.confirm = confirm;

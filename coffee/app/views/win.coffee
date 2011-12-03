@@ -25,10 +25,10 @@ createWindow = (tab) ->
   refresh = (data) ->
     if arguments.length > 0
       data.save()
-      if service isnt null
-        service.unregister()
-      service = Ti.App.iOS.registerBackgroundService 
-        url: 'app/lib/background.js'
+      # if service isnt null
+        # service.unregister()
+      # service = Ti.App.iOS.registerBackgroundService 
+        # url: 'app/lib/background.js'
         
     schedules = Schedule.all()
     rows = []
@@ -161,8 +161,13 @@ createWindow = (tab) ->
     # Ti.Platform.openURL e.userInfo.scheme
     # return
     trace 'fire notification'
+    if service isnt null
+      service.unregister()
+    service = Ti.App.iOS.registerBackgroundService 
+      url: 'app/lib/background.js'
     
     Ti.Platform.openURL e.userInfo.scheme
+
 
     
     # now = (new Date()).getTime()
@@ -186,21 +191,26 @@ createWindow = (tab) ->
       # Ti.Platform.openURL e.userInfo.scheme
       # return
 
-  # window.addEventListener 'open', (e) -> 
-    # app.properties.isActive = true
-    # return
-# 
+  window.addEventListener 'open', (e) -> 
+    trace 'opened'
+    if service isnt null
+      service.unregister()
+    service = Ti.App.iOS.registerBackgroundService 
+      url: 'app/lib/background.js'
+    return
+    
   # Ti.App.addEventListener 'pause', (e) -> 
     # date = (new Date()).toLocaleString()
     # trace 'paused' + date
     # app.properties.isActive = false
     # return
-# 
-  # Ti.App.addEventListener 'resume', (e) -> 
-    # date = (new Date()).toLocaleString()
-    # trace 'resumed' + date
-    # app.properties.isActive = true
-    # return
+    
+  Ti.App.addEventListener 'resume', (e) -> 
+    if service isnt null
+      service.unregister()
+    service = Ti.App.iOS.registerBackgroundService 
+      url: 'app/lib/background.js'
+    return
     
   window.refresh = refresh
   window.confirm = confirm
