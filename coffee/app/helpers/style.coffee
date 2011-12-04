@@ -164,6 +164,7 @@ views =
       height: 35
       left: 10
       right: 10
+      keyboardToolbarColor: theme.barColor
       )
        
     tableView: mix(properties.GroupedTableView,
@@ -171,20 +172,23 @@ views =
       )
     tableViewRow:
       properties.GroupedTableViewRow
-      
     repeatPicker:
       bottom: 0
     pickerContainer:
       width: 320
-      height: 216
-      bottom: -216
+      height: 256
+      bottom: -256
       visible: false
     openPickerAnimation:
       bottom: 0
       duration: 300
     closePickerAnimation:
-      bottom: -216
+      bottom: -256
       duration: 300
+    toolbar:
+      top: 0
+      height: 40
+      barColor: theme.barColor
     datePicker:
       type:Ti.UI.PICKER_TYPE_DATE_AND_TIME
       bottom: 0

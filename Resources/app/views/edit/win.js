@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, mix, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -34,7 +34,8 @@ createWindow = function(tab) {
     idx: 2
   }));
   schemeField = Ti.UI.createTextField(mix($$.textField, {
-    fieldName: 'scheme'
+    fieldName: 'scheme',
+    keyboardToolbar: [fs]
   }));
   schemeRow.add(schemeField);
   testRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
@@ -88,7 +89,13 @@ createWindow = function(tab) {
     repeatTablePopOver.add(repeatTableView);
   } else {
     doneBtn = Ti.UI.createButton($$.doneBtn);
+    kbdDoneBtn = Ti.UI.createButton($$.doneBtn);
     repeatPicker = Ti.UI.createPicker($$.repeatPicker);
+    titleField.keyboardToolbar = [fs, kbdDoneBtn];
+    schemeField.keyboardToolbar = [fs, kbdDoneBtn];
+    pickerToolbar = Ti.UI.iOS.createToolbar(mix($$.toolbar, {
+      items: [fs, doneBtn]
+    }));
     (function() {
       var choice, repeat, _i, _len;
       choice = [];
@@ -129,14 +136,22 @@ createWindow = function(tab) {
       if (index !== 4) {
         if (datePickerContainer.visible) {
           datePickerContainer.animate($$.closePickerAnimation, function() {
-            return datePickerContainer.visible = false;
+            datePickerContainer.visible = false;
+            window.setToolbar([trashBtn, fs, saveBtn], {
+              animated: true
+            });
+            return datePickerContainer.remove(pickerToolbar);
           });
         }
       }
       if (index !== 5) {
         if (repeatPickerContainer.visible) {
           repeatPickerContainer.animate($$.closePickerAnimation, function() {
-            return repeatPickerContainer.visible = false;
+            repeatPickerContainer.visible = false;
+            window.setToolbar([trashBtn, fs, saveBtn], {
+              animated: true
+            });
+            return repeatPickerContainer.remove(pickerToolbar);
           });
         }
       }
@@ -146,9 +161,6 @@ createWindow = function(tab) {
     switch (e.type) {
       case 'focus':
         _blur(e.source.parent.idx);
-        if (!isiPad) {
-          window.setRightNavButton(doneBtn);
-        }
         break;
       case 'return':
         rows[e.source.parent.idx + 2].fireEvent('click');
@@ -176,7 +188,10 @@ createWindow = function(tab) {
         animate: true
       });
     } else if (!datePickerContainer.visible) {
-      window.setRightNavButton(doneBtn);
+      window.setToolbar(null, {
+        animated: false
+      });
+      datePickerContainer.add(pickerToolbar);
       datePickerContainer.visible = true;
       datePickerContainer.animate($$.openPickerAnimation);
     }
@@ -190,8 +205,11 @@ createWindow = function(tab) {
         animate: true
       });
     } else if (!repeatPickerContainer.visible) {
-      window.setRightNavButton(doneBtn);
+      window.setToolbar(null, {
+        animated: false
+      });
       repeatPicker.setSelectedRow(0, schedule.repeat);
+      repeatPickerContainer.add(pickerToolbar);
       repeatPickerContainer.visible = true;
       repeatPickerContainer.animate($$.openPickerAnimation);
     }
@@ -222,9 +240,11 @@ createWindow = function(tab) {
       schedule.repeat = e.rowIndex;
       _scheduleDataWasChanged();
     });
+    kbdDoneBtn.addEventListener('click', function() {
+      _blur(-1);
+    });
     doneBtn.addEventListener('click', function() {
       _blur(-1);
-      window.setRightNavButton(null);
     });
   }
   titleRow.addEventListener('click', function() {
@@ -252,11 +272,24 @@ createWindow = function(tab) {
     _scheduleDataWasChanged();
   });
   saveBtn.addEventListener('click', function() {
-    app.views.windowStack[0].refresh(schedule);
+    schedule.save();
+    app.views.windowStack[0].refresh();
     saveBtn.enabled = false;
   });
   trashBtn.addEventListener('click', function() {
-    schemeField.focus();
+    var dialog;
+    dialog = Ti.UI.createAlertDialog({
+      title: 'Your changes have not been saved. Discard changes?',
+      buttonNames: ['Save changes', 'Cancel']
+    });
+    dialog.addEventListener('click', function(e) {
+      if (e.index === 0) {
+        data.del();
+        app.views.windowStack[0].refresh();
+        window.close();
+      }
+    });
+    dialog.show();
   });
   window.addEventListener('close', function() {
     var stack;

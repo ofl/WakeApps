@@ -33,6 +33,7 @@ createWindow = (tab) ->
     idx: 2
   schemeField = Ti.UI.createTextField mix $$.textField,
     fieldName: 'scheme'
+    keyboardToolbar: [fs]
   schemeRow.add schemeField
   
   testRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
@@ -79,7 +80,12 @@ createWindow = (tab) ->
     repeatTablePopOver.add repeatTableView
   else
     doneBtn = Ti.UI.createButton $$.doneBtn
+    kbdDoneBtn = Ti.UI.createButton $$.doneBtn
     repeatPicker = Ti.UI.createPicker $$.repeatPicker
+    titleField.keyboardToolbar = [fs, kbdDoneBtn]
+    schemeField.keyboardToolbar = [fs, kbdDoneBtn]
+    pickerToolbar = Ti.UI.iOS.createToolbar mix $$.toolbar,
+      items: [fs, doneBtn]
     do ()->
       choice = []
       for repeat in repeats
@@ -116,20 +122,20 @@ createWindow = (tab) ->
         if datePickerContainer.visible
           datePickerContainer.animate $$.closePickerAnimation, ()->
             datePickerContainer.visible = false
+            window.setToolbar [trashBtn, fs, saveBtn],{animated:true}
+            datePickerContainer.remove pickerToolbar
       if index isnt 5
         if repeatPickerContainer.visible
           repeatPickerContainer.animate $$.closePickerAnimation, ()->
             repeatPickerContainer.visible = false            
+            window.setToolbar [trashBtn, fs, saveBtn],{animated:true}
+            repeatPickerContainer.remove pickerToolbar
     return        
 
   _textFieldHandler = (e)->
     switch e.type
       when 'focus'
         _blur(e.source.parent.idx)
-        if !isiPad
-          window.setRightNavButton doneBtn    
-      # when 'blur'
-        # formBtn.enabled = false
       when 'return'
         rows[e.source.parent.idx + 2].fireEvent 'click'
       when 'change'
@@ -153,7 +159,8 @@ createWindow = (tab) ->
         view: dummyView1
         animate: true
     else if !datePickerContainer.visible
-      window.setRightNavButton doneBtn    
+      window.setToolbar null,{animated:false}
+      datePickerContainer.add pickerToolbar
       datePickerContainer.visible = true
       datePickerContainer.animate $$.openPickerAnimation
     return
@@ -165,8 +172,9 @@ createWindow = (tab) ->
         view: dummyView2
         animate: true
     else if !repeatPickerContainer.visible
-      window.setRightNavButton doneBtn    
+      window.setToolbar null,{animated:false}
       repeatPicker.setSelectedRow 0, schedule.repeat
+      repeatPickerContainer.add pickerToolbar
       repeatPickerContainer.visible = true
       repeatPickerContainer.animate $$.openPickerAnimation
     return
@@ -193,9 +201,12 @@ createWindow = (tab) ->
       _scheduleDataWasChanged()
       return
 
+    kbdDoneBtn.addEventListener 'click' , ()->
+      _blur(-1)
+      return
+
     doneBtn.addEventListener 'click' , ()->
       _blur(-1)
-      window.setRightNavButton null    
       return
     
   titleRow.addEventListener 'click' , ()->
@@ -225,12 +236,22 @@ createWindow = (tab) ->
     return
   
   saveBtn.addEventListener 'click' , ()->
-    app.views.windowStack[0].refresh schedule
+    schedule.save()
+    app.views.windowStack[0].refresh()
     saveBtn.enabled = false
     return
   
   trashBtn.addEventListener 'click' , ()->
-    schemeField.focus()
+    dialog = Ti.UI.createAlertDialog
+      title: 'Your changes have not been saved. Discard changes?'
+      buttonNames: ['Save changes','Cancel']
+    dialog.addEventListener 'click', (e)->
+      if e.index is 0
+        data.del()
+        app.views.windowStack[0].refresh()
+        window.close()
+      return        
+    dialog.show()
     return
   
   window.addEventListener 'close' , ()->
@@ -252,4 +273,5 @@ exports.win =
     app.views.windowStack.push window
     tab.open window
     return
+    
   createWindow: createWindow

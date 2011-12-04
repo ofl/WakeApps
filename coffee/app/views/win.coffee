@@ -6,7 +6,6 @@ createWindow = (tab) ->
   $$ = app.helpers.style.views.root
   isiPad = app.properties.isiPad
   
-  lastSceduledAt = null
   service = null
   
   addBtn = Ti.UI.createButton $$.addBtn
@@ -22,14 +21,7 @@ createWindow = (tab) ->
   window.setRightNavButton addBtn  
   window.add tableView  
     
-  refresh = (data) ->
-    if arguments.length > 0
-      data.save()
-      # if service isnt null
-        # service.unregister()
-      # service = Ti.App.iOS.registerBackgroundService 
-        # url: 'app/lib/background.js'
-        
+  refresh = () ->
     schedules = Schedule.all()
     rows = []
     prettyDate = app.helpers.util.prettyDate new Date()
@@ -52,45 +44,11 @@ createWindow = (tab) ->
       buttonNames: ['Save changes','Cancel']
     dialog.addEventListener 'click', (e)->
       if e.index is 0
-        # data.save()
-        # Ti.App.iOS.cancelAllLocalNotifications()
-        # lastSceduledAt = (new Date()).getTime()
-        # setTimeout _setNotifications, 1000
-        refresh data
+        data.save()
+        refresh()
       return        
     dialog.show()
     return    
-    
-  _setNotifications = ()->
-    schedules = Schedule.findAllActive()
-    now = (new Date()).getTime() - 60000
-    ima = (new Date()).toLocaleString()
-    for schedule in schedules
-      if schedule.repeat > 0
-        trace 'Scheduled repeat event'
-        Ti.App.iOS.scheduleLocalNotification
-          date: new Date(schedule.date)
-          repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat]
-          alertBody: schedule.title + ima
-          alertAction: 'Launch!'
-          sound: 'sounds/Alarm0014.wav'
-          userInfo: 
-            scheme: schedule.scheme
-            title: schedule.title
-            date: schedule.date
-      else if schedule.date > now
-        trace 'Scheduled One time event'
-        Ti.App.iOS.scheduleLocalNotification
-          date: new Date(schedule.date)
-          alertBody: schedule.title + ima
-          alertAction: 'Launch!'
-          sound: 'sounds/Alarm0014.wav'
-          userInfo: 
-            scheme: schedule.scheme
-            title: schedule.title
-            date: schedule.date
-    showMessage()
-    return
 
   showMessage = ()->
     messageWindow = Ti.UI.createWindow $$.messageWindow
@@ -158,52 +116,21 @@ createWindow = (tab) ->
     return
 
   Ti.App.iOS.addEventListener 'notification', (e)->
-    # Ti.Platform.openURL e.userInfo.scheme
-    # return
-    trace 'fire notification'
+    trace 'Fired From Notification'
     if service isnt null
       service.unregister()
     service = Ti.App.iOS.registerBackgroundService 
       url: 'app/lib/background.js'
     
     Ti.Platform.openURL e.userInfo.scheme
-
-
-    
-    # now = (new Date()).getTime()
-    # lastSceduledAt = lastSceduledAt or now
-    # if now - lastSceduledAt > 3000
-      # Ti.Platform.openURL e.userInfo.scheme
     return
-    
-      # (Ti.Media.createSound url:"sounds/Alarm0014.wav").play()
-      # dialog = Ti.UI.createAlertDialog
-        # title: e.userInfo.title
-        # message: 'Already past the scheduled time'
-        # buttonNames: ['Launch!!','Cancel']
-      # dialog.addEventListener 'click', (ev)->
-        # if ev.index is 0
-          # Ti.Platform.openURL e.userInfo.scheme
-        # return        
-      # dialog.show()
-      # return
-    # else 
-      # Ti.Platform.openURL e.userInfo.scheme
-      # return
 
   window.addEventListener 'open', (e) -> 
-    trace 'opened'
     if service isnt null
       service.unregister()
     service = Ti.App.iOS.registerBackgroundService 
       url: 'app/lib/background.js'
     return
-    
-  # Ti.App.addEventListener 'pause', (e) -> 
-    # date = (new Date()).toLocaleString()
-    # trace 'paused' + date
-    # app.properties.isActive = false
-    # return
     
   Ti.App.addEventListener 'resume', (e) -> 
     if service isnt null

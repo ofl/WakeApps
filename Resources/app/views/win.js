@@ -1,12 +1,11 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isiPad, lastSceduledAt, mix, refresh, service, showMessage, tableView, trace, window, _setNotifications, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isiPad, mix, refresh, service, showMessage, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
   isiPad = app.properties.isiPad;
-  lastSceduledAt = null;
   service = null;
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
@@ -18,11 +17,8 @@ createWindow = function(tab) {
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
   window.add(tableView);
-  refresh = function(data) {
+  refresh = function() {
     var prettyDate, row, rows, schedule, schedules, _i, _len;
-    if (arguments.length > 0) {
-      data.save();
-    }
     schedules = Schedule.all();
     rows = [];
     prettyDate = app.helpers.util.prettyDate(new Date());
@@ -51,48 +47,11 @@ createWindow = function(tab) {
     });
     dialog.addEventListener('click', function(e) {
       if (e.index === 0) {
-        refresh(data);
+        data.save();
+        refresh();
       }
     });
     dialog.show();
-  };
-  _setNotifications = function() {
-    var ima, now, schedule, schedules, _i, _len;
-    schedules = Schedule.findAllActive();
-    now = (new Date()).getTime() - 60000;
-    ima = (new Date()).toLocaleString();
-    for (_i = 0, _len = schedules.length; _i < _len; _i++) {
-      schedule = schedules[_i];
-      if (schedule.repeat > 0) {
-        trace('Scheduled repeat event');
-        Ti.App.iOS.scheduleLocalNotification({
-          date: new Date(schedule.date),
-          repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.oepeat],
-          alertBody: schedule.title + ima,
-          alertAction: 'Launch!',
-          sound: 'sounds/Alarm0014.wav',
-          userInfo: {
-            scheme: schedule.scheme,
-            title: schedule.title,
-            date: schedule.date
-          }
-        });
-      } else if (schedule.date > now) {
-        trace('Scheduled One time event');
-        Ti.App.iOS.scheduleLocalNotification({
-          date: new Date(schedule.date),
-          alertBody: schedule.title + ima,
-          alertAction: 'Launch!',
-          sound: 'sounds/Alarm0014.wav',
-          userInfo: {
-            scheme: schedule.scheme,
-            title: schedule.title,
-            date: schedule.date
-          }
-        });
-      }
-    }
-    showMessage();
   };
   showMessage = function() {
     var messageWindow, props;
@@ -167,7 +126,7 @@ createWindow = function(tab) {
     tableView.moving = false;
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
-    trace('fire notification');
+    trace('Fired From Notification');
     if (service !== null) {
       service.unregister();
     }
@@ -177,7 +136,6 @@ createWindow = function(tab) {
     Ti.Platform.openURL(e.userInfo.scheme);
   });
   window.addEventListener('open', function(e) {
-    trace('opened');
     if (service !== null) {
       service.unregister();
     }

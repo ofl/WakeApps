@@ -174,7 +174,8 @@ views = {
       color: theme.blueText,
       height: 35,
       left: 10,
-      right: 10
+      right: 10,
+      keyboardToolbarColor: theme.barColor
     }),
     tableView: mix(properties.GroupedTableView, {
       top: 0
@@ -185,8 +186,8 @@ views = {
     },
     pickerContainer: {
       width: 320,
-      height: 216,
-      bottom: -216,
+      height: 256,
+      bottom: -256,
       visible: false
     },
     openPickerAnimation: {
@@ -194,8 +195,13 @@ views = {
       duration: 300
     },
     closePickerAnimation: {
-      bottom: -216,
+      bottom: -256,
       duration: 300
+    },
+    toolbar: {
+      top: 0,
+      height: 40,
+      barColor: theme.barColor
     },
     datePicker: {
       type: Ti.UI.PICKER_TYPE_DATE_AND_TIME,
