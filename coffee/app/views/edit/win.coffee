@@ -14,7 +14,8 @@ createWindow = (tab) ->
   saveBtn =  Ti.UI.createButton $$.saveBtn
   fs = Ti.UI.createButton $$.fs
   window = Ti.UI.createWindow mix $$.window,
-    toolbar: [trashBtn, fs, saveBtn]
+    toolbar: [trashBtn, fs]
+    rightNavButton: saveBtn
       
   titleRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     idx: 0
@@ -33,7 +34,6 @@ createWindow = (tab) ->
     idx: 2
   schemeField = Ti.UI.createTextField mix $$.textField,
     fieldName: 'scheme'
-    keyboardToolbar: [fs]
   schemeRow.add schemeField
   
   testRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
@@ -122,13 +122,13 @@ createWindow = (tab) ->
         if datePickerContainer.visible
           datePickerContainer.animate $$.closePickerAnimation, ()->
             datePickerContainer.visible = false
-            window.setToolbar [trashBtn, fs, saveBtn],{animated:true}
+            window.setToolbar [trashBtn, fs],{animated:true}
             datePickerContainer.remove pickerToolbar
       if index isnt 5
         if repeatPickerContainer.visible
           repeatPickerContainer.animate $$.closePickerAnimation, ()->
             repeatPickerContainer.visible = false            
-            window.setToolbar [trashBtn, fs, saveBtn],{animated:true}
+            window.setToolbar [trashBtn, fs],{animated:true}
             repeatPickerContainer.remove pickerToolbar
     return        
 
@@ -242,14 +242,23 @@ createWindow = (tab) ->
     return
   
   trashBtn.addEventListener 'click' , ()->
-    dialog = Ti.UI.createAlertDialog
-      title: 'Your changes have not been saved. Discard changes?'
-      buttonNames: ['Save changes','Cancel']
+    dialog = Ti.UI.createOptionDialog
+      title: 'Are you sure delete this schedule?'
+      options: ['Delete','Cancel']
+      destructive: 0
+      cancel: 1
     dialog.addEventListener 'click', (e)->
       if e.index is 0
-        data.del()
+        schedule.del()
         app.views.windowStack[0].refresh()
-        window.close()
+        if isiPad
+          app.views.windowStack[0].showMessage 'The schedule was successfully deleted.'
+          newSchedule = Schedule.findLastUpdated()
+          if newSchedule is null
+             newSchedule = new Schedule 'Open Google in Safari'
+          refresh newSchedule            
+        else
+          window.close()
       return        
     dialog.show()
     return

@@ -14,7 +14,8 @@ createWindow = function(tab) {
   saveBtn = Ti.UI.createButton($$.saveBtn);
   fs = Ti.UI.createButton($$.fs);
   window = Ti.UI.createWindow(mix($$.window, {
-    toolbar: [trashBtn, fs, saveBtn]
+    toolbar: [trashBtn, fs],
+    rightNavButton: saveBtn
   }));
   titleRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     idx: 0
@@ -34,8 +35,7 @@ createWindow = function(tab) {
     idx: 2
   }));
   schemeField = Ti.UI.createTextField(mix($$.textField, {
-    fieldName: 'scheme',
-    keyboardToolbar: [fs]
+    fieldName: 'scheme'
   }));
   schemeRow.add(schemeField);
   testRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
@@ -137,7 +137,7 @@ createWindow = function(tab) {
         if (datePickerContainer.visible) {
           datePickerContainer.animate($$.closePickerAnimation, function() {
             datePickerContainer.visible = false;
-            window.setToolbar([trashBtn, fs, saveBtn], {
+            window.setToolbar([trashBtn, fs], {
               animated: true
             });
             return datePickerContainer.remove(pickerToolbar);
@@ -148,7 +148,7 @@ createWindow = function(tab) {
         if (repeatPickerContainer.visible) {
           repeatPickerContainer.animate($$.closePickerAnimation, function() {
             repeatPickerContainer.visible = false;
-            window.setToolbar([trashBtn, fs, saveBtn], {
+            window.setToolbar([trashBtn, fs], {
               animated: true
             });
             return repeatPickerContainer.remove(pickerToolbar);
@@ -278,15 +278,27 @@ createWindow = function(tab) {
   });
   trashBtn.addEventListener('click', function() {
     var dialog;
-    dialog = Ti.UI.createAlertDialog({
-      title: 'Your changes have not been saved. Discard changes?',
-      buttonNames: ['Save changes', 'Cancel']
+    dialog = Ti.UI.createOptionDialog({
+      title: 'Are you sure delete this schedule?',
+      options: ['Delete', 'Cancel'],
+      destructive: 0,
+      cancel: 1
     });
     dialog.addEventListener('click', function(e) {
+      var newSchedule;
       if (e.index === 0) {
-        data.del();
+        schedule.del();
         app.views.windowStack[0].refresh();
-        window.close();
+        if (isiPad) {
+          app.views.windowStack[0].showMessage('The schedule was successfully deleted.');
+          newSchedule = Schedule.findLastUpdated();
+          if (newSchedule === null) {
+            newSchedule = new Schedule('Open Google in Safari');
+          }
+          refresh(newSchedule);
+        } else {
+          window.close();
+        }
       }
     });
     dialog.show();

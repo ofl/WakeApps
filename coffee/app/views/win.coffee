@@ -50,10 +50,11 @@ createWindow = (tab) ->
     dialog.show()
     return    
 
-  showMessage = ()->
+  showMessage = (message)->
     messageWindow = Ti.UI.createWindow $$.messageWindow
     messageWindow.add Ti.UI.createView $$.messageView
-    messageWindow.add Ti.UI.createLabel $$.messageLabel
+    messageWindow.add Ti.UI.createLabel mix $$.messageLabel,
+      text: message
     messageWindow.open()
      
     if Ti.Platform.osname == "iPhone OS" 
@@ -71,23 +72,18 @@ createWindow = (tab) ->
     switch e.type
       when 'click'
         if isiPad
-          Ti.App.fireEvent 'root.closeMasterNavigationGroup'    
+          app.views.windowStack[1].refresh schedule
         else
           app.views.edit.win.open tab, schedule
       when 'delete'
-        if Ti.App.Properties.getInt('lastSchedule') is e.row.id
-          nextScheduleId = null
-          schedule.del ()->
-            nextScheduleId = schedule.nextScheduleId()
-            return
-          Ti.App.fireEvent 'root.updateWindow', id: nextScheduleId
-          if !nextScheduleId
-            if isiPad
-              Ti.App.fireEvent 'root.closeMasterNavigationGroup'    
-            else
-              window.close()
-        else
-          schedule.del()        
+        isDeleteCurrentSchedule = if e.row.id is Ti.App.Properties.getInt 'lastSchedule' then true else false
+        schedule.del()
+        showMessage 'The schedule was successfully deleted.'
+        if isiPad and isDeleteCurrentSchedule
+          newSchedule = Schedule.findLastUpdated()
+          if newSchedule is null
+             newSchedule = new Schedule 'Open Google in Safari'
+          app.views.windowStack[1].refresh newSchedule            
     return
 
   tableView.addEventListener 'click' , _tableViewHandler
@@ -95,8 +91,9 @@ createWindow = (tab) ->
   
   addBtn.addEventListener 'click', (e) -> 
     schedule = new Schedule 'Open Google in Safari'
-    if isiPad
-      window.close()
+    showMessage 'New schedule.'
+    if isiPad      
+      app.views.windowStack[1].refresh schedule
     else
       app.views.edit.win.open tab, schedule
     return
@@ -152,6 +149,7 @@ exports.win =
     
     if app.properties.isiPad
       window = createWindow()
+      app.views.windowStack.push window      
       window.refresh()
       Schedule = app.models.Schedule
       id = Ti.App.Properties.getInt 'lastSchedule'    
@@ -161,6 +159,7 @@ exports.win =
       if schedule is null
         schedule = new Schedule 'Open Google in Safari'
       detailView = app.views.edit.win.createWindow()
+      app.views.windowStack.push detailView
       detailView.refresh schedule
       detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup
         window: detailView

@@ -1,6 +1,6 @@
 do ()->
   Ti.API.info 'Launched Background Serivice'
-  # Ti.App.iOS.cancelAllLocalNotifications()
+  Ti.App.iOS.cancelAllLocalNotifications()
   
   Schedule = (require 'app/models/Schedule').Schedule
   schedules = Schedule.findAllActive()

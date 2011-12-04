@@ -53,11 +53,13 @@ createWindow = function(tab) {
     });
     dialog.show();
   };
-  showMessage = function() {
+  showMessage = function(message) {
     var messageWindow, props;
     messageWindow = Ti.UI.createWindow($$.messageWindow);
     messageWindow.add(Ti.UI.createView($$.messageView));
-    messageWindow.add(Ti.UI.createLabel($$.messageLabel));
+    messageWindow.add(Ti.UI.createLabel(mix($$.messageLabel, {
+      text: message
+    })));
     messageWindow.open();
     if (Ti.Platform.osname === "iPhone OS") {
       props = mix($$.messageAnimation, {
@@ -71,34 +73,26 @@ createWindow = function(tab) {
     });
   };
   _tableViewHandler = function(e) {
-    var nextScheduleId, schedule;
+    var isDeleteCurrentSchedule, newSchedule, schedule;
     schedule = Schedule.findById(e.row.id);
     switch (e.type) {
       case 'click':
         if (isiPad) {
-          Ti.App.fireEvent('root.closeMasterNavigationGroup');
+          app.views.windowStack[1].refresh(schedule);
         } else {
           app.views.edit.win.open(tab, schedule);
         }
         break;
       case 'delete':
-        if (Ti.App.Properties.getInt('lastSchedule') === e.row.id) {
-          nextScheduleId = null;
-          schedule.del(function() {
-            nextScheduleId = schedule.nextScheduleId();
-          });
-          Ti.App.fireEvent('root.updateWindow', {
-            id: nextScheduleId
-          });
-          if (!nextScheduleId) {
-            if (isiPad) {
-              Ti.App.fireEvent('root.closeMasterNavigationGroup');
-            } else {
-              window.close();
-            }
+        isDeleteCurrentSchedule = e.row.id === Ti.App.Properties.getInt('lastSchedule') ? true : false;
+        schedule.del();
+        showMessage('The schedule was successfully deleted.');
+        if (isiPad && isDeleteCurrentSchedule) {
+          newSchedule = Schedule.findLastUpdated();
+          if (newSchedule === null) {
+            newSchedule = new Schedule('Open Google in Safari');
           }
-        } else {
-          schedule.del();
+          app.views.windowStack[1].refresh(newSchedule);
         }
     }
   };
@@ -107,8 +101,9 @@ createWindow = function(tab) {
   addBtn.addEventListener('click', function(e) {
     var schedule;
     schedule = new Schedule('Open Google in Safari');
+    showMessage('New schedule.');
     if (isiPad) {
-      window.close();
+      app.views.windowStack[1].refresh(schedule);
     } else {
       app.views.edit.win.open(tab, schedule);
     }
@@ -162,6 +157,7 @@ exports.win = {
     trace = app.helpers.util.trace;
     if (app.properties.isiPad) {
       window = createWindow();
+      app.views.windowStack.push(window);
       window.refresh();
       Schedule = app.models.Schedule;
       id = Ti.App.Properties.getInt('lastSchedule');
@@ -173,6 +169,7 @@ exports.win = {
         schedule = new Schedule('Open Google in Safari');
       }
       detailView = app.views.edit.win.createWindow();
+      app.views.windowStack.push(detailView);
       detailView.refresh(schedule);
       detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
         window: detailView

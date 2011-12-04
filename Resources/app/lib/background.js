@@ -1,6 +1,7 @@
 (function() {
   var Schedule, now, schedule, schedules, _i, _len;
   Ti.API.info('Launched Background Serivice');
+  Ti.App.iOS.cancelAllLocalNotifications();
   Schedule = (require('app/models/Schedule')).Schedule;
   schedules = Schedule.findAllActive();
   now = (new Date()).getTime();

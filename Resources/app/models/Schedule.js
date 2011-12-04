@@ -2,7 +2,7 @@ var Schedule, db, exports;
 db = Ti.Database.open('db');
 db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
-  function Schedule(title, active, updated, id, date, scheme, repeat, options, isChanged) {
+  function Schedule(title, active, updated, id, date, scheme, repeat, options) {
     this.title = title;
     this.active = active != null ? active : 0;
     this.updated = updated != null ? updated : -1;
@@ -11,7 +11,7 @@ Schedule = (function() {
     this.scheme = scheme != null ? scheme : 'http://www.google.com';
     this.repeat = repeat != null ? repeat : 0;
     this.options = options != null ? options : {};
-    this.isChanged = isChanged != null ? isChanged : false;
+    Ti.App.Properties.removeProperty('lastSchedule');
   }
   Schedule.prototype.save = function() {
     var now;
@@ -22,11 +22,13 @@ Schedule = (function() {
     } else {
       db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
     }
-    this.isChanged = false;
+    Ti.App.Properties.setInt('lastSchedule', this.id);
     return this;
   };
   Schedule.prototype.del = function() {
-    db.execute("DELETE FROM SCHEDULEDB WHERE id = ?", this.id);
+    if (this.id !== null) {
+      db.execute("DELETE FROM SCHEDULEDB WHERE id = ?", this.id);
+    }
     return null;
   };
   Schedule.findAll = function(sql) {
@@ -55,6 +57,7 @@ Schedule = (function() {
     if (rows.isValidRow()) {
       f = rows.fieldByName;
       schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('UPDATED'), 10), f('ID'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')));
+      Ti.App.Properties.setInt('lastSchedule', f('ID'));
     }
     rows.close();
     return schedule;
@@ -76,8 +79,10 @@ Schedule = (function() {
     return Schedule.count("SELECT ID FROM SCHEDULEDB WHERE ACTIVE > 0");
   };
   Schedule.findById = function(id) {
-    Ti.App.Properties.setInt('lastSchedule', id);
     return Schedule.findOne("SELECT * FROM SCHEDULEDB WHERE ID = " + id);
+  };
+  Schedule.findLastUpdated = function() {
+    return Schedule.findOne("SELECT * FROM SCHEDULEDB  ORDER BY UPDATED");
   };
   Schedule.delAll = function() {
     db.execute("DELETE FROM SCHEDULEDB");
