@@ -26,18 +26,19 @@ createWindow = (tab) ->
   refresh = () ->
     schedules = Schedule.all()
     rows = []
+    now = (new Date()).getTime()
     for schedule in schedules
       date = new Date(schedule.date)
+      icon = if schedule.repeat or date.getTime() > now then $$.aquaclock else $$.silverclock
       if schedule.repeat > 0
-        trace 'a'
         dateString = prettyDate(date, schedule.repeat)
       else
-        trace 'b'
         dateString = date.toLocaleString()
       row = Ti.UI.createTableViewRow mix $$.tableViewRow,
         id: schedule.id
         text: schedule.text
-        leftImage: $$.grayclock
+      row.add Ti.UI.createImageView mix $$.imageView,
+        image: icon      
       row.add Ti.UI.createLabel mix $$.titleLabel,
         text: schedule.title      
       row.add Ti.UI.createLabel mix $$.dateLabel,

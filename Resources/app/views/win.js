@@ -20,24 +20,26 @@ createWindow = function(tab) {
   window.setRightNavButton(addBtn);
   window.add(tableView);
   refresh = function() {
-    var date, dateString, row, rows, schedule, schedules, _i, _len;
+    var date, dateString, icon, now, row, rows, schedule, schedules, _i, _len;
     schedules = Schedule.all();
     rows = [];
+    now = (new Date()).getTime();
     for (_i = 0, _len = schedules.length; _i < _len; _i++) {
       schedule = schedules[_i];
       date = new Date(schedule.date);
+      icon = schedule.repeat || date.getTime() > now ? $$.aquaclock : $$.silverclock;
       if (schedule.repeat > 0) {
-        trace('a');
         dateString = prettyDate(date, schedule.repeat);
       } else {
-        trace('b');
         dateString = date.toLocaleString();
       }
       row = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
         id: schedule.id,
-        text: schedule.text,
-        leftImage: $$.grayclock
+        text: schedule.text
       }));
+      row.add(Ti.UI.createImageView(mix($$.imageView, {
+        image: icon
+      })));
       row.add(Ti.UI.createLabel(mix($$.titleLabel, {
         text: schedule.title
       })));

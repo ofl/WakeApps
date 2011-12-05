@@ -3,8 +3,8 @@ mix = app.helpers.util.mix;
 isIpad = app.properties.isIpad;
 theme = {
   textColor: '#000000',
-  barColor: '#333333',
-  backgroundColor: '#fff',
+  barColor: '#666',
+  backgroundColor: '#eeeeee',
   blueText: '#336699',
   darkBlue: '#93caed',
   fontFamily: 'Helvetica Neue'
@@ -12,12 +12,14 @@ theme = {
 if (Ti.Platform.displayCaps.dpi > 300) {
   images = {
     grayclock: 'images/grayclock@2x.png',
-    photos: 'images/161-Photos@2x.png'
+    silverclock: 'images/silverclock@2x.png',
+    aquaclock: 'images/aquaclock@2x.png'
   };
 } else {
   images = {
     grayclock: 'images/grayclock.png',
-    photos: 'images/161-Photos.png'
+    silverclock: 'images/silverclock.png',
+    aquaclock: 'images/aquaclock.png'
   };
 }
 app.properties.platformWidth = Ti.Platform.displayCaps.platformWidth;
@@ -90,11 +92,12 @@ views = {
     }),
     tableView: mix(properties.TableView, {
       editable: true,
-      allowsSelectionDuringEditing: false
+      allowsSelectionDuringEditing: false,
+      backgroundColor: theme.backgroundColor
     }),
     tableViewRow: mix(properties.TableViewRow, {
       editable: true,
-      height: 50
+      height: 46
     }),
     editBtn: {
       systemButton: Ti.UI.iPhone.SystemButton.EDIT
@@ -109,15 +112,15 @@ views = {
       systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
     },
     titleLabel: mix(properties.Label, {
-      left: 47,
-      top: 6,
+      left: 44,
+      top: 4,
       width: 200,
       color: '#000',
       height: 20
     }),
     dateLabel: mix(properties.Label, {
-      left: 47,
-      top: 28,
+      left: 44,
+      top: 25,
       width: 200,
       height: 17,
       font: {
@@ -126,6 +129,12 @@ views = {
       },
       color: '#999'
     }),
+    imageView: {
+      top: 6,
+      left: 4,
+      height: 32,
+      width: 32
+    },
     messageWindow: {
       height: 80,
       width: 200,
@@ -155,7 +164,9 @@ views = {
       duration: 1000,
       opacity: 0.1
     },
-    grayclock: images.grayclock
+    grayclock: images.grayclock,
+    silverclock: images.silverclock,
+    aquaclock: images.aquaclock
   },
   edit: {
     window: properties.Window,
