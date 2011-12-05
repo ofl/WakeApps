@@ -1,6 +1,6 @@
 do ->
   
-  app.properties.isiPad = if Ti.Platform.displayCaps.platformWidth is 768 then true else false
+  app.properties.isIpad = if Ti.Platform.displayCaps.platformWidth is 768 then true else false
   app.properties.isPortrait = true
   app.properties.isActive = false
   app.properties.repeats = [

@@ -4,9 +4,11 @@ createWindow = (tab) ->
   mix = app.helpers.util.mix
   trace = app.helpers.util.trace
   $$ = app.helpers.style.views.root
-  isiPad = app.properties.isiPad
+  isIpad = app.properties.isIpad
+  prettyDate = app.helpers.util.prettyDate
   
   service = null
+  repeat = ['Day', 'Week', 'Month', 'Year']
   
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
@@ -24,18 +26,24 @@ createWindow = (tab) ->
   refresh = () ->
     schedules = Schedule.all()
     rows = []
-    prettyDate = app.helpers.util.prettyDate new Date()
     for schedule in schedules
+      date = new Date(schedule.date)
+      if schedule.repeat > 0
+        trace 'a'
+        dateString = prettyDate(date, schedule.repeat)
+      else
+        trace 'b'
+        dateString = date.toLocaleString()
       row = Ti.UI.createTableViewRow mix $$.tableViewRow,
         id: schedule.id
         text: schedule.text
+        leftImage: $$.grayclock
       row.add Ti.UI.createLabel mix $$.titleLabel,
         text: schedule.title      
       row.add Ti.UI.createLabel mix $$.dateLabel,
-        text: prettyDate schedule.updated
+        text: dateString
       rows.push row
     tableView.setData rows
-    window.title = 'Schedules'
     return
 
   confirm = (data)->
@@ -71,7 +79,7 @@ createWindow = (tab) ->
     schedule = Schedule.findById e.row.id
     switch e.type
       when 'click'
-        if isiPad
+        if isIpad
           app.views.windowStack[1].confirm schedule
         else
           app.views.edit.win.open tab, schedule
@@ -79,7 +87,7 @@ createWindow = (tab) ->
         isDeleteCurrentSchedule = if e.row.id is Ti.App.Properties.getInt 'lastSchedule' then true else false
         schedule.del()
         showMessage 'The schedule was successfully deleted.'
-        if isiPad and isDeleteCurrentSchedule
+        if isIpad and isDeleteCurrentSchedule
           newSchedule = Schedule.findLastUpdated()
           if newSchedule is null
              newSchedule = new Schedule 'New Schedule'
@@ -92,7 +100,7 @@ createWindow = (tab) ->
   addBtn.addEventListener 'click', (e) -> 
     schedule = new Schedule 'New Schedule'
     showMessage 'New schedule.'
-    if isiPad      
+    if isIpad      
       app.views.windowStack[1].refresh schedule
     else
       app.views.edit.win.open tab, schedule
@@ -147,7 +155,7 @@ exports.win =
   open: () ->
     trace = app.helpers.util.trace
     
-    if app.properties.isiPad
+    if app.properties.isIpad
       Schedule = app.models.Schedule
       id = Ti.App.Properties.getInt 'lastSchedule'    
       schedule = null

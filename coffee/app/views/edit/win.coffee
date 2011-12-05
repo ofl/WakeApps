@@ -3,7 +3,7 @@ createWindow = (tab) ->
   mix = app.helpers.util.mix
   dateToString = app.helpers.util.dateToString
   trace = app.helpers.util.trace
-  isiPad = app.properties.isiPad
+  isIpad = app.properties.isIpad
   $$ = app.helpers.style.views.edit
   repeats = app.properties.repeats
   
@@ -60,7 +60,7 @@ createWindow = (tab) ->
   
   datePicker = Ti.UI.createPicker $$.datePicker    
 
-  if isiPad
+  if isIpad
     dummyView1 = Ti.UI.createView $$.dummyView
     dateRow.add dummyView1    
     dummyView2 = Ti.UI.createView $$.dummyView
@@ -138,7 +138,7 @@ createWindow = (tab) ->
       titleField.blur()
     if index isnt 2
       schemeField.blur()
-    if !isiPad
+    if !isIpad
       if index isnt 4
         if datePickerContainer.visible
           datePickerContainer.animate $$.closePickerAnimation, ()->
@@ -175,7 +175,7 @@ createWindow = (tab) ->
       datePicker.value = new Date()
     else
       datePicker.value = new Date(schedule.date)
-    if isiPad
+    if isIpad
       datePickerPopOver.show
         view: dummyView1
         animate: true
@@ -187,7 +187,7 @@ createWindow = (tab) ->
     return
   repeatRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
-    if isiPad
+    if isIpad
       repeatTableView.data[0].rows[schedule.repeat].hasCheck = true
       repeatTablePopOver.show
         view: dummyView2
@@ -206,7 +206,7 @@ createWindow = (tab) ->
     _scheduleDataWasChanged()
     return
   
-  if isiPad
+  if isIpad
     repeatTableView.addEventListener 'click' , (e)->
       for row in repeatTableView.data[0].rows
         row.hasCheck = false
@@ -271,7 +271,7 @@ createWindow = (tab) ->
       if e.index is 0
         schedule.del()
         app.views.windowStack[0].refresh()
-        if isiPad
+        if isIpad
           app.views.windowStack[0].showMessage 'The schedule was successfully deleted.'
           newSchedule = Schedule.findLastUpdated()
           if newSchedule is null

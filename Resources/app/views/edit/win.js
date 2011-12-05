@@ -1,11 +1,11 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
   trace = app.helpers.util.trace;
-  isiPad = app.properties.isiPad;
+  isIpad = app.properties.isIpad;
   $$ = app.helpers.style.views.edit;
   repeats = app.properties.repeats;
   schedule = null;
@@ -60,7 +60,7 @@ createWindow = function(tab) {
   }));
   window.add(tableView);
   datePicker = Ti.UI.createPicker($$.datePicker);
-  if (isiPad) {
+  if (isIpad) {
     dummyView1 = Ti.UI.createView($$.dummyView);
     dateRow.add(dummyView1);
     dummyView2 = Ti.UI.createView($$.dummyView);
@@ -155,7 +155,7 @@ createWindow = function(tab) {
     if (index !== 2) {
       schemeField.blur();
     }
-    if (!isiPad) {
+    if (!isIpad) {
       if (index !== 4) {
         if (datePickerContainer.visible) {
           datePickerContainer.animate($$.closePickerAnimation, function() {
@@ -206,7 +206,7 @@ createWindow = function(tab) {
     } else {
       datePicker.value = new Date(schedule.date);
     }
-    if (isiPad) {
+    if (isIpad) {
       datePickerPopOver.show({
         view: dummyView1,
         animate: true
@@ -222,7 +222,7 @@ createWindow = function(tab) {
   });
   repeatRow.addEventListener('click', function(e) {
     _blur(e.source.idx);
-    if (isiPad) {
+    if (isIpad) {
       repeatTableView.data[0].rows[schedule.repeat].hasCheck = true;
       repeatTablePopOver.show({
         view: dummyView2,
@@ -245,7 +245,7 @@ createWindow = function(tab) {
     schedule.date = (new Date(date)).getTime();
     _scheduleDataWasChanged();
   });
-  if (isiPad) {
+  if (isIpad) {
     repeatTableView.addEventListener('click', function(e) {
       var row, _i, _len, _ref;
       _ref = repeatTableView.data[0].rows;
@@ -313,7 +313,7 @@ createWindow = function(tab) {
       if (e.index === 0) {
         schedule.del();
         app.views.windowStack[0].refresh();
-        if (isiPad) {
+        if (isIpad) {
           app.views.windowStack[0].showMessage('The schedule was successfully deleted.');
           newSchedule = Schedule.findLastUpdated();
           if (newSchedule === null) {

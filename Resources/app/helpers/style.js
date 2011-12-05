@@ -1,5 +1,6 @@
-var exports, images, mix, properties, theme, views;
+var exports, images, isIpad, mix, properties, theme, views;
 mix = app.helpers.util.mix;
+isIpad = app.properties.isIpad;
 theme = {
   textColor: '#000000',
   barColor: '#333333',
@@ -10,13 +11,13 @@ theme = {
 };
 if (Ti.Platform.displayCaps.dpi > 300) {
   images = {
-    email: 'image/021-Email@2x.png',
-    photos: 'image/161-Photos@2x.png'
+    grayclock: 'images/grayclock@2x.png',
+    photos: 'images/161-Photos@2x.png'
   };
 } else {
   images = {
-    email: 'image/021-Email.png',
-    photos: 'image/161-Photos.png'
+    grayclock: 'images/grayclock.png',
+    photos: 'images/161-Photos.png'
   };
 }
 app.properties.platformWidth = Ti.Platform.displayCaps.platformWidth;
@@ -28,7 +29,7 @@ properties = {
     barColor: theme.barColor,
     backgroundColor: theme.backgroundColor,
     tabBarHidden: true,
-    orientationModes: app.properties.isiPad ? [Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT] : [Ti.UI.PORTRAIT]
+    orientationModes: isIpad ? [Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT] : [Ti.UI.PORTRAIT]
   },
   Label: {
     color: theme.textColor,
@@ -78,17 +79,22 @@ properties = {
     suppressReturn: false
   }
 };
+if (isIpad) {
+  properties.GroupedTableView.backgroundColor = '#eee';
+  properties.GroupedTableViewRow.backgroundColor = '#fff';
+}
 views = {
   root: {
     window: mix(properties.Window, {
-      title: 'Edit Schedule'
+      title: 'WakeApps'
     }),
     tableView: mix(properties.TableView, {
       editable: true,
       allowsSelectionDuringEditing: false
     }),
     tableViewRow: mix(properties.TableViewRow, {
-      editable: true
+      editable: true,
+      height: 50
     }),
     editBtn: {
       systemButton: Ti.UI.iPhone.SystemButton.EDIT
@@ -103,23 +109,22 @@ views = {
       systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
     },
     titleLabel: mix(properties.Label, {
-      left: 5,
-      top: 12,
+      left: 47,
+      top: 6,
       width: 200,
-      color: '#8b4513',
+      color: '#000',
       height: 20
     }),
     dateLabel: mix(properties.Label, {
-      right: 20,
-      top: 15,
-      width: 60,
-      height: 20,
-      textAlign: 'right',
+      left: 47,
+      top: 28,
+      width: 200,
+      height: 17,
       font: {
         fontFamily: theme.fontFamily,
         fontSize: 14
       },
-      color: '#669'
+      color: '#999'
     }),
     messageWindow: {
       height: 80,
@@ -149,7 +154,8 @@ views = {
       delay: 1500,
       duration: 1000,
       opacity: 0.1
-    }
+    },
+    grayclock: images.grayclock
   },
   edit: {
     window: properties.Window,

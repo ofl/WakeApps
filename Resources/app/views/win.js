@@ -1,12 +1,14 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isiPad, mix, refresh, service, showMessage, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, mix, prettyDate, refresh, repeat, service, showMessage, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
-  isiPad = app.properties.isiPad;
+  isIpad = app.properties.isIpad;
+  prettyDate = app.helpers.util.prettyDate;
   service = null;
+  repeat = ['Day', 'Week', 'Month', 'Year'];
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
   doneEditBtn = Ti.UI.createButton($$.doneBtn);
@@ -18,26 +20,33 @@ createWindow = function(tab) {
   window.setRightNavButton(addBtn);
   window.add(tableView);
   refresh = function() {
-    var prettyDate, row, rows, schedule, schedules, _i, _len;
+    var date, dateString, row, rows, schedule, schedules, _i, _len;
     schedules = Schedule.all();
     rows = [];
-    prettyDate = app.helpers.util.prettyDate(new Date());
     for (_i = 0, _len = schedules.length; _i < _len; _i++) {
       schedule = schedules[_i];
+      date = new Date(schedule.date);
+      if (schedule.repeat > 0) {
+        trace('a');
+        dateString = prettyDate(date, schedule.repeat);
+      } else {
+        trace('b');
+        dateString = date.toLocaleString();
+      }
       row = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
         id: schedule.id,
-        text: schedule.text
+        text: schedule.text,
+        leftImage: $$.grayclock
       }));
       row.add(Ti.UI.createLabel(mix($$.titleLabel, {
         text: schedule.title
       })));
       row.add(Ti.UI.createLabel(mix($$.dateLabel, {
-        text: prettyDate(schedule.updated)
+        text: dateString
       })));
       rows.push(row);
     }
     tableView.setData(rows);
-    window.title = 'Schedules';
   };
   confirm = function(data) {
     var dialog;
@@ -77,7 +86,7 @@ createWindow = function(tab) {
     schedule = Schedule.findById(e.row.id);
     switch (e.type) {
       case 'click':
-        if (isiPad) {
+        if (isIpad) {
           app.views.windowStack[1].confirm(schedule);
         } else {
           app.views.edit.win.open(tab, schedule);
@@ -87,7 +96,7 @@ createWindow = function(tab) {
         isDeleteCurrentSchedule = e.row.id === Ti.App.Properties.getInt('lastSchedule') ? true : false;
         schedule.del();
         showMessage('The schedule was successfully deleted.');
-        if (isiPad && isDeleteCurrentSchedule) {
+        if (isIpad && isDeleteCurrentSchedule) {
           newSchedule = Schedule.findLastUpdated();
           if (newSchedule === null) {
             newSchedule = new Schedule('New Schedule');
@@ -102,7 +111,7 @@ createWindow = function(tab) {
     var schedule;
     schedule = new Schedule('New Schedule');
     showMessage('New schedule.');
-    if (isiPad) {
+    if (isIpad) {
       app.views.windowStack[1].refresh(schedule);
     } else {
       app.views.edit.win.open(tab, schedule);
@@ -155,7 +164,7 @@ exports.win = {
   open: function() {
     var Schedule, detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, trace, window;
     trace = app.helpers.util.trace;
-    if (app.properties.isiPad) {
+    if (app.properties.isIpad) {
       Schedule = app.models.Schedule;
       id = Ti.App.Properties.getInt('lastSchedule');
       schedule = null;
