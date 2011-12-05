@@ -146,8 +146,7 @@ views =
       duration: 1000
       opacity: 0.1
   edit:
-    window: mix(properties.Window,
-      title: 'Edit template')
+    window: properties.Window
     doneBtn: 
       systemButton: Ti.UI.iPhone.SystemButton.DONE
     trashBtn: 

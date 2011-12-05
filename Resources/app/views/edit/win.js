@@ -1,14 +1,14 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isiPad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
   trace = app.helpers.util.trace;
   isiPad = app.properties.isiPad;
   $$ = app.helpers.style.views.edit;
-  schedule = null;
   repeats = app.properties.repeats;
+  schedule = null;
   timerId = null;
   trashBtn = Ti.UI.createButton($$.trashBtn);
   saveBtn = Ti.UI.createButton($$.saveBtn);
@@ -116,11 +116,34 @@ createWindow = function(tab) {
   }
   refresh = function(data) {
     schedule = data;
+    window.title = data.title;
     activeSwitch.value = data.active ? true : false;
     schemeField.value = data.scheme;
     titleField.value = data.title;
     dateRow.title = dateToString(new Date(data.date));
     repeatRow.title = repeats[data.repeat];
+    saveBtn.enabled = false;
+  };
+  confirm = function(data) {
+    var dialog;
+    if (saveBtn.enabled) {
+      dialog = Ti.UI.createAlertDialog({
+        title: 'Your changes have not been saved. Discard changes?',
+        buttonNames: ['Save changes', 'Cancel']
+      });
+      dialog.addEventListener('click', function(e) {
+        if (e.index === 0) {
+          schedule.save();
+          app.views.windowStack[0].refresh();
+          refresh(data);
+        } else {
+          refresh(data);
+        }
+      });
+      dialog.show();
+    } else {
+      refresh(data);
+    }
   };
   _scheduleDataWasChanged = function() {
     saveBtn.enabled = true;
@@ -166,8 +189,9 @@ createWindow = function(tab) {
         rows[e.source.parent.idx + 2].fireEvent('click');
         break;
       case 'change':
-        schedule[e.source.fieldName] = e.source.value;
-        trace(schedule.title);
+        if (schedule[e.source.fieldName] !== e.source.value) {
+          schedule[e.source.fieldName] = e.source.value;
+        }
         _scheduleDataWasChanged();
     }
   };
@@ -260,16 +284,16 @@ createWindow = function(tab) {
   schemeField.addEventListener('focus', _textFieldHandler);
   schemeField.addEventListener('change', _textFieldHandler);
   activeSwitch.addEventListener('change', function(e) {
+    var value;
     _blur(e.source.idx);
-    if (e.value) {
-      schedule.active = 1;
+    value = e.value ? 1 : 0;
+    if (schedule.active !== value) {
+      _scheduleDataWasChanged();
+      schedule.active = value;
       if (Schedule.countAllActive() > 60) {
         alert('Schedule can be activate up to 60. Please Turn off unnecessary schedule');
       }
-    } else {
-      schedule.active = 0;
     }
-    _scheduleDataWasChanged();
   });
   saveBtn.addEventListener('click', function() {
     schedule.save();
@@ -312,6 +336,7 @@ createWindow = function(tab) {
     }
   });
   window.refresh = refresh;
+  window.confirm = confirm;
   return window;
 };
 exports.win = {

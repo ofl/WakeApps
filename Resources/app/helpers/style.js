@@ -152,9 +152,7 @@ views = {
     }
   },
   edit: {
-    window: mix(properties.Window, {
-      title: 'Edit template'
-    }),
+    window: properties.Window,
     doneBtn: {
       systemButton: Ti.UI.iPhone.SystemButton.DONE
     },

@@ -5,14 +5,15 @@ createWindow = (tab) ->
   trace = app.helpers.util.trace
   isiPad = app.properties.isiPad
   $$ = app.helpers.style.views.edit
+  repeats = app.properties.repeats
   
   schedule = null
-  repeats = app.properties.repeats
   timerId = null
   
   trashBtn =  Ti.UI.createButton $$.trashBtn
   saveBtn =  Ti.UI.createButton $$.saveBtn
   fs = Ti.UI.createButton $$.fs
+  
   window = Ti.UI.createWindow mix $$.window,
     toolbar: [trashBtn, fs]
     rightNavButton: saveBtn
@@ -101,12 +102,32 @@ createWindow = (tab) ->
   
   refresh = (data)->
     schedule = data
+    window.title = data.title
     activeSwitch.value = if data.active then true else false 
     schemeField.value = data.scheme
     titleField.value = data.title
     dateRow.title = dateToString(new Date(data.date))
     repeatRow.title = repeats[data.repeat]
+    saveBtn.enabled = false
     return
+
+  confirm = (data)->
+    if saveBtn.enabled
+      dialog = Ti.UI.createAlertDialog
+        title: 'Your changes have not been saved. Discard changes?'
+        buttonNames: ['Save changes','Cancel']
+      dialog.addEventListener 'click', (e)->
+        if e.index is 0
+          schedule.save()
+          app.views.windowStack[0].refresh()
+          refresh data
+        else
+          refresh data          
+        return        
+      dialog.show()
+    else
+      refresh data
+    return    
   
   _scheduleDataWasChanged = ()->
     saveBtn.enabled = true
@@ -139,8 +160,8 @@ createWindow = (tab) ->
       when 'return'
         rows[e.source.parent.idx + 2].fireEvent 'click'
       when 'change'
-        schedule[e.source.fieldName] = e.source.value
-        trace schedule.title
+        if schedule[e.source.fieldName] isnt e.source.value
+          schedule[e.source.fieldName] = e.source.value
         _scheduleDataWasChanged()
     return    
 
@@ -226,13 +247,12 @@ createWindow = (tab) ->
 
   activeSwitch.addEventListener 'change', (e)->
     _blur(e.source.idx)
-    if e.value
-      schedule.active = 1
+    value = if e.value then 1 else 0
+    if schedule.active isnt value
+      _scheduleDataWasChanged()
+      schedule.active = value
       if Schedule.countAllActive() > 60
         alert 'Schedule can be activate up to 60. Please Turn off unnecessary schedule'
-    else
-      schedule.active = 0
-    _scheduleDataWasChanged()
     return
   
   saveBtn.addEventListener 'click' , ()->
@@ -271,6 +291,7 @@ createWindow = (tab) ->
     return
     
   window.refresh = refresh  
+  window.confirm = confirm  
   
   return window
           

@@ -78,7 +78,7 @@ createWindow = function(tab) {
     switch (e.type) {
       case 'click':
         if (isiPad) {
-          app.views.windowStack[1].refresh(schedule);
+          app.views.windowStack[1].confirm(schedule);
         } else {
           app.views.edit.win.open(tab, schedule);
         }
@@ -90,7 +90,7 @@ createWindow = function(tab) {
         if (isiPad && isDeleteCurrentSchedule) {
           newSchedule = Schedule.findLastUpdated();
           if (newSchedule === null) {
-            newSchedule = new Schedule('Open Google in Safari');
+            newSchedule = new Schedule('New Schedule');
           }
           app.views.windowStack[1].refresh(newSchedule);
         }
@@ -100,7 +100,7 @@ createWindow = function(tab) {
   tableView.addEventListener('delete', _tableViewHandler);
   addBtn.addEventListener('click', function(e) {
     var schedule;
-    schedule = new Schedule('Open Google in Safari');
+    schedule = new Schedule('New Schedule');
     showMessage('New schedule.');
     if (isiPad) {
       app.views.windowStack[1].refresh(schedule);
@@ -156,9 +156,6 @@ exports.win = {
     var Schedule, detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, trace, window;
     trace = app.helpers.util.trace;
     if (app.properties.isiPad) {
-      window = createWindow();
-      app.views.windowStack.push(window);
-      window.refresh();
       Schedule = app.models.Schedule;
       id = Ti.App.Properties.getInt('lastSchedule');
       schedule = null;
@@ -166,8 +163,11 @@ exports.win = {
         schedule = Schedule.findById(id);
       }
       if (schedule === null) {
-        schedule = new Schedule('Open Google in Safari');
+        schedule = new Schedule('New Schedule');
       }
+      window = createWindow();
+      app.views.windowStack.push(window);
+      window.refresh();
       detailView = app.views.edit.win.createWindow();
       app.views.windowStack.push(detailView);
       detailView.refresh(schedule);

@@ -72,7 +72,7 @@ createWindow = (tab) ->
     switch e.type
       when 'click'
         if isiPad
-          app.views.windowStack[1].refresh schedule
+          app.views.windowStack[1].confirm schedule
         else
           app.views.edit.win.open tab, schedule
       when 'delete'
@@ -82,7 +82,7 @@ createWindow = (tab) ->
         if isiPad and isDeleteCurrentSchedule
           newSchedule = Schedule.findLastUpdated()
           if newSchedule is null
-             newSchedule = new Schedule 'Open Google in Safari'
+             newSchedule = new Schedule 'New Schedule'
           app.views.windowStack[1].refresh newSchedule            
     return
 
@@ -90,7 +90,7 @@ createWindow = (tab) ->
   tableView.addEventListener 'delete' , _tableViewHandler
   
   addBtn.addEventListener 'click', (e) -> 
-    schedule = new Schedule 'Open Google in Safari'
+    schedule = new Schedule 'New Schedule'
     showMessage 'New schedule.'
     if isiPad      
       app.views.windowStack[1].refresh schedule
@@ -148,44 +148,31 @@ exports.win =
     trace = app.helpers.util.trace
     
     if app.properties.isiPad
-      window = createWindow()
-      app.views.windowStack.push window      
-      window.refresh()
       Schedule = app.models.Schedule
       id = Ti.App.Properties.getInt 'lastSchedule'    
       schedule = null
       if id
         schedule = Schedule.findById id
       if schedule is null
-        schedule = new Schedule 'Open Google in Safari'
+        schedule = new Schedule 'New Schedule'
+        
+      window = createWindow()
+      app.views.windowStack.push window      
+      window.refresh()      
+        
       detailView = app.views.edit.win.createWindow()
       app.views.windowStack.push detailView
       detailView.refresh schedule
+      
       detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup
         window: detailView
       masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup
         window: window
+        
       splitwin = Ti.UI.iPad.createSplitWindow
         showMasterInPortrait: true
         detailView: detailNavigationGroup
         masterView: masterNavigationGroup
-        
-      # splitwin.addEventListener 'visible', (e)->
-        # if e.view is 'detail'
-          # app.properties.isPortrait = true
-          # e.button.title = "Schedules"
-          # window.leftNavButton = e.button
-        # else if e.view is 'master'
-          # app.properties.isPortrait = false
-          # window.leftNavButton = null
-        # window.orientationChange app.properties.isPortrait
-        # return
-# 
-      # Ti.App.addEventListener 'root.closeMasterNavigationGroup', (e)->
-        # if app.properties.isPortrait
-          # splitwin.setMasterPopupVisible false
-          # splitwin.setMasterPopupVisible true
-        # return
         
       splitwin.open()   
     else     
