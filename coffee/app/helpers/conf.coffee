@@ -4,11 +4,11 @@ do ->
   app.properties.isPortrait = true
   app.properties.isActive = false
   app.properties.repeats = [
-    'None', 
-    'Daily', 
-    'Weekly', 
-    'Monthly', 
-    'Yearly'
+    L('conf.none'), 
+    L('conf.daily'), 
+    L('conf.weekly'), 
+    L('conf.monthly'), 
+    L('conf.yearly') 
     ]
 
 exports = {}

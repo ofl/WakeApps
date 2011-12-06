@@ -178,7 +178,7 @@ views = {
     },
     copyBtn: {
       style: Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
-      title: 'Copy'
+      title: L('style.copy')
     },
     saveBtn: {
       systemButton: Ti.UI.iPhone.SystemButton.SAVE,

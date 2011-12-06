@@ -14,7 +14,7 @@
     <url>http://www.tempad.info/wakeapps</url>
     <description>not specified</description>
     <copyright>2011 by sim</copyright>
-    <icon>appicon.png</icon>
+    <icon>Icon.png</icon>
     <persistent-wifi>false</persistent-wifi>
     <prerendered-icon>false</prerendered-icon>
     <statusbar-style>default</statusbar-style>

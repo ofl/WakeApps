@@ -26,7 +26,7 @@ createWindow = (tab) ->
   titleRow.add titleField
   
   activeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    title: 'Active'
+    title: L 'edit.active'
     idx: 1
   activeSwitch = Ti.UI.createSwitch $$.switches
   activeRow.add activeSwitch
@@ -39,18 +39,18 @@ createWindow = (tab) ->
   schemeRow.add schemeField
   
   testRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    title: 'Test Action'
+    title: L 'edit.test'
     color: '#1e90ff'
     hasChild: true
     idx: 3
   
   dateRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    header: 'Date'
+    header: L 'edit.date'
     hasChild: true
     idx: 4
     
   repeatRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    header: 'Repeat'    
+    header: L 'edit.repeat'
     hasChild: true
     idx: 5
   
@@ -73,11 +73,11 @@ createWindow = (tab) ->
         choice.push title: repeat
       repeatTableView.setData choice
     datePickerPopOver = Ti.UI.iPad.createPopover mix $$.popOver,
-      title: 'Date'
+      title: L 'edit.date'
       arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
     datePickerPopOver.add datePicker
     repeatTablePopOver = Ti.UI.iPad.createPopover mix $$.popOver,
-      title: 'Repeat'
+      title: L 'edit.repeat'
       arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
     repeatTablePopOver.add repeatTableView
   else
@@ -116,8 +116,8 @@ createWindow = (tab) ->
   confirm = (data)->
     if saveBtn.enabled
       dialog = Ti.UI.createAlertDialog
-        title: 'Your changes have not been saved. Discard changes?'
-        buttonNames: ['Save changes','Cancel']
+        title: L 'root.confirm'
+        buttonNames: [L('root.save'),L('root.cancel')]
       dialog.addEventListener 'click', (e)->
         if e.index is 0
           schedule.save()
@@ -255,21 +255,21 @@ createWindow = (tab) ->
       _scheduleDataWasChanged()
       schedule.active = value
       if Schedule.countAllActive() > 60
-        alert 'Schedule can be activate up to 60. Please Turn off unnecessary schedule'
+        alert L('edit.over')
     return
   
   saveBtn.addEventListener 'click' , ()->
     schedule.save()
     app.views.windowStack[0].refresh()
-    app.views.windowStack[0].showMessage 'The schedule was successfully saved.'
+    app.views.windowStack[0].showMessage L('edit.saved')
     saveBtn.enabled = false
     copyBtn.enabled = true
     return
   
   trashBtn.addEventListener 'click' , ()->
     dialog = Ti.UI.createOptionDialog
-      title: 'Are you sure delete this schedule?'
-      options: ['Delete','Cancel']
+      title: L 'edit.confirm'
+      options: [L('edit.delete'), L('root.cancel')]
       destructive: 0
       cancel: 1
     dialog.addEventListener 'click', (e)->
@@ -277,10 +277,10 @@ createWindow = (tab) ->
         schedule.del()
         app.views.windowStack[0].refresh()
         if isIpad
-          app.views.windowStack[0].showMessage 'The schedule was successfully deleted.'
+          app.views.windowStack[0].showMessage(L('root.deleted'))
           newSchedule = Schedule.findLastUpdated()
           if newSchedule is null
-             newSchedule = new Schedule 'Open Google in Safari'
+             newSchedule = new Schedule(L('root.newschedule'))
           refresh newSchedule            
         else
           window.close()
@@ -291,7 +291,7 @@ createWindow = (tab) ->
   copyBtn.addEventListener 'click' , ()->
     data = new Schedule schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.options
     schedule = data
-    app.views.windowStack[0].showMessage 'The schedule was successfully copied.'
+    app.views.windowStack[0].showMessage L('edit.copied')
     saveBtn.enabled = true
     copyBtn.enabled = false    
     return

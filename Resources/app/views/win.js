@@ -52,8 +52,8 @@ createWindow = function(tab) {
   confirm = function(data) {
     var dialog;
     dialog = Ti.UI.createAlertDialog({
-      title: 'Your changes have not been saved. Discard changes?',
-      buttonNames: ['Save changes', 'Cancel']
+      title: L('root.confirm'),
+      buttonNames: [L('root.save'), L('root.cancel')]
     });
     dialog.addEventListener('click', function(e) {
       if (e.index === 0) {
@@ -96,11 +96,11 @@ createWindow = function(tab) {
       case 'delete':
         isDeleteCurrentSchedule = e.row.id === Ti.App.Properties.getInt('lastSchedule') ? true : false;
         schedule.del();
-        showMessage('The schedule was successfully deleted.');
+        showMessage(L('root.deleted'));
         if (isIpad && isDeleteCurrentSchedule) {
           newSchedule = Schedule.findLastUpdated();
           if (newSchedule === null) {
-            newSchedule = new Schedule('New Schedule');
+            newSchedule = new Schedule(L('root.newschedule'));
           }
           app.views.windowStack[1].refresh(newSchedule);
         }
@@ -110,8 +110,8 @@ createWindow = function(tab) {
   tableView.addEventListener('delete', _tableViewHandler);
   addBtn.addEventListener('click', function(e) {
     var schedule;
-    schedule = new Schedule('New Schedule');
-    showMessage('New schedule.');
+    schedule = new Schedule(L('root.newschedule'));
+    showMessage(L('root.newschedule'));
     if (isIpad) {
       app.views.windowStack[1].refresh(schedule);
     } else {
@@ -175,7 +175,7 @@ exports.win = {
         schedule = Schedule.findById(id);
       }
       if (schedule === null) {
-        schedule = new Schedule('New Schedule');
+        schedule = new Schedule(L('root.newschedule'));
       }
       window = createWindow();
       app.views.windowStack.push(window);

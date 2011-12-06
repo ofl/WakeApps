@@ -1,2 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
+    <string name="conf.none">None</string>
+    <string name="conf.daily">Daily</string>
+    <string name="conf.weekly">Weekly</string>
+    <string name="conf.monthly">Monthly</string>
+    <string name="conf.yearly">Yearly</string>
+    <string name="root.confirm">Your changes have not been saved. Discard changes?</string>
+    <string name="root.save">Save changes</string>
+    <string name="root.cancel">Cancel</string>
+    <string name="root.deleted">The schedule was successfully deleted.</string>
+    <string name="root.newschedule">New Schedule</string>
+    <string name="style.copy">Copy</string>
+    <string name="edit.active">Active</string>
+    <string name="edit.test">Test Action</string>
+    <string name="edit.date">Date</string>
+    <string name="edit.repeat">Repeat</string>
+    <string name="edit.copied">The schedule was successfully copied.</string>
+    <string name="edit.over">Schedule can be activate up to 60. Please Turn off unnecessary schedule.</string>
+    <string name="edit.saved">The schedule was successfully saved.</string>
+    <string name="edit.confirm">Are you sure delete this schedule?</string>
+    <string name="edit.delete">Delete</string>
 </resources>

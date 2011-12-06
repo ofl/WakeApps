@@ -48,8 +48,8 @@ createWindow = (tab) ->
 
   confirm = (data)->
     dialog = Ti.UI.createAlertDialog
-      title: 'Your changes have not been saved. Discard changes?'
-      buttonNames: ['Save changes','Cancel']
+      title: L 'root.confirm'
+      buttonNames: [L('root.save'),L('root.cancel')]
     dialog.addEventListener 'click', (e)->
       if e.index is 0
         data.save()
@@ -86,11 +86,11 @@ createWindow = (tab) ->
       when 'delete'
         isDeleteCurrentSchedule = if e.row.id is Ti.App.Properties.getInt 'lastSchedule' then true else false
         schedule.del()
-        showMessage 'The schedule was successfully deleted.'
+        showMessage L('root.deleted')
         if isIpad and isDeleteCurrentSchedule
           newSchedule = Schedule.findLastUpdated()
           if newSchedule is null
-             newSchedule = new Schedule 'New Schedule'
+             newSchedule = new Schedule(L('root.newschedule'))
           app.views.windowStack[1].refresh newSchedule            
     return
 
@@ -98,8 +98,8 @@ createWindow = (tab) ->
   tableView.addEventListener 'delete' , _tableViewHandler
   
   addBtn.addEventListener 'click', (e) -> 
-    schedule = new Schedule 'New Schedule'
-    showMessage 'New schedule.'
+    schedule = new Schedule(L('root.newschedule'))
+    showMessage L('root.newschedule')
     if isIpad      
       app.views.windowStack[1].refresh schedule
     else
@@ -162,7 +162,7 @@ exports.win =
       if id
         schedule = Schedule.findById id
       if schedule is null
-        schedule = new Schedule 'New Schedule'
+        schedule = new Schedule(L('root.newschedule'))
         
       window = createWindow()
       app.views.windowStack.push window      

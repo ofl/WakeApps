@@ -1,2 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
+    <string name="conf.none">なし</string>
+    <string name="conf.daily">毎日</string>
+    <string name="conf.weekly">毎週</string>
+    <string name="conf.monthly">毎月</string>
+    <string name="conf.yearly">毎年</string>
+    <string name="root.confirm">変更は保存されていません。変更を破棄しますか？</string>
+    <string name="root.save">保存</string>
+    <string name="root.cancel">キャンセル</string>
+    <string name="root.deleted">スケジュールを削除しました。</string>
+    <string name="root.newschedule">新しいスケジュール</string>
+    <string name="style.copy">コピー</string>
+    <string name="edit.active">有効</string>
+    <string name="edit.test">アクションをテストする</string>
+    <string name="edit.date">日時</string>
+    <string name="edit.repeat">くり返し</string>
+    <string name="edit.copied">スケジュールをコピーしました。</string>
+    <string name="edit.over">保存できるスケジュールは60個までです。不要なスケジュールを削除してください。</string>
+    <string name="edit.saved">スケジュールを保存しました。</string>
+    <string name="edit.confirm">ほんんとうに削除しますか？。</string>
+    <string name="edit.delete">削除</string>
 </resources>
