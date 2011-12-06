@@ -1,37 +1,37 @@
 var Schedule, db, exports;
-if (app.properties.dbVersion === null) {
+if (!Ti.App.Properties.getInt('dbVersion')) {
+  Ti.API.info('Database was installed.');
   Ti.Database.install('schedule.sqlite', '../../Caches/db.sqlite');
   Ti.App.Properties.setInt('dbVersion', 1);
 }
 db = Ti.Database.open('../../Caches/db.sqlite');
-db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
-  function Schedule(title, active, updated, id, date, scheme, repeat, options) {
+  function Schedule(title, active, date, scheme, repeat, options, updated, id) {
     this.title = title;
     this.active = active != null ? active : 0;
-    this.updated = updated != null ? updated : -1;
-    this.id = id != null ? id : null;
     this.date = date != null ? date : (new Date()).getTime();
     this.scheme = scheme != null ? scheme : 'http://www.google.com';
     this.repeat = repeat != null ? repeat : 0;
     this.options = options != null ? options : {};
+    this.updated = updated != null ? updated : -1;
+    this.id = id != null ? id : null;
     Ti.App.Properties.removeProperty('lastSchedule');
   }
   Schedule.prototype.save = function() {
     var now;
     now = (new Date()).getTime();
     if (this.id === null) {
-      db.execute("INSERT INTO SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options));
+      db.execute("INSERT INTO main.SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options));
       this.id = db.lastInsertRowId;
     } else {
-      db.execute("UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
+      db.execute("UPDATE main.SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
     }
     Ti.App.Properties.setInt('lastSchedule', this.id);
     return this;
   };
   Schedule.prototype.del = function() {
     if (this.id !== null) {
-      db.execute("DELETE FROM SCHEDULEDB WHERE id = ?", this.id);
+      db.execute("DELETE FROM main.SCHEDULEDB WHERE id = ?", this.id);
     }
     return null;
   };
@@ -60,7 +60,7 @@ Schedule = (function() {
     rows = db.execute(sql);
     if (rows.isValidRow()) {
       f = rows.fieldByName;
-      schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('UPDATED'), 10), f('ID'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')));
+      schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')), parseInt(f('UPDATED'), 10), f('ID'));
       Ti.App.Properties.setInt('lastSchedule', f('ID'));
     }
     rows.close();
@@ -74,22 +74,22 @@ Schedule = (function() {
     return count;
   };
   Schedule.all = function() {
-    return Schedule.findAll("SELECT * FROM SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000");
+    return Schedule.findAll("SELECT * FROM main.SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000");
   };
   Schedule.findAllActive = function() {
-    return Schedule.findAll("SELECT * FROM SCHEDULEDB WHERE ACTIVE > 0 ORDER BY UPDATED DESC LIMIT 60");
+    return Schedule.findAll("SELECT * FROM main.SCHEDULEDB WHERE ACTIVE > 0 ORDER BY UPDATED DESC LIMIT 60");
   };
   Schedule.countAllActive = function() {
-    return Schedule.count("SELECT ID FROM SCHEDULEDB WHERE ACTIVE > 0");
+    return Schedule.count("SELECT ID FROM main.SCHEDULEDB WHERE ACTIVE > 0");
   };
   Schedule.findById = function(id) {
-    return Schedule.findOne("SELECT * FROM SCHEDULEDB WHERE ID = " + id);
+    return Schedule.findOne("SELECT * FROM main.SCHEDULEDB WHERE ID = " + id);
   };
   Schedule.findLastUpdated = function() {
-    return Schedule.findOne("SELECT * FROM SCHEDULEDB  ORDER BY UPDATED");
+    return Schedule.findOne("SELECT * FROM main.SCHEDULEDB  ORDER BY UPDATED");
   };
   Schedule.delAll = function() {
-    db.execute("DELETE FROM SCHEDULEDB");
+    db.execute("DELETE FROM main.SCHEDULEDB");
   };
   return Schedule;
 })();

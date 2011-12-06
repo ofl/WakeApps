@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -11,10 +11,11 @@ createWindow = function(tab) {
   schedule = null;
   timerId = null;
   trashBtn = Ti.UI.createButton($$.trashBtn);
+  copyBtn = Ti.UI.createButton($$.copyBtn);
   saveBtn = Ti.UI.createButton($$.saveBtn);
   fs = Ti.UI.createButton($$.fs);
   window = Ti.UI.createWindow(mix($$.window, {
-    toolbar: [trashBtn, fs],
+    toolbar: [trashBtn, fs, copyBtn],
     rightNavButton: saveBtn
   }));
   titleRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
@@ -123,6 +124,7 @@ createWindow = function(tab) {
     dateRow.title = dateToString(new Date(data.date));
     repeatRow.title = repeats[data.repeat];
     saveBtn.enabled = false;
+    copyBtn.enabled = true;
   };
   confirm = function(data) {
     var dialog;
@@ -147,6 +149,7 @@ createWindow = function(tab) {
   };
   _scheduleDataWasChanged = function() {
     saveBtn.enabled = true;
+    copyBtn.enabled = false;
   };
   _blur = function(index) {
     if (index !== 0) {
@@ -160,7 +163,7 @@ createWindow = function(tab) {
         if (datePickerContainer.visible) {
           datePickerContainer.animate($$.closePickerAnimation, function() {
             datePickerContainer.visible = false;
-            window.setToolbar([trashBtn, fs], {
+            window.setToolbar([trashBtn, fs, copyBtn], {
               animated: true
             });
             return datePickerContainer.remove(pickerToolbar);
@@ -171,7 +174,7 @@ createWindow = function(tab) {
         if (repeatPickerContainer.visible) {
           repeatPickerContainer.animate($$.closePickerAnimation, function() {
             repeatPickerContainer.visible = false;
-            window.setToolbar([trashBtn, fs], {
+            window.setToolbar([trashBtn, fs, copyBtn], {
               animated: true
             });
             return repeatPickerContainer.remove(pickerToolbar);
@@ -298,7 +301,9 @@ createWindow = function(tab) {
   saveBtn.addEventListener('click', function() {
     schedule.save();
     app.views.windowStack[0].refresh();
+    app.views.windowStack[0].showMessage('The schedule was successfully saved.');
     saveBtn.enabled = false;
+    copyBtn.enabled = true;
   });
   trashBtn.addEventListener('click', function() {
     var dialog;
@@ -326,6 +331,14 @@ createWindow = function(tab) {
       }
     });
     dialog.show();
+  });
+  copyBtn.addEventListener('click', function() {
+    var data;
+    data = new Schedule(schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.options);
+    schedule = data;
+    app.views.windowStack[0].showMessage('The schedule was successfully copied.');
+    saveBtn.enabled = true;
+    copyBtn.enabled = false;
   });
   window.addEventListener('close', function() {
     var stack;

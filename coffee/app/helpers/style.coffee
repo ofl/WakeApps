@@ -167,6 +167,9 @@ views =
       systemButton: Ti.UI.iPhone.SystemButton.DONE
     trashBtn: 
       systemButton: Ti.UI.iPhone.SystemButton.TRASH
+    copyBtn: 
+      style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+      title:'Copy'
     saveBtn: 
       systemButton: Ti.UI.iPhone.SystemButton.SAVE
       enabled: false

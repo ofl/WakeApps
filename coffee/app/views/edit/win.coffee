@@ -11,11 +11,12 @@ createWindow = (tab) ->
   timerId = null
   
   trashBtn =  Ti.UI.createButton $$.trashBtn
+  copyBtn =  Ti.UI.createButton $$.copyBtn
   saveBtn =  Ti.UI.createButton $$.saveBtn
   fs = Ti.UI.createButton $$.fs
   
   window = Ti.UI.createWindow mix $$.window,
-    toolbar: [trashBtn, fs]
+    toolbar: [trashBtn, fs, copyBtn]
     rightNavButton: saveBtn
       
   titleRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
@@ -109,6 +110,7 @@ createWindow = (tab) ->
     dateRow.title = dateToString(new Date(data.date))
     repeatRow.title = repeats[data.repeat]
     saveBtn.enabled = false
+    copyBtn.enabled = true
     return
 
   confirm = (data)->
@@ -131,6 +133,7 @@ createWindow = (tab) ->
   
   _scheduleDataWasChanged = ()->
     saveBtn.enabled = true
+    copyBtn.enabled = false
     return
 
   _blur = (index)->
@@ -143,13 +146,13 @@ createWindow = (tab) ->
         if datePickerContainer.visible
           datePickerContainer.animate $$.closePickerAnimation, ()->
             datePickerContainer.visible = false
-            window.setToolbar [trashBtn, fs],{animated:true}
+            window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
             datePickerContainer.remove pickerToolbar
       if index isnt 5
         if repeatPickerContainer.visible
           repeatPickerContainer.animate $$.closePickerAnimation, ()->
             repeatPickerContainer.visible = false            
-            window.setToolbar [trashBtn, fs],{animated:true}
+            window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
             repeatPickerContainer.remove pickerToolbar
     return        
 
@@ -258,7 +261,9 @@ createWindow = (tab) ->
   saveBtn.addEventListener 'click' , ()->
     schedule.save()
     app.views.windowStack[0].refresh()
+    app.views.windowStack[0].showMessage 'The schedule was successfully saved.'
     saveBtn.enabled = false
+    copyBtn.enabled = true
     return
   
   trashBtn.addEventListener 'click' , ()->
@@ -281,6 +286,14 @@ createWindow = (tab) ->
           window.close()
       return        
     dialog.show()
+    return
+  
+  copyBtn.addEventListener 'click' , ()->
+    data = new Schedule schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.options
+    schedule = data
+    app.views.windowStack[0].showMessage 'The schedule was successfully copied.'
+    saveBtn.enabled = true
+    copyBtn.enabled = false    
     return
   
   window.addEventListener 'close' , ()->

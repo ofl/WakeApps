@@ -1,31 +1,28 @@
-if app.properties.dbVersion is null
+if !Ti.App.Properties.getInt 'dbVersion'
+  Ti.API.info 'Database was installed.'
   Ti.Database.install('schedule.sqlite', '../../Caches/db.sqlite')
   Ti.App.Properties.setInt 'dbVersion', 1
 
 db = Ti.Database.open '../../Caches/db.sqlite'
-db.execute "CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)"
-# getNow = ()-> 
-  # d = (new Date()).getTime()
-  # return d - (d % 60000)
+# db.execute "CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)"
 
 class Schedule
-#   itype -1, history 0, timer 1, favorite 2,  folder 3 
-  constructor: (@title, @active = 0, @updated = -1, @id = null, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @options = {}) ->
+  constructor: (@title, @active = 0, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @options = {}, @updated = -1, @id = null) ->
     Ti.App.Properties.removeProperty 'lastSchedule'
         
   save: () ->
     now = (new Date()).getTime()
     if @id is null
-      db.execute "INSERT INTO SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options)
+      db.execute "INSERT INTO main.SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options)
       @id = db.lastInsertRowId
     else
-      db.execute "UPDATE SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options), @id
+      db.execute "UPDATE main.SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options), @id
     Ti.App.Properties.setInt 'lastSchedule',  @id
     return this
     
   del: () ->
     if @id isnt null
-      db.execute "DELETE FROM SCHEDULEDB WHERE id = ?", @id
+      db.execute "DELETE FROM main.SCHEDULEDB WHERE id = ?", @id
     return null
     
   @findAll: (sql) ->
@@ -50,7 +47,7 @@ class Schedule
     
     if rows.isValidRow()      
       f = rows.fieldByName
-      schedule = new Schedule f('TITLE'), f('ACTIVE'), parseInt(f('UPDATED'), 10), f('ID'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS'))
+      schedule = new Schedule f('TITLE'), f('ACTIVE'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')), parseInt(f('UPDATED'), 10), f('ID')
       Ti.App.Properties.setInt 'lastSchedule',  f('ID')
     rows.close()    
     return schedule    
@@ -62,22 +59,22 @@ class Schedule
     return count
     
   @all: () ->
-    Schedule.findAll "SELECT * FROM SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000"
+    Schedule.findAll "SELECT * FROM main.SCHEDULEDB ORDER BY UPDATED DESC LIMIT 1000"
     
   @findAllActive: () ->
-    Schedule.findAll "SELECT * FROM SCHEDULEDB WHERE ACTIVE > 0 ORDER BY UPDATED DESC LIMIT 60"
+    Schedule.findAll "SELECT * FROM main.SCHEDULEDB WHERE ACTIVE > 0 ORDER BY UPDATED DESC LIMIT 60"
 
   @countAllActive: () ->
-    Schedule.count "SELECT ID FROM SCHEDULEDB WHERE ACTIVE > 0"
+    Schedule.count "SELECT ID FROM main.SCHEDULEDB WHERE ACTIVE > 0"
     
   @findById: (id) ->
-    Schedule.findOne "SELECT * FROM SCHEDULEDB WHERE ID = #{id}"
+    Schedule.findOne "SELECT * FROM main.SCHEDULEDB WHERE ID = #{id}"
     
   @findLastUpdated: () ->
-    Schedule.findOne "SELECT * FROM SCHEDULEDB  ORDER BY UPDATED"
+    Schedule.findOne "SELECT * FROM main.SCHEDULEDB  ORDER BY UPDATED"
     
   @delAll: () ->
-    db.execute "DELETE FROM SCHEDULEDB"
+    db.execute "DELETE FROM main.SCHEDULEDB"
     return
     
 exports = 
