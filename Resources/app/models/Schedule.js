@@ -1,5 +1,9 @@
 var Schedule, db, exports;
-db = Ti.Database.open('db');
+if (app.properties.dbVersion === null) {
+  Ti.Database.install('schedule.sqlite', '../../Caches/db.sqlite');
+  Ti.App.Properties.setInt('dbVersion', 1);
+}
+db = Ti.Database.open('../../Caches/db.sqlite');
 db.execute("CREATE TABLE IF NOT EXISTS SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
   function Schedule(title, active, updated, id, date, scheme, repeat, options) {

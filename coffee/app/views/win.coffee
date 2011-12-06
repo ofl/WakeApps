@@ -8,7 +8,6 @@ createWindow = (tab) ->
   prettyDate = app.helpers.util.prettyDate
   
   service = null
-  repeat = ['Day', 'Week', 'Month', 'Year']
   
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
@@ -29,7 +28,7 @@ createWindow = (tab) ->
     now = (new Date()).getTime()
     for schedule in schedules
       date = new Date(schedule.date)
-      icon = if schedule.repeat or date.getTime() > now then $$.aquaclock else $$.silverclock
+      icon = if schedule.active and (schedule.repeat or date.getTime() > now) then $$.aquaclock else $$.silverclock
       if schedule.repeat > 0
         dateString = prettyDate(date, schedule.repeat)
       else
@@ -127,8 +126,8 @@ createWindow = (tab) ->
       service.unregister()
     service = Ti.App.iOS.registerBackgroundService 
       url: 'app/lib/background.js'
-    
-    Ti.Platform.openURL e.userInfo.scheme
+    if e.userInfo.scheme isnt ''
+      Ti.Platform.openURL e.userInfo.scheme
     return
 
   window.addEventListener 'open', (e) -> 

@@ -40,7 +40,7 @@ createWindow = function(tab) {
   schemeRow.add(schemeField);
   testRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     title: 'Test Action',
-    color: '#f00',
+    color: '#1e90ff',
     hasChild: true,
     idx: 3
   }));

@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, mix, prettyDate, refresh, repeat, service, showMessage, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, mix, prettyDate, refresh, service, showMessage, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -8,7 +8,6 @@ createWindow = function(tab) {
   isIpad = app.properties.isIpad;
   prettyDate = app.helpers.util.prettyDate;
   service = null;
-  repeat = ['Day', 'Week', 'Month', 'Year'];
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
   doneEditBtn = Ti.UI.createButton($$.doneBtn);
@@ -27,7 +26,7 @@ createWindow = function(tab) {
     for (_i = 0, _len = schedules.length; _i < _len; _i++) {
       schedule = schedules[_i];
       date = new Date(schedule.date);
-      icon = schedule.repeat || date.getTime() > now ? $$.aquaclock : $$.silverclock;
+      icon = schedule.active && (schedule.repeat || date.getTime() > now) ? $$.aquaclock : $$.silverclock;
       if (schedule.repeat > 0) {
         dateString = prettyDate(date, schedule.repeat);
       } else {
@@ -139,7 +138,9 @@ createWindow = function(tab) {
     service = Ti.App.iOS.registerBackgroundService({
       url: 'app/lib/background.js'
     });
-    Ti.Platform.openURL(e.userInfo.scheme);
+    if (e.userInfo.scheme !== '') {
+      Ti.Platform.openURL(e.userInfo.scheme);
+    }
   });
   window.addEventListener('open', function(e) {
     if (service !== null) {
