@@ -140,7 +140,7 @@ createWindow = function(tab) {
       service.unregister();
     }
     service = Ti.App.iOS.registerBackgroundService({
-      url: 'app/lib/background.js'
+      url: 'app/helpers/background.js'
     });
     if (e.userInfo.scheme !== '') {
       Ti.Platform.openURL(e.userInfo.scheme);
@@ -151,7 +151,7 @@ createWindow = function(tab) {
       service.unregister();
     }
     service = Ti.App.iOS.registerBackgroundService({
-      url: 'app/lib/background.js'
+      url: 'app/helpers/background.js'
     });
   });
   Ti.App.addEventListener('resume', function(e) {
@@ -159,7 +159,7 @@ createWindow = function(tab) {
       service.unregister();
     }
     service = Ti.App.iOS.registerBackgroundService({
-      url: 'app/lib/background.js'
+      url: 'app/helpers/background.js'
     });
   });
   window.refresh = refresh;

@@ -130,7 +130,7 @@ createWindow = (tab) ->
     if service isnt null
       service.unregister()
     service = Ti.App.iOS.registerBackgroundService 
-      url: 'app/lib/background.js'
+      url: 'app/helpers/background.js'
     if e.userInfo.scheme isnt ''
       Ti.Platform.openURL e.userInfo.scheme
     return
@@ -139,14 +139,14 @@ createWindow = (tab) ->
     if service isnt null
       service.unregister()
     service = Ti.App.iOS.registerBackgroundService 
-      url: 'app/lib/background.js'
+      url: 'app/helpers/background.js'
     return
     
   Ti.App.addEventListener 'resume', (e) -> 
     if service isnt null
       service.unregister()
     service = Ti.App.iOS.registerBackgroundService 
-      url: 'app/lib/background.js'
+      url: 'app/helpers/background.js'
     return
     
   window.refresh = refresh
