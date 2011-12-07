@@ -108,6 +108,9 @@ views = {
     addBtn: {
       systemButton: Ti.UI.iPhone.SystemButton.ADD
     },
+    refreshBtn: {
+      systemButton: Ti.UI.iPhone.SystemButton.REFRESH
+    },
     fs: {
       systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
     },

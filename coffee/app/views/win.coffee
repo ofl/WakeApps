@@ -12,10 +12,11 @@ createWindow = (tab) ->
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
   doneEditBtn = Ti.UI.createButton $$.doneBtn
+  refreshBtn = Ti.UI.createButton $$.refreshBtn
   fs = Ti.UI.createButton $$.fs
   
   window = Ti.UI.createWindow mix $$.window,
-    toolbar: [editBtn, fs]
+    toolbar: [editBtn, fs, refreshBtn]
   
   tableView = Ti.UI.createTableView $$.tableView
   
@@ -115,9 +116,13 @@ createWindow = (tab) ->
 
   doneEditBtn.addEventListener 'click', (e) -> 
     window.setRightNavButton addBtn
-    window.toolbar = [editBtn, fs]    
+    window.toolbar = [editBtn, fs, refreshBtn]    
     tableView.editing = false
     tableView.moving = false
+    return
+
+  refreshBtn.addEventListener 'click', (e) -> 
+    refresh()
     return
 
   Ti.App.iOS.addEventListener 'notification', (e)->

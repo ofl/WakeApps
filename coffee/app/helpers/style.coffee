@@ -112,6 +112,8 @@ views =
       systemButton: Ti.UI.iPhone.SystemButton.DONE
     addBtn: 
       systemButton: Ti.UI.iPhone.SystemButton.ADD
+    refreshBtn: 
+      systemButton: Ti.UI.iPhone.SystemButton.REFRESH
     fs:
       systemButton: Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
     titleLabel: mix(properties.Label,

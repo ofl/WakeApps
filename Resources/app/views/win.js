@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, mix, prettyDate, refresh, service, showMessage, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -11,9 +11,10 @@ createWindow = function(tab) {
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
   doneEditBtn = Ti.UI.createButton($$.doneBtn);
+  refreshBtn = Ti.UI.createButton($$.refreshBtn);
   fs = Ti.UI.createButton($$.fs);
   window = Ti.UI.createWindow(mix($$.window, {
-    toolbar: [editBtn, fs]
+    toolbar: [editBtn, fs, refreshBtn]
   }));
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
@@ -126,9 +127,12 @@ createWindow = function(tab) {
   });
   doneEditBtn.addEventListener('click', function(e) {
     window.setRightNavButton(addBtn);
-    window.toolbar = [editBtn, fs];
+    window.toolbar = [editBtn, fs, refreshBtn];
     tableView.editing = false;
     tableView.moving = false;
+  });
+  refreshBtn.addEventListener('click', function(e) {
+    refresh();
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
     trace('Fired From Notification');
