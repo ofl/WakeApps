@@ -123,6 +123,7 @@ createWindow = (tab) ->
 
   refreshBtn.addEventListener 'click', (e) -> 
     refresh()
+    showMessage L('root.refreshed')
     return
 
   Ti.App.iOS.addEventListener 'notification', (e)->

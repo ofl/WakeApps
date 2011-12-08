@@ -10,6 +10,7 @@
     <string name="root.cancel">キャンセル</string>
     <string name="root.deleted">スケジュールを削除しました。</string>
     <string name="root.newschedule">新しいスケジュール</string>
+    <string name="root.refreshed">最新の状態に更新しました</string>
     <string name="style.copy">コピー</string>
     <string name="edit.active">有効</string>
     <string name="edit.test">アクションをテストする</string>
@@ -18,6 +19,6 @@
     <string name="edit.copied">スケジュールをコピーしました。</string>
     <string name="edit.over">保存できるスケジュールは60個までです。不要なスケジュールを削除してください。</string>
     <string name="edit.saved">スケジュールを保存しました。</string>
-    <string name="edit.confirm">ほんんとうに削除しますか？。</string>
+    <string name="edit.confirm">ほんとうに削除しますか？</string>
     <string name="edit.delete">削除</string>
 </resources>

@@ -10,6 +10,7 @@
     <string name="root.cancel">Cancel</string>
     <string name="root.deleted">The schedule was successfully deleted.</string>
     <string name="root.newschedule">New Schedule</string>
+    <string name="root.refreshed">Updated</string>
     <string name="style.copy">Copy</string>
     <string name="edit.active">Active</string>
     <string name="edit.test">Test Action</string>

@@ -133,6 +133,7 @@ createWindow = function(tab) {
   });
   refreshBtn.addEventListener('click', function(e) {
     refresh();
+    showMessage(L('root.refreshed'));
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
     trace('Fired From Notification');
