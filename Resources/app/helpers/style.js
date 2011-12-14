@@ -203,7 +203,7 @@ views = {
       top: 0
     }),
     tableViewRow: properties.GroupedTableViewRow,
-    repeatPicker: {
+    picker: {
       bottom: 0
     },
     pickerContainer: {

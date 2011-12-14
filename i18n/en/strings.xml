@@ -16,6 +16,9 @@
     <string name="edit.test">Test Action</string>
     <string name="edit.date">Date</string>
     <string name="edit.repeat">Repeat</string>
+    <string name="edit.sound">Sound</string>
+    <string name="edit.alert">Beep</string>
+    <string name="edit.default">System default</string>
     <string name="edit.copied">The schedule was successfully copied.</string>
     <string name="edit.over">Schedule can be activate up to 60. Please Turn off unnecessary schedule.</string>
     <string name="edit.saved">The schedule was successfully saved.</string>

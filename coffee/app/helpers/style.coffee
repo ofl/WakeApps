@@ -192,7 +192,7 @@ views =
       )
     tableViewRow:
       properties.GroupedTableViewRow
-    repeatPicker:
+    picker:
       bottom: 0
     pickerContainer:
       width: 320

@@ -16,6 +16,9 @@
     <string name="edit.test">アクションをテストする</string>
     <string name="edit.date">日時</string>
     <string name="edit.repeat">くり返し</string>
+    <string name="edit.sound">サウンド</string>
+    <string name="edit.alert">ビープ</string>
+    <string name="edit.default">システム標準</string>
     <string name="edit.copied">スケジュールをコピーしました。</string>
     <string name="edit.over">保存できるスケジュールは60個までです。不要なスケジュールを削除してください。</string>
     <string name="edit.saved">スケジュールを保存しました。</string>
