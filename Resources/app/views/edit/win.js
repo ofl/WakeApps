@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, dummyView1, dummyView2, dummyView3, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -74,13 +74,10 @@ createWindow = function(tab) {
   window.add(tableView);
   datePicker = Ti.UI.createPicker($$.datePicker);
   if (isIpad) {
-    dummyView1 = Ti.UI.createView($$.dummyView);
-    dateRow.add(dummyView1);
-    dummyView2 = Ti.UI.createView($$.dummyView);
-    repeatRow.add(dummyView2);
+    dateRow.add(Ti.UI.createView($$.dummyView));
+    repeatRow.add(Ti.UI.createView($$.dummyView));
     repeatTableView = Ti.UI.createTableView();
-    dummyView3 = Ti.UI.createView($$.dummyView);
-    soundRow.add(dummyView3);
+    soundRow.add(Ti.UI.createView($$.dummyView));
     soundTableView = Ti.UI.createTableView();
     (function() {
       var choice, repeat, _i, _len;
@@ -269,7 +266,7 @@ createWindow = function(tab) {
     }
     if (isIpad) {
       datePickerPopOver.show({
-        view: dummyView1,
+        view: dateRow.getChildren()[0],
         animate: true
       });
     } else if (!datePickerContainer.visible) {
@@ -286,7 +283,7 @@ createWindow = function(tab) {
     if (isIpad) {
       repeatTableView.data[0].rows[schedule.repeat].hasCheck = true;
       repeatTablePopOver.show({
-        view: dummyView2,
+        view: repeatRow.getChildren()[0],
         animate: true
       });
     } else if (!repeatPickerContainer.visible) {
@@ -304,7 +301,7 @@ createWindow = function(tab) {
     if (isIpad) {
       soundTableView.data[0].rows[schedule.options.sound].hasCheck = true;
       soundTablePopOver.show({
-        view: dummyView3,
+        view: soundRow.getChildren()[0],
         animate: true
       });
     } else if (!soundPickerContainer.visible) {

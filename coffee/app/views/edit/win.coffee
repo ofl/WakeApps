@@ -72,13 +72,10 @@ createWindow = (tab) ->
   datePicker = Ti.UI.createPicker $$.datePicker    
 
   if isIpad
-    dummyView1 = Ti.UI.createView $$.dummyView
-    dateRow.add dummyView1    
-    dummyView2 = Ti.UI.createView $$.dummyView
-    repeatRow.add dummyView2
+    dateRow.add Ti.UI.createView $$.dummyView
+    repeatRow.add Ti.UI.createView $$.dummyView
     repeatTableView = Ti.UI.createTableView()
-    dummyView3 = Ti.UI.createView $$.dummyView
-    soundRow.add dummyView3
+    soundRow.add Ti.UI.createView $$.dummyView
     soundTableView = Ti.UI.createTableView()
     do ()->
       choice = []
@@ -219,7 +216,7 @@ createWindow = (tab) ->
       datePicker.value = new Date(schedule.date)
     if isIpad
       datePickerPopOver.show
-        view: dummyView1
+        view: dateRow.getChildren()[0]
         animate: true
     else if !datePickerContainer.visible
       window.setToolbar null,{animated:false}
@@ -232,7 +229,7 @@ createWindow = (tab) ->
     if isIpad
       repeatTableView.data[0].rows[schedule.repeat].hasCheck = true
       repeatTablePopOver.show
-        view: dummyView2
+        view: repeatRow.getChildren()[0]
         animate: true
     else if !repeatPickerContainer.visible
       window.setToolbar null,{animated:false}
@@ -246,7 +243,7 @@ createWindow = (tab) ->
     if isIpad
       soundTableView.data[0].rows[schedule.options.sound].hasCheck = true
       soundTablePopOver.show
-        view: dummyView3
+        view: soundRow.getChildren()[0]
         animate: true
     else if !soundPickerContainer.visible
       window.setToolbar null,{animated:false}
