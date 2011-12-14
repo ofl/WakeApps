@@ -239,6 +239,12 @@ views = {
       top: 0,
       right: 50
     },
+    activeLabel: {
+      width: 100,
+      height: 30,
+      color: '#000',
+      left: 10
+    },
     switches: {
       right: 10
     }

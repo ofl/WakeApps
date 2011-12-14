@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, trace, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -19,6 +19,10 @@ createWindow = function(tab) {
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
   window.add(tableView);
+  messageWindow = Ti.UI.createWindow($$.messageWindow);
+  messageWindow.add(Ti.UI.createView($$.messageView));
+  messageLabel = Ti.UI.createLabel($$.messageLabel);
+  messageWindow.add(messageLabel);
   refresh = function() {
     var date, dateString, icon, now, row, rows, schedule, schedules, _i, _len;
     schedules = Schedule.all();
@@ -65,12 +69,8 @@ createWindow = function(tab) {
     dialog.show();
   };
   showMessage = function(message) {
-    var messageWindow, props;
-    messageWindow = Ti.UI.createWindow($$.messageWindow);
-    messageWindow.add(Ti.UI.createView($$.messageView));
-    messageWindow.add(Ti.UI.createLabel(mix($$.messageLabel, {
-      text: message
-    })));
+    var props;
+    messageLabel.text = message;
     messageWindow.open();
     if (Ti.Platform.osname === "iPhone OS") {
       props = mix($$.messageAnimation, {

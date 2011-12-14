@@ -26,8 +26,12 @@ createWindow = (tab) ->
   titleRow.add titleField
   
   activeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
-    title: L 'edit.active'
     idx: 1
+  activeRow.add Ti.UI.createLabel mix $$.activeLabel,
+    text : L('edit.active')
+    font: 
+      fontWeight: 'bold'
+      fontSize: 16
   activeSwitch = Ti.UI.createSwitch $$.switches
   activeRow.add activeSwitch
   

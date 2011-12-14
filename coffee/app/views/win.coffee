@@ -22,7 +22,11 @@ createWindow = (tab) ->
   
   window.setRightNavButton addBtn  
   window.add tableView  
-    
+  messageWindow = Ti.UI.createWindow $$.messageWindow
+  messageWindow.add Ti.UI.createView $$.messageView
+  messageLabel = Ti.UI.createLabel $$.messageLabel  
+  messageWindow.add messageLabel
+  
   refresh = () ->
     schedules = Schedule.all()
     rows = []
@@ -60,10 +64,7 @@ createWindow = (tab) ->
     return    
 
   showMessage = (message)->
-    messageWindow = Ti.UI.createWindow $$.messageWindow
-    messageWindow.add Ti.UI.createView $$.messageView
-    messageWindow.add Ti.UI.createLabel mix $$.messageLabel,
-      text: message
+    messageLabel.text = message
     messageWindow.open()
      
     if Ti.Platform.osname == "iPhone OS" 
