@@ -6,12 +6,13 @@ if (!Ti.App.Properties.getInt('dbVersion')) {
 }
 db = Ti.Database.open('../../Caches/db.sqlite');
 Schedule = (function() {
-  function Schedule(title, active, date, scheme, repeat, options, updated, id) {
+  function Schedule(title, active, date, scheme, repeat, sound, options, updated, id) {
     this.title = title;
     this.active = active != null ? active : 0;
     this.date = date != null ? date : (new Date()).getTime();
     this.scheme = scheme != null ? scheme : 'http://www.google.com';
     this.repeat = repeat != null ? repeat : 0;
+    this.sound = sound != null ? sound : 0;
     this.options = options != null ? options : {};
     this.updated = updated != null ? updated : -1;
     this.id = id != null ? id : null;
@@ -21,10 +22,10 @@ Schedule = (function() {
     var now;
     now = (new Date()).getTime();
     if (this.id === null) {
-      db.execute("INSERT INTO main.SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options));
+      db.execute("INSERT INTO main.SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, SOUND, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?,?)", this.title, this.active, this.date, this.scheme, this.repeat, this.sound, now, JSON.stringify(this.options));
       this.id = db.lastInsertRowId;
     } else {
-      db.execute("UPDATE main.SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, now, JSON.stringify(this.options), this.id);
+      db.execute("UPDATE main.SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,SOUND = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", this.title, this.active, this.date, this.scheme, this.repeat, this.sound, now, JSON.stringify(this.options), this.id);
     }
     Ti.App.Properties.setInt('lastSchedule', this.id);
     return this;
@@ -46,6 +47,7 @@ Schedule = (function() {
         date: parseInt(rows.fieldByName('DATE'), 10),
         scheme: rows.fieldByName('SCHEME'),
         repeat: rows.fieldByName('REPEAT'),
+        sound: rows.fieldByName('SOUND'),
         updated: parseInt(rows.fieldByName('UPDATED'), 10),
         id: rows.fieldByName('ID')
       });
@@ -60,7 +62,7 @@ Schedule = (function() {
     rows = db.execute(sql);
     if (rows.isValidRow()) {
       f = rows.fieldByName;
-      schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')), parseInt(f('UPDATED'), 10), f('ID'));
+      schedule = new Schedule(f('TITLE'), f('ACTIVE'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), f('SOUND'), JSON.parse(f('OPTIONS')), parseInt(f('UPDATED'), 10), f('ID'));
       Ti.App.Properties.setInt('lastSchedule', f('ID'));
     }
     rows.close();

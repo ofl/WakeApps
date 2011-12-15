@@ -138,7 +138,7 @@ createWindow = (tab) ->
     titleField.value = data.title
     dateRow.title = dateToString(new Date(data.date))
     repeatRow.title = repeats[data.repeat]
-    soundRow.title = sounds[data.options.sound]
+    soundRow.title = sounds[data.sound]
     saveBtn.enabled = false
     copyBtn.enabled = true
     return
@@ -272,7 +272,7 @@ createWindow = (tab) ->
       for row in soundTableView.data[0].rows
         row.hasCheck = false
       soundRow.title = sounds[e.index]
-      schedule.repeat = e.index
+      schedule.sound = e.index
       _scheduleDataWasChanged()
       soundTablePopOver.hide()
       return
@@ -284,7 +284,7 @@ createWindow = (tab) ->
       return
     soundPicker.addEventListener 'change' , (e)->
       soundRow.title = sounds[e.rowIndex]
-      schedule.options.sound = e.rowIndex
+      schedule.sound = e.rowIndex
       _scheduleDataWasChanged()
       return
 

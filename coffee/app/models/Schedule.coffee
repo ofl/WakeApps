@@ -7,16 +7,16 @@ db = Ti.Database.open '../../Caches/db.sqlite'
 # db.execute "CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)"
 
 class Schedule
-  constructor: (@title, @active = 0, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @options = {}, @updated = -1, @id = null) ->
+  constructor: (@title, @active = 0, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @sound = 0, @options = {}, @updated = -1, @id = null) ->
     Ti.App.Properties.removeProperty 'lastSchedule'
         
   save: () ->
     now = (new Date()).getTime()
     if @id is null
-      db.execute "INSERT INTO main.SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?)", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options)
+      db.execute "INSERT INTO main.SCHEDULEDB (TITLE, ACTIVE, DATE, SCHEME, REPEAT, SOUND, UPDATED, OPTIONS ) VALUES(?,?,?,?,?,?,?,?)", @title, @active, @date, @scheme, @repeat, @sound, now, JSON.stringify(@options)
       @id = db.lastInsertRowId
     else
-      db.execute "UPDATE main.SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, @date, @scheme, @repeat, now, JSON.stringify(@options), @id
+      db.execute "UPDATE main.SCHEDULEDB SET TITLE = ?,ACTIVE = ? ,DATE = ? ,SCHEME = ? ,REPEAT = ? ,SOUND = ? ,UPDATED = ? ,OPTIONS = ?  WHERE id = ?", @title, @active, @date, @scheme, @repeat, @sound, now, JSON.stringify(@options), @id
     Ti.App.Properties.setInt 'lastSchedule',  @id
     return this
     
@@ -35,6 +35,7 @@ class Schedule
         date: parseInt(rows.fieldByName('DATE'), 10)
         scheme: rows.fieldByName('SCHEME')
         repeat: rows.fieldByName('REPEAT')
+        sound: rows.fieldByName('SOUND')
         updated: parseInt(rows.fieldByName('UPDATED'), 10)
         id: rows.fieldByName('ID')
       rows.next()
@@ -47,7 +48,7 @@ class Schedule
     
     if rows.isValidRow()      
       f = rows.fieldByName
-      schedule = new Schedule f('TITLE'), f('ACTIVE'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), JSON.parse(f('OPTIONS')), parseInt(f('UPDATED'), 10), f('ID')
+      schedule = new Schedule f('TITLE'), f('ACTIVE'), parseInt(f('DATE'), 10), f('SCHEME'), f('REPEAT'), f('SOUND'), JSON.parse(f('OPTIONS')), parseInt(f('UPDATED'), 10), f('ID')
       Ti.App.Properties.setInt 'lastSchedule',  f('ID')
     rows.close()    
     return schedule    

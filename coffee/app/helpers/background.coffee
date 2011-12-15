@@ -14,7 +14,7 @@ do ()->
         repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.repeat]
         alertBody: schedule.title
         alertAction: 'Launch!'
-        sound: 'sounds/Alarm0014.wav'
+        sound: ['sounds/Alarm0014.wav', 'default', 'none'][schedule.sound]
         userInfo: 
           scheme: schedule.scheme
           title: schedule.title
