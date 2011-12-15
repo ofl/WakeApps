@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, trace, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, trace, updateLabel, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
@@ -13,8 +13,9 @@ createWindow = function(tab) {
   doneEditBtn = Ti.UI.createButton($$.doneBtn);
   refreshBtn = Ti.UI.createButton($$.refreshBtn);
   fs = Ti.UI.createButton($$.fs);
+  updateLabel = Ti.UI.createLabel($$.updateLabel);
   window = Ti.UI.createWindow(mix($$.window, {
-    toolbar: [editBtn, fs, refreshBtn]
+    toolbar: [editBtn, fs, updateLabel, fs, refreshBtn]
   }));
   tableView = Ti.UI.createTableView($$.tableView);
   window.setRightNavButton(addBtn);
@@ -24,19 +25,15 @@ createWindow = function(tab) {
   messageLabel = Ti.UI.createLabel($$.messageLabel);
   messageWindow.add(messageLabel);
   refresh = function() {
-    var date, dateString, icon, now, row, rows, schedule, schedules, _i, _len;
+    var date, dateString, icon, now, nowGetTime, row, rows, schedule, schedules, _i, _len;
     schedules = Schedule.all();
     rows = [];
-    now = (new Date()).getTime();
+    now = new Date();
+    nowGetTime = now.getTime();
     for (_i = 0, _len = schedules.length; _i < _len; _i++) {
       schedule = schedules[_i];
       date = new Date(schedule.date);
-      icon = schedule.active && (schedule.repeat || date.getTime() > now) ? $$.aquaclock : $$.silverclock;
-      if (schedule.repeat > 0) {
-        dateString = prettyDate(date, schedule.repeat);
-      } else {
-        dateString = date.toLocaleString();
-      }
+      icon = schedule.active && (schedule.repeat || date.getTime() > nowGetTime) ? $$.aquaclock : $$.silverclock;
       row = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
         id: schedule.id,
         text: schedule.text
@@ -47,12 +44,23 @@ createWindow = function(tab) {
       row.add(Ti.UI.createLabel(mix($$.titleLabel, {
         text: schedule.title
       })));
-      row.add(Ti.UI.createLabel(mix($$.dateLabel, {
-        text: dateString
-      })));
+      if (schedule.repeat > 0) {
+        dateString = prettyDate(date, schedule.repeat);
+        row.add(Ti.UI.createImageView($$.repeatImageView));
+        row.add(Ti.UI.createLabel(mix($$.dateLabel, {
+          text: dateString
+        })));
+      } else {
+        dateString = date.toLocaleString();
+        row.add(Ti.UI.createLabel(mix($$.dateLabel, {
+          left: 44,
+          text: dateString
+        })));
+      }
       rows.push(row);
     }
     tableView.setData(rows);
+    updateLabel.text = L('root.lastUpdate') + now.toLocaleString();
   };
   confirm = function(data) {
     var dialog;

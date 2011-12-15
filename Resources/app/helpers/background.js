@@ -1,5 +1,5 @@
 (function() {
-  var Schedule, now, schedule, schedules, _i, _len;
+  var Schedule, now, options, schedule, schedules, _i, _len;
   Ti.API.info('Launched Background Serivice');
   Ti.App.iOS.cancelAllLocalNotifications();
   Schedule = (require('app/models/Schedule')).Schedule;
@@ -8,19 +8,22 @@
   for (_i = 0, _len = schedules.length; _i < _len; _i++) {
     schedule = schedules[_i];
     if (schedule.repeat > 0 || schedule.date > now) {
-      Ti.App.iOS.scheduleLocalNotification({
+      options = {
         date: new Date(schedule.date),
         repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.repeat],
         alertBody: schedule.title,
         alertAction: 'Launch!',
-        sound: ['sounds/Alarm0014.wav', 'default', 'none'][schedule.sound],
         userInfo: {
           scheme: schedule.scheme,
           title: schedule.title,
           date: schedule.date,
           id: schedule.id
         }
-      });
+      };
+      if (schedule.sound < 2) {
+        options.sound = ['sounds/Alarm0014.wav', 'default', null][schedule.sound];
+      }
+      Ti.App.iOS.scheduleLocalNotification(options);
     }
   }
   Ti.App.currentService.stop();

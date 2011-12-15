@@ -68,9 +68,8 @@ createWindow = function(tab) {
     idx: 6
   }));
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow, soundRow];
-  tableView = Ti.UI.createTableView(mix($$.tableView, {
-    data: rows
-  }));
+  tableView = Ti.UI.createTableView($$.tableView);
+  tableView.data = rows;
   window.add(tableView);
   datePicker = Ti.UI.createPicker($$.datePicker);
   if (isIpad) {
@@ -299,7 +298,7 @@ createWindow = function(tab) {
   soundRow.addEventListener('click', function(e) {
     _blur(e.source.idx);
     if (isIpad) {
-      soundTableView.data[0].rows[schedule.options.sound].hasCheck = true;
+      soundTableView.data[0].rows[schedule.sound].hasCheck = true;
       soundTablePopOver.show({
         view: soundRow.getChildren()[0],
         animate: true
@@ -308,7 +307,7 @@ createWindow = function(tab) {
       window.setToolbar(null, {
         animated: false
       });
-      soundPicker.setSelectedRow(0, schedule.options.sound);
+      soundPicker.setSelectedRow(0, schedule.sound);
       soundPickerContainer.add(pickerToolbar);
       soundPickerContainer.visible = true;
       soundPickerContainer.animate($$.openPickerAnimation);
@@ -424,7 +423,7 @@ createWindow = function(tab) {
   });
   copyBtn.addEventListener('click', function() {
     var data;
-    data = new Schedule(schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.options);
+    data = new Schedule(schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.sound, schedule.options);
     schedule = data;
     app.views.windowStack[0].showMessage(L('edit.copied'));
     saveBtn.enabled = true;

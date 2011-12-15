@@ -5,6 +5,7 @@
     <string name="conf.weekly">毎週</string>
     <string name="conf.monthly">毎月</string>
     <string name="conf.yearly">毎年</string>
+    <string name="root.lastUpdate">最終更新:</string>
     <string name="root.confirm">変更は保存されていません。変更を破棄しますか？</string>
     <string name="root.save">保存</string>
     <string name="root.cancel">キャンセル</string>

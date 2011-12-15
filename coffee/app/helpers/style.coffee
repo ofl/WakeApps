@@ -4,7 +4,7 @@ isIpad = app.properties.isIpad
 theme = 
   textColor: '#000000'
   barColor: '#666'
-  backgroundColor: '#eeeeee'
+  backgroundColor: '#fff'
   blueText: '#336699'
   darkBlue: '#93caed'
   fontFamily: 'Helvetica Neue'
@@ -123,7 +123,7 @@ views =
       color: '#000'
       height: 20)
     dateLabel: mix( properties.Label,
-      left: 44
+      left: 62
       top: 25
       width: 200
       height: 17
@@ -131,13 +131,19 @@ views =
       font: 
         fontFamily: theme.fontFamily
         fontSize: 14  
-      color: '#999'
+      color: '#777'
       )
     imageView: 
       top: 6
       left: 4
       height: 32
       width: 32
+    repeatImageView: 
+      top: 26
+      left: 44
+      height: 16
+      width: 16
+      image: 'images/imgres.jpeg'
     messageWindow: 
       height:80
       width:200
@@ -160,6 +166,12 @@ views =
       delay: 1500
       duration: 1000
       opacity: 0.1
+    updateLabel:
+      color:'#fff'
+      textAlign:'center'
+      font:{fontSize:12}
+      height:'auto'
+      width:'auto'
     grayclock: images.grayclock
     silverclock: images.silverclock
     aquaclock: images.aquaclock

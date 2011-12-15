@@ -15,8 +15,10 @@ createWindow = (tab) ->
   refreshBtn = Ti.UI.createButton $$.refreshBtn
   fs = Ti.UI.createButton $$.fs
   
+  updateLabel = Ti.UI.createLabel $$.updateLabel 
+  
   window = Ti.UI.createWindow mix $$.window,
-    toolbar: [editBtn, fs, refreshBtn]
+    toolbar: [editBtn, fs, updateLabel, fs, refreshBtn]
   
   tableView = Ti.UI.createTableView $$.tableView
   
@@ -30,14 +32,11 @@ createWindow = (tab) ->
   refresh = () ->
     schedules = Schedule.all()
     rows = []
-    now = (new Date()).getTime()
+    now = new Date()
+    nowGetTime = now.getTime()
     for schedule in schedules
       date = new Date(schedule.date)
-      icon = if schedule.active and (schedule.repeat or date.getTime() > now) then $$.aquaclock else $$.silverclock
-      if schedule.repeat > 0
-        dateString = prettyDate(date, schedule.repeat)
-      else
-        dateString = date.toLocaleString()
+      icon = if schedule.active and (schedule.repeat or date.getTime() > nowGetTime) then $$.aquaclock else $$.silverclock
       row = Ti.UI.createTableViewRow mix $$.tableViewRow,
         id: schedule.id
         text: schedule.text
@@ -45,10 +44,19 @@ createWindow = (tab) ->
         image: icon      
       row.add Ti.UI.createLabel mix $$.titleLabel,
         text: schedule.title      
-      row.add Ti.UI.createLabel mix $$.dateLabel,
-        text: dateString
+      if schedule.repeat > 0
+        dateString = prettyDate(date, schedule.repeat)
+        row.add Ti.UI.createImageView($$.repeatImageView)
+        row.add Ti.UI.createLabel mix $$.dateLabel,
+          text: dateString
+      else
+        dateString = date.toLocaleString()
+        row.add Ti.UI.createLabel mix $$.dateLabel,
+          left: 44
+          text: dateString
       rows.push row
     tableView.setData rows
+    updateLabel.text = L('root.lastUpdate') + now.toLocaleString()
     return
 
   confirm = (data)->

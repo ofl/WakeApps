@@ -5,6 +5,7 @@
     <string name="conf.weekly">Weekly</string>
     <string name="conf.monthly">Monthly</string>
     <string name="conf.yearly">Yearly</string>
+    <string name="root.lastUpdate">Last Updated:</string>
     <string name="root.confirm">Your changes have not been saved. Discard changes?</string>
     <string name="root.save">Save changes</string>
     <string name="root.cancel">Cancel</string>

@@ -65,8 +65,10 @@ createWindow = (tab) ->
     idx: 6
   
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow, soundRow]
-  tableView = Ti.UI.createTableView mix $$.tableView, 
-    data: rows
+  # tableView = Ti.UI.createTableView mix $$.tableView, 
+    # data: rows
+  tableView = Ti.UI.createTableView $$.tableView 
+  tableView.data = rows
   window.add tableView
   
   datePicker = Ti.UI.createPicker $$.datePicker    
@@ -108,6 +110,8 @@ createWindow = (tab) ->
     schemeField.keyboardToolbar = [fs, kbdDoneBtn]
     pickerToolbar = Ti.UI.iOS.createToolbar mix $$.toolbar,
       items: [fs, doneBtn]
+    # pickerToolbar = Ti.UI.createToolbar mix $$.toolbar,
+      # items: [fs, doneBtn]
     do ()->
       choice = []
       for repeat in repeats
@@ -241,13 +245,13 @@ createWindow = (tab) ->
   soundRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
     if isIpad
-      soundTableView.data[0].rows[schedule.options.sound].hasCheck = true
+      soundTableView.data[0].rows[schedule.sound].hasCheck = true
       soundTablePopOver.show
         view: soundRow.getChildren()[0]
         animate: true
     else if !soundPickerContainer.visible
       window.setToolbar null,{animated:false}
-      soundPicker.setSelectedRow 0, schedule.options.sound
+      soundPicker.setSelectedRow 0, schedule.sound
       soundPickerContainer.add pickerToolbar
       soundPickerContainer.visible = true
       soundPickerContainer.animate $$.openPickerAnimation
@@ -352,7 +356,7 @@ createWindow = (tab) ->
     return
   
   copyBtn.addEventListener 'click' , ()->
-    data = new Schedule schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.options
+    data = new Schedule schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.sound, schedule.options
     schedule = data
     app.views.windowStack[0].showMessage L('edit.copied')
     saveBtn.enabled = true

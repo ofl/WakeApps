@@ -9,17 +9,19 @@ do ()->
   for schedule in schedules
     if schedule.repeat > 0 or schedule.date > now
     # Ti.App.iOS.cancelLocalNotification {userInfo:{'id': schedule.id}}
-      Ti.App.iOS.scheduleLocalNotification
+      options = 
         date: new Date(schedule.date)
         repeat: ['none', 'daily', 'weekly', 'monthly', 'yearly'][schedule.repeat]
         alertBody: schedule.title
         alertAction: 'Launch!'
-        sound: ['sounds/Alarm0014.wav', 'default', 'none'][schedule.sound]
         userInfo: 
           scheme: schedule.scheme
           title: schedule.title
           date: schedule.date
-          id: schedule.id  
-  
+          id: schedule.id    
+      if schedule.sound < 2
+        options.sound = ['sounds/Alarm0014.wav', 'default', null][schedule.sound]
+      Ti.App.iOS.scheduleLocalNotification options
+
   Ti.App.currentService.stop()
   return
