@@ -13,24 +13,22 @@ createWindow = function(tab) {
   editBtn = Ti.UI.createButton($$.editBtn);
   doneEditBtn = Ti.UI.createButton($$.doneBtn);
   refreshBtn = Ti.UI.createButton($$.refreshBtn);
-  fs = Ti.UI.createButton($$.fs);
   updateLabel = Ti.UI.createLabel($$.updateLabel);
+  fs = Ti.UI.createButton($$.fs);
   window = Ti.UI.createWindow(mix($$.window, {
-    toolbar: [editBtn, fs, updateLabel, fs, refreshBtn]
+    toolbar: [editBtn, fs, updateLabel, fs, refreshBtn],
+    rightNavButton: addBtn
   }));
   tableView = Ti.UI.createTableView($$.tableView);
-  window.setRightNavButton(addBtn);
   window.add(tableView);
   messageWindow = Ti.UI.createWindow($$.messageWindow);
   messageWindow.add(Ti.UI.createView($$.messageView));
   messageLabel = Ti.UI.createLabel($$.messageLabel);
   messageWindow.add(messageLabel);
   refresh = function() {
-    var date, dateString, icon, now, nowGetTime, remain, row, rows, schedule, schedules, ttg, _i, _len;
+    var date, dateString, icon, remain, row, rows, schedule, schedules, ttg, _i, _len;
     schedules = Schedule.all();
     rows = [];
-    now = new Date();
-    nowGetTime = now.getTime();
     for (_i = 0, _len = schedules.length; _i < _len; _i++) {
       schedule = schedules[_i];
       date = new Date(schedule.date);
@@ -46,7 +44,7 @@ createWindow = function(tab) {
         remain += '+' + Math.floor(ttg / 3600000) + 'h';
         icon = $$.yellowclock;
       } else {
-        remain += '+' + Math.floor(ttg / 86400000) + 'd';
+        remain += '+' + Math.floor(ttg / 86400000) + 'D';
         icon = $$.aquaclock;
       }
       remain += ')';
@@ -76,7 +74,7 @@ createWindow = function(tab) {
       rows.push(row);
     }
     tableView.setData(rows);
-    updateLabel.text = L('root.lastUpdate') + now.toLocaleString();
+    updateLabel.text = L('root.lastUpdate') + (new Date()).toLocaleString();
   };
   confirm = function(data) {
     var dialog;

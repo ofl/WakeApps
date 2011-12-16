@@ -245,7 +245,6 @@ views =
       left: 10      
     switches:
       right: 10
-         
       
 exports = 
   views: views

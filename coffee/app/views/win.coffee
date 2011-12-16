@@ -7,24 +7,23 @@ createWindow = (tab) ->
   isIpad = app.properties.isIpad
   prettyDate = app.helpers.util.prettyDate
   timesToGo = app.helpers.util.timesToGo
-  
+
   service = null
   
   addBtn = Ti.UI.createButton $$.addBtn
   editBtn = Ti.UI.createButton $$.editBtn
   doneEditBtn = Ti.UI.createButton $$.doneBtn
   refreshBtn = Ti.UI.createButton $$.refreshBtn
-  fs = Ti.UI.createButton $$.fs
-  
   updateLabel = Ti.UI.createLabel $$.updateLabel 
+  fs = Ti.UI.createButton $$.fs  
   
   window = Ti.UI.createWindow mix $$.window,
-    toolbar: [editBtn, fs, updateLabel, fs, refreshBtn]
-  
+    toolbar: [editBtn, fs, updateLabel, fs, refreshBtn]  
+    rightNavButton: addBtn
+    
   tableView = Ti.UI.createTableView $$.tableView
-  
-  window.setRightNavButton addBtn  
   window.add tableView  
+  
   messageWindow = Ti.UI.createWindow $$.messageWindow
   messageWindow.add Ti.UI.createView $$.messageView
   messageLabel = Ti.UI.createLabel $$.messageLabel  
@@ -33,8 +32,6 @@ createWindow = (tab) ->
   refresh = () ->
     schedules = Schedule.all()
     rows = []
-    now = new Date()
-    nowGetTime = now.getTime()
     for schedule in schedules
       date = new Date(schedule.date)
       ttg = timesToGo date, schedule.repeat, schedule.active
@@ -49,7 +46,7 @@ createWindow = (tab) ->
         remain += '+' + Math.floor(ttg / 3600000) + 'h'
         icon = $$.yellowclock
       else
-        remain += '+' + Math.floor(ttg / 86400000) + 'd'
+        remain += '+' + Math.floor(ttg / 86400000) + 'D'
         icon = $$.aquaclock
       remain += ')'
       row = Ti.UI.createTableViewRow mix $$.tableViewRow,
@@ -71,7 +68,7 @@ createWindow = (tab) ->
           text: dateString
       rows.push row
     tableView.setData rows
-    updateLabel.text = L('root.lastUpdate') + now.toLocaleString()
+    updateLabel.text = L('root.lastUpdate') + (new Date()).toLocaleString()
     return
 
   confirm = (data)->
