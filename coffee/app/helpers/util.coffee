@@ -32,6 +32,41 @@ exports =
     text += (if date.getMinutes() > 9 then date.getMinutes() else '0' + date.getMinutes())
     return text
     
+  timesToGo: (date, repeat, active) ->
+    now = new Date()
+    nowGetTime = now.getTime()
+    d = date.getTime()
+    milliSec = if active > 0 then d - nowGetTime else -1      
+    if milliSec < 0 and repeat > 0
+      if repeat is 1
+        milliSec = (date.getHours() - now.getHours()) * 3600000 + (date.getMinutes() - now.getMinutes()) * 60000
+        if milliSec < 0
+          milliSec = 86400000 +  milliSec
+      if repeat is 2
+        days = (date.getDay() - now.getDay()) * 86400000
+        if days < 0
+          milliSec = 604800000 +  days
+      if repeat is 3
+        month = now.getMonths()
+        year = now.getFullYear()
+        if month < 11
+          month += 1
+        else
+          month = 0
+          year += 1
+        newDate = new Date(year, month, date.getDate(), date.getHours(), date.getMinutes(), 0)
+        if newDate.getMonths() isnt month
+          newDate = new Date(year, month + 1, date.getDate(), date.getHours(), date.getMinutes(), 0)
+        milliSec = newDate.getTime() - nowGetTime
+      if repeat is 4
+        month = date.getMonths()
+        year = now.getFullYear() + 1
+        newDate = new Date(year, month, date.getDate(), date.getHours(), date.getMinutes(), 0)
+        if newDate.getMonths() isnt month
+          newDate = new Date(year, month + 1, date.getDate(), date.getHours(), date.getMinutes(), 0)
+        milliSec = newDate.getTime() - nowGetTime
+    return milliSec
+    
   prettyDate: (date, repeat) ->
     text = (if date.getHours() > 9 then date.getHours() else '0' + date.getHours()) + ':'
     text += (if date.getMinutes() > 9 then date.getMinutes() else '0' + date.getMinutes())

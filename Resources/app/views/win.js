@@ -1,12 +1,13 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, trace, updateLabel, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, timesToGo, trace, updateLabel, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
   isIpad = app.properties.isIpad;
   prettyDate = app.helpers.util.prettyDate;
+  timesToGo = app.helpers.util.timesToGo;
   service = null;
   addBtn = Ti.UI.createButton($$.addBtn);
   editBtn = Ti.UI.createButton($$.editBtn);
@@ -25,7 +26,7 @@ createWindow = function(tab) {
   messageLabel = Ti.UI.createLabel($$.messageLabel);
   messageWindow.add(messageLabel);
   refresh = function() {
-    var date, dateString, icon, now, nowGetTime, row, rows, schedule, schedules, _i, _len;
+    var date, dateString, icon, now, nowGetTime, remain, row, rows, schedule, schedules, ttg, _i, _len;
     schedules = Schedule.all();
     rows = [];
     now = new Date();
@@ -33,7 +34,22 @@ createWindow = function(tab) {
     for (_i = 0, _len = schedules.length; _i < _len; _i++) {
       schedule = schedules[_i];
       date = new Date(schedule.date);
-      icon = schedule.active && (schedule.repeat || date.getTime() > nowGetTime) ? $$.aquaclock : $$.silverclock;
+      ttg = timesToGo(date, schedule.repeat, schedule.active);
+      remain = ' (';
+      if (ttg < 0) {
+        remain += '--';
+        icon = $$.silverclock;
+      } else if (ttg < 3600000) {
+        remain += '+' + Math.floor(ttg / 60000) + 'm';
+        icon = $$.redclock;
+      } else if (ttg < 86400000) {
+        remain += '+' + Math.floor(ttg / 3600000) + 'h';
+        icon = $$.yellowclock;
+      } else {
+        remain += '+' + Math.floor(ttg / 86400000) + 'd';
+        icon = $$.aquaclock;
+      }
+      remain += ')';
       row = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
         id: schedule.id,
         text: schedule.text
@@ -45,13 +61,13 @@ createWindow = function(tab) {
         text: schedule.title
       })));
       if (schedule.repeat > 0) {
-        dateString = prettyDate(date, schedule.repeat);
+        dateString = prettyDate(date, schedule.repeat) + remain;
         row.add(Ti.UI.createImageView($$.repeatImageView));
         row.add(Ti.UI.createLabel(mix($$.dateLabel, {
           text: dateString
         })));
       } else {
-        dateString = date.toLocaleString();
+        dateString = date.toLocaleString() + remain;
         row.add(Ti.UI.createLabel(mix($$.dateLabel, {
           left: 44,
           text: dateString

@@ -6,6 +6,7 @@ createWindow = (tab) ->
   $$ = app.helpers.style.views.root
   isIpad = app.properties.isIpad
   prettyDate = app.helpers.util.prettyDate
+  timesToGo = app.helpers.util.timesToGo
   
   service = null
   
@@ -36,7 +37,21 @@ createWindow = (tab) ->
     nowGetTime = now.getTime()
     for schedule in schedules
       date = new Date(schedule.date)
-      icon = if schedule.active and (schedule.repeat or date.getTime() > nowGetTime) then $$.aquaclock else $$.silverclock
+      ttg = timesToGo date, schedule.repeat, schedule.active
+      remain = ' ('
+      if ttg < 0
+        remain += '--'
+        icon = $$.silverclock
+      else if ttg < 3600000
+        remain += '+' + Math.floor(ttg / 60000) + 'm'
+        icon = $$.redclock
+      else if ttg < 86400000
+        remain += '+' + Math.floor(ttg / 3600000) + 'h'
+        icon = $$.yellowclock
+      else
+        remain += '+' + Math.floor(ttg / 86400000) + 'd'
+        icon = $$.aquaclock
+      remain += ')'
       row = Ti.UI.createTableViewRow mix $$.tableViewRow,
         id: schedule.id
         text: schedule.text
@@ -45,12 +60,12 @@ createWindow = (tab) ->
       row.add Ti.UI.createLabel mix $$.titleLabel,
         text: schedule.title      
       if schedule.repeat > 0
-        dateString = prettyDate(date, schedule.repeat)
+        dateString = prettyDate(date, schedule.repeat) + remain
         row.add Ti.UI.createImageView($$.repeatImageView)
         row.add Ti.UI.createLabel mix $$.dateLabel,
           text: dateString
       else
-        dateString = date.toLocaleString()
+        dateString = date.toLocaleString() + remain
         row.add Ti.UI.createLabel mix $$.dateLabel,
           left: 44
           text: dateString

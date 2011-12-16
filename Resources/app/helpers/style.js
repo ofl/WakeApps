@@ -13,12 +13,16 @@ if (Ti.Platform.displayCaps.dpi > 300) {
   images = {
     grayclock: 'images/grayclock@2x.png',
     silverclock: 'images/silverclock@2x.png',
+    redclock: 'images/redclock@2x.png',
+    yellowclock: 'images/yellowclock@2x.png',
     aquaclock: 'images/aquaclock@2x.png'
   };
 } else {
   images = {
     grayclock: 'images/grayclock.png',
     silverclock: 'images/silverclock.png',
+    redclock: 'images/redclock.png',
+    yellowclock: 'images/yellowclock.png',
     aquaclock: 'images/aquaclock.png'
   };
 }
@@ -124,7 +128,7 @@ views = {
     dateLabel: mix(properties.Label, {
       left: 62,
       top: 25,
-      width: 200,
+      width: 250,
       height: 17,
       font: {
         fontFamily: theme.fontFamily,
@@ -185,7 +189,9 @@ views = {
     },
     grayclock: images.grayclock,
     silverclock: images.silverclock,
-    aquaclock: images.aquaclock
+    aquaclock: images.aquaclock,
+    redclock: images.redclock,
+    yellowclock: images.yellowclock
   },
   edit: {
     window: properties.Window,

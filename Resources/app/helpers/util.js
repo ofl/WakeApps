@@ -38,6 +38,52 @@ exports = {
     text += (date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes());
     return text;
   },
+  timesToGo: function(date, repeat, active) {
+    var d, days, milliSec, month, newDate, now, nowGetTime, year;
+    now = new Date();
+    nowGetTime = now.getTime();
+    d = date.getTime();
+    milliSec = active > 0 ? d - nowGetTime : -1;
+    if (milliSec < 0 && repeat > 0) {
+      if (repeat === 1) {
+        milliSec = (date.getHours() - now.getHours()) * 3600000 + (date.getMinutes() - now.getMinutes()) * 60000;
+        if (milliSec < 0) {
+          milliSec = 86400000 + milliSec;
+        }
+      }
+      if (repeat === 2) {
+        days = (date.getDay() - now.getDay()) * 86400000;
+        if (days < 0) {
+          milliSec = 604800000 + days;
+        }
+      }
+      if (repeat === 3) {
+        month = now.getMonths();
+        year = now.getFullYear();
+        if (month < 11) {
+          month += 1;
+        } else {
+          month = 0;
+          year += 1;
+        }
+        newDate = new Date(year, month, date.getDate(), date.getHours(), date.getMinutes(), 0);
+        if (newDate.getMonths() !== month) {
+          newDate = new Date(year, month + 1, date.getDate(), date.getHours(), date.getMinutes(), 0);
+        }
+        milliSec = newDate.getTime() - nowGetTime;
+      }
+      if (repeat === 4) {
+        month = date.getMonths();
+        year = now.getFullYear() + 1;
+        newDate = new Date(year, month, date.getDate(), date.getHours(), date.getMinutes(), 0);
+        if (newDate.getMonths() !== month) {
+          newDate = new Date(year, month + 1, date.getDate(), date.getHours(), date.getMinutes(), 0);
+        }
+        milliSec = newDate.getTime() - nowGetTime;
+      }
+    }
+    return milliSec;
+  },
   prettyDate: function(date, repeat) {
     var d, text;
     text = (date.getHours() > 9 ? date.getHours() : '0' + date.getHours()) + ':';
