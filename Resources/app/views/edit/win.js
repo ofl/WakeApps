@@ -1,6 +1,6 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, timerId, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
@@ -10,7 +10,6 @@ createWindow = function(tab) {
   repeats = app.properties.repeats;
   sounds = [L('edit.alert'), L('edit.default'), L('conf.none')];
   schedule = null;
-  timerId = null;
   trashBtn = Ti.UI.createButton($$.trashBtn);
   copyBtn = Ti.UI.createButton($$.copyBtn);
   saveBtn = Ti.UI.createButton($$.saveBtn);
@@ -87,7 +86,7 @@ createWindow = function(tab) {
           title: repeat
         });
       }
-      return repeatTableView.setData(choice);
+      repeatTableView.setData(choice);
     })();
     (function() {
       var choice, sound, _i, _len;
@@ -98,7 +97,7 @@ createWindow = function(tab) {
           title: sound
         });
       }
-      return soundTableView.setData(choice);
+      soundTableView.setData(choice);
     })();
     datePickerPopOver = Ti.UI.iPad.createPopover(mix($$.popOver, {
       title: L('edit.date'),
@@ -134,7 +133,7 @@ createWindow = function(tab) {
           title: repeat
         }));
       }
-      return repeatPicker.add(choice);
+      repeatPicker.add(choice);
     })();
     (function() {
       var choice, sound, _i, _len;
@@ -145,7 +144,7 @@ createWindow = function(tab) {
           title: sound
         }));
       }
-      return soundPicker.add(choice);
+      soundPicker.add(choice);
     })();
     datePickerContainer = Ti.UI.createView($$.pickerContainer);
     datePickerContainer.add(datePicker);
@@ -209,7 +208,7 @@ createWindow = function(tab) {
             window.setToolbar([trashBtn, fs, copyBtn], {
               animated: true
             });
-            return datePickerContainer.remove(pickerToolbar);
+            datePickerContainer.remove(pickerToolbar);
           });
         }
       }
@@ -220,7 +219,7 @@ createWindow = function(tab) {
             window.setToolbar([trashBtn, fs, copyBtn], {
               animated: true
             });
-            return repeatPickerContainer.remove(pickerToolbar);
+            repeatPickerContainer.remove(pickerToolbar);
           });
         }
       }
@@ -231,7 +230,7 @@ createWindow = function(tab) {
             window.setToolbar([trashBtn, fs, copyBtn], {
               animated: true
             });
-            return soundPickerContainer.remove(pickerToolbar);
+            soundPickerContainer.remove(pickerToolbar);
           });
         }
       }

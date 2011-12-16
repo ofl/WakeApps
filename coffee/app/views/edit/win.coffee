@@ -9,9 +9,9 @@ createWindow = (tab) ->
   sounds = [L('edit.alert'), L('edit.default'), L('conf.none')]
   
   schedule = null
-  timerId = null
   
-  trashBtn =  Ti.UI.createButton $$.trashBtn
+  trashBtn =  Ti.UI.createButton $$
+  .trashBtn
   copyBtn =  Ti.UI.createButton $$.copyBtn
   saveBtn =  Ti.UI.createButton $$.saveBtn
   fs = Ti.UI.createButton $$.fs
@@ -84,11 +84,13 @@ createWindow = (tab) ->
       for repeat in repeats
         choice.push title: repeat
       repeatTableView.setData choice
+      return
     do ()->
       choice = []
       for sound in sounds
         choice.push title: sound
       soundTableView.setData choice      
+      return
     datePickerPopOver = Ti.UI.iPad.createPopover mix $$.popOver,
       title: L 'edit.date'
       arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
@@ -118,12 +120,14 @@ createWindow = (tab) ->
         choice.push Ti.UI.createPickerRow
           title: repeat
       repeatPicker.add choice
+      return
     do ()->
       choice = []
       for sound in sounds
         choice.push Ti.UI.createPickerRow
           title: sound
       soundPicker.add choice
+      return
     datePickerContainer = Ti.UI.createView $$.pickerContainer
     datePickerContainer.add datePicker
     repeatPickerContainer = Ti.UI.createView $$.pickerContainer
@@ -182,18 +186,21 @@ createWindow = (tab) ->
             datePickerContainer.visible = false
             window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
             datePickerContainer.remove pickerToolbar
+            return
       if index isnt 5
         if repeatPickerContainer.visible
           repeatPickerContainer.animate $$.closePickerAnimation, ()->
             repeatPickerContainer.visible = false            
             window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
             repeatPickerContainer.remove pickerToolbar
+            return
       if index isnt 6
         if soundPickerContainer.visible
           soundPickerContainer.animate $$.closePickerAnimation, ()->
             soundPickerContainer.visible = false            
             window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
             soundPickerContainer.remove pickerToolbar
+            return
     return        
 
   _textFieldHandler = (e)->
