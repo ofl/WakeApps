@@ -6,6 +6,7 @@ createWindow = (tab) ->
   $$ = app.helpers.style.views.root
   isIpad = app.properties.isIpad
   prettyDate = app.helpers.util.prettyDate
+  dateToString = app.helpers.util.dateToString
   timesToGo = app.helpers.util.timesToGo
 
   service = null
@@ -62,13 +63,13 @@ createWindow = (tab) ->
         row.add Ti.UI.createLabel mix $$.dateLabel,
           text: dateString
       else
-        dateString = date.toLocaleString() + remain
+        dateString = dateToString(date) + remain
         row.add Ti.UI.createLabel mix $$.dateLabel,
           left: 44
           text: dateString
       rows.push row
     tableView.setData rows
-    updateLabel.text = L('root.lastUpdate') + (new Date()).toLocaleString()
+    updateLabel.text = L('root.lastUpdate') + dateToString(new Date())
     return
 
   confirm = (data)->

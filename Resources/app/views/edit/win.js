@@ -316,7 +316,7 @@ createWindow = function(tab) {
     var date;
     date = dateToString(e.value);
     dateRow.title = date;
-    schedule.date = (new Date(date)).getTime();
+    schedule.date = (new Date(date.replace(/-/g, '/'))).getTime();
     _scheduleDataWasChanged();
   });
   if (isIpad) {

@@ -1,12 +1,13 @@
 var createWindow;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, timesToGo, trace, updateLabel, window, _tableViewHandler;
+  var $$, Schedule, addBtn, confirm, dateToString, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, timesToGo, trace, updateLabel, window, _tableViewHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
   isIpad = app.properties.isIpad;
   prettyDate = app.helpers.util.prettyDate;
+  dateToString = app.helpers.util.dateToString;
   timesToGo = app.helpers.util.timesToGo;
   service = null;
   addBtn = Ti.UI.createButton($$.addBtn);
@@ -65,7 +66,7 @@ createWindow = function(tab) {
           text: dateString
         })));
       } else {
-        dateString = date.toLocaleString() + remain;
+        dateString = dateToString(date) + remain;
         row.add(Ti.UI.createLabel(mix($$.dateLabel, {
           left: 44,
           text: dateString
@@ -74,7 +75,7 @@ createWindow = function(tab) {
       rows.push(row);
     }
     tableView.setData(rows);
-    updateLabel.text = L('root.lastUpdate') + (new Date()).toLocaleString();
+    updateLabel.text = L('root.lastUpdate') + dateToString(new Date());
   };
   confirm = function(data) {
     var dialog;

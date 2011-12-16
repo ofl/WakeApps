@@ -30,12 +30,12 @@ exports = {
   },
   dateToString: function(date) {
     var m, text;
-    text = '' + date.getFullYear() + '/';
+    text = '' + date.getFullYear() + '-';
     m = date.getMonth() + 1;
-    text += (m > 9 ? m : '0' + m) + '/';
+    text += (m > 9 ? m : '0' + m) + '-';
     text += (date.getDate() > 9 ? date.getDate() : '0' + date.getDate()) + ' ';
     text += (date.getHours() > 9 ? date.getHours() : '0' + date.getHours()) + ':';
-    text += (date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes());
+    text += (date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes()) + ':00';
     return text;
   },
   timesToGo: function(date, repeat, active) {

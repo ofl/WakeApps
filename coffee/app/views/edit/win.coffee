@@ -266,7 +266,7 @@ createWindow = (tab) ->
   datePicker.addEventListener 'change' , (e)->
     date = dateToString e.value
     dateRow.title = date
-    schedule.date = (new Date(date)).getTime()
+    schedule.date = (new Date(date.replace(/-/g, '/'))).getTime()
     _scheduleDataWasChanged()
     return
   
