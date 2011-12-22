@@ -7,7 +7,7 @@ db = Ti.Database.open '../../Caches/db.sqlite'
 # db.execute "CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)"
 
 class Schedule
-  constructor: (@title, @active = 0, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @sound = 0, @options = {}, @updated = -1, @id = null) ->
+  constructor: (@title, @active = 0, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @sound = 1, @options = {}, @updated = -1, @id = null) ->
     Ti.App.Properties.removeProperty 'lastSchedule'
         
   save: () ->

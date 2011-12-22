@@ -3,13 +3,13 @@ months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Augus
 
 exports = 
 
-#デバッグ用及びメモリの使用量を確認 
+#for debug
   trace: (message) ->
     Ti.API.info message
     Ti.API.info "Available memory: " + Ti.Platform.availableMemory
     return
 
-#オブジェクトを結合。例) mix({color:'#000', height:100}, {width:50, top:10})
+#mix objects: mix({color:'#000', height:100}, {width:50, top:10})
   mix: () ->
     child = {}
     for arg in arguments

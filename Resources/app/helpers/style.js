@@ -1,6 +1,6 @@
 var exports, images, isIpad, mix, properties, theme, views;
 mix = app.helpers.util.mix;
-isIpad = app.properties.isIpad;
+isIpad = app.helpers.conf.isIpad;
 theme = {
   textColor: '#000000',
   barColor: '#666',
@@ -26,10 +26,6 @@ if (Ti.Platform.displayCaps.dpi > 300) {
     aquaclock: 'images/aquaclock.png'
   };
 }
-app.properties.platformWidth = Ti.Platform.displayCaps.platformWidth;
-app.properties.platformHeight = Ti.Platform.displayCaps.platformHeight;
-app.properties.navToolHeight = 108;
-app.properties.navHeight = 64;
 properties = {
   Window: {
     barColor: theme.barColor,
@@ -261,11 +257,15 @@ views = {
       top: 0,
       right: 50
     },
-    activeLabel: {
+    rowLabel: {
       width: 100,
       height: 30,
       color: '#000',
-      left: 10
+      left: 10,
+      font: {
+        fontWeight: 'bold',
+        fontSize: 16
+      }
     },
     switches: {
       right: 10

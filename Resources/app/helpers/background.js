@@ -20,7 +20,7 @@
           id: schedule.id
         }
       };
-      if (schedule.sound < 1) {
+      if (schedule.sound > 0) {
         options.sound = 'default';
       }
       Ti.App.iOS.scheduleLocalNotification(options);

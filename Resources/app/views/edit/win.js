@@ -1,14 +1,13 @@
 var createWindow, trace;
 trace = app.helpers.util.trace;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, titleField, titleRow, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundRow, soundSwitch, tableView, testRow, titleField, titleRow, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
   isIpad = app.helpers.conf.isIpad;
   $$ = app.helpers.style.views.edit;
-  repeats = app.helpers.conf.repeats;
-  sounds = [L('edit.default'), L('conf.none')];
+  repeats = [L('conf.none'), L('conf.daily'), L('conf.weekly'), L('conf.monthly'), L('conf.yearly')];
   schedule = null;
   trashBtn = Ti.UI.createButton($$.trashBtn);
   copyBtn = Ti.UI.createButton($$.copyBtn);
@@ -28,12 +27,8 @@ createWindow = function(tab) {
   activeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     idx: 1
   }));
-  activeRow.add(Ti.UI.createLabel(mix($$.activeLabel, {
-    text: L('edit.active'),
-    font: {
-      fontWeight: 'bold',
-      fontSize: 16
-    }
+  activeRow.add(Ti.UI.createLabel(mix($$.rowLabel, {
+    text: L('edit.active')
   })));
   activeSwitch = Ti.UI.createSwitch($$.switches);
   activeRow.add(activeSwitch);
@@ -63,9 +58,13 @@ createWindow = function(tab) {
   }));
   soundRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
     header: L('edit.sound'),
-    hasChild: true,
     idx: 6
   }));
+  soundRow.add(Ti.UI.createLabel(mix($$.rowLabel, {
+    text: L('edit.sound')
+  })));
+  soundSwitch = Ti.UI.createSwitch($$.switches);
+  soundRow.add(soundSwitch);
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow, soundRow];
   tableView = Ti.UI.createTableView($$.tableView);
   tableView.data = rows;
@@ -75,8 +74,6 @@ createWindow = function(tab) {
     dateRow.add(Ti.UI.createView($$.dummyView));
     repeatRow.add(Ti.UI.createView($$.dummyView));
     repeatTableView = Ti.UI.createTableView();
-    soundRow.add(Ti.UI.createView($$.dummyView));
-    soundTableView = Ti.UI.createTableView();
     (function() {
       var choice, repeat, _i, _len;
       choice = [];
@@ -88,17 +85,6 @@ createWindow = function(tab) {
       }
       repeatTableView.setData(choice);
     })();
-    (function() {
-      var choice, sound, _i, _len;
-      choice = [];
-      for (_i = 0, _len = sounds.length; _i < _len; _i++) {
-        sound = sounds[_i];
-        choice.push({
-          title: sound
-        });
-      }
-      soundTableView.setData(choice);
-    })();
     datePickerPopOver = Ti.UI.iPad.createPopover(mix($$.popOver, {
       title: L('edit.date'),
       arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
@@ -109,16 +95,10 @@ createWindow = function(tab) {
       arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
     }));
     repeatTablePopOver.add(repeatTableView);
-    soundTablePopOver = Ti.UI.iPad.createPopover(mix($$.popOver, {
-      title: L('edit.sound'),
-      arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
-    }));
-    soundTablePopOver.add(soundTableView);
   } else {
     doneBtn = Ti.UI.createButton($$.doneBtn);
     kbdDoneBtn = Ti.UI.createButton($$.doneBtn);
     repeatPicker = Ti.UI.createPicker($$.picker);
-    soundPicker = Ti.UI.createPicker($$.picker);
     titleField.keyboardToolbar = [fs, kbdDoneBtn];
     schemeField.keyboardToolbar = [fs, kbdDoneBtn];
     pickerToolbar = Ti.UI.iOS.createToolbar(mix($$.toolbar, {
@@ -135,26 +115,12 @@ createWindow = function(tab) {
       }
       repeatPicker.add(choice);
     })();
-    (function() {
-      var choice, sound, _i, _len;
-      choice = [];
-      for (_i = 0, _len = sounds.length; _i < _len; _i++) {
-        sound = sounds[_i];
-        choice.push(Ti.UI.createPickerRow({
-          title: sound
-        }));
-      }
-      soundPicker.add(choice);
-    })();
     datePickerContainer = Ti.UI.createView($$.pickerContainer);
     datePickerContainer.add(datePicker);
     repeatPickerContainer = Ti.UI.createView($$.pickerContainer);
     repeatPickerContainer.add(repeatPicker);
-    soundPickerContainer = Ti.UI.createView($$.pickerContainer);
-    soundPickerContainer.add(soundPicker);
     window.add(datePickerContainer);
     window.add(repeatPickerContainer);
-    window.add(soundPickerContainer);
   }
   refresh = function(data) {
     schedule = data;
@@ -164,7 +130,7 @@ createWindow = function(tab) {
     titleField.value = data.title;
     dateRow.title = dateToString(new Date(data.date));
     repeatRow.title = repeats[data.repeat];
-    soundRow.title = sounds[data.sound];
+    soundSwitch.value = data.sound ? true : false;
     saveBtn.enabled = false;
     copyBtn.enabled = true;
   };
@@ -220,17 +186,6 @@ createWindow = function(tab) {
               animated: true
             });
             repeatPickerContainer.remove(pickerToolbar);
-          });
-        }
-      }
-      if (index !== 6) {
-        if (soundPickerContainer.visible) {
-          soundPickerContainer.animate($$.closePickerAnimation, function() {
-            soundPickerContainer.visible = false;
-            window.setToolbar([trashBtn, fs, copyBtn], {
-              animated: true
-            });
-            soundPickerContainer.remove(pickerToolbar);
           });
         }
       }
@@ -294,24 +249,6 @@ createWindow = function(tab) {
       repeatPickerContainer.animate($$.openPickerAnimation);
     }
   });
-  soundRow.addEventListener('click', function(e) {
-    _blur(e.source.idx);
-    if (isIpad) {
-      soundTableView.data[0].rows[schedule.sound].hasCheck = true;
-      soundTablePopOver.show({
-        view: soundRow.getChildren()[0],
-        animate: true
-      });
-    } else if (!soundPickerContainer.visible) {
-      window.setToolbar(null, {
-        animated: false
-      });
-      soundPicker.setSelectedRow(0, schedule.sound);
-      soundPickerContainer.add(pickerToolbar);
-      soundPickerContainer.visible = true;
-      soundPickerContainer.animate($$.openPickerAnimation);
-    }
-  });
   datePicker.addEventListener('change', function(e) {
     var date;
     date = dateToString(e.value);
@@ -332,27 +269,10 @@ createWindow = function(tab) {
       _scheduleDataWasChanged();
       repeatTablePopOver.hide();
     });
-    soundTableView.addEventListener('click', function(e) {
-      var row, _i, _len, _ref;
-      _ref = soundTableView.data[0].rows;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        row = _ref[_i];
-        row.hasCheck = false;
-      }
-      soundRow.title = sounds[e.index];
-      schedule.sound = e.index;
-      _scheduleDataWasChanged();
-      soundTablePopOver.hide();
-    });
   } else {
     repeatPicker.addEventListener('change', function(e) {
       repeatRow.title = repeats[e.rowIndex];
       schedule.repeat = e.rowIndex;
-      _scheduleDataWasChanged();
-    });
-    soundPicker.addEventListener('change', function(e) {
-      soundRow.title = sounds[e.rowIndex];
-      schedule.sound = e.rowIndex;
       _scheduleDataWasChanged();
     });
     kbdDoneBtn.addEventListener('click', function() {
@@ -376,7 +296,6 @@ createWindow = function(tab) {
   schemeField.addEventListener('change', _textFieldHandler);
   activeSwitch.addEventListener('change', function(e) {
     var value;
-    _blur(e.source.idx);
     value = e.value ? 1 : 0;
     if (schedule.active !== value) {
       _scheduleDataWasChanged();
@@ -384,6 +303,14 @@ createWindow = function(tab) {
       if (Schedule.countAllActive() > 60) {
         alert(L('edit.over'));
       }
+    }
+  });
+  soundSwitch.addEventListener('change', function(e) {
+    var value;
+    value = e.value ? 1 : 0;
+    if (schedule.sound !== value) {
+      _scheduleDataWasChanged();
+      schedule.sound = value;
     }
   });
   saveBtn.addEventListener('click', function() {

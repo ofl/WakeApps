@@ -1,5 +1,5 @@
 mix = app.helpers.util.mix
-isIpad = app.properties.isIpad
+isIpad = app.helpers.conf.isIpad
 
 theme = 
   textColor: '#000000'
@@ -23,20 +23,6 @@ else
     redclock: 'images/redclock.png'
     yellowclock: 'images/yellowclock.png'
     aquaclock: 'images/aquaclock.png'
-
-app.properties.platformWidth = Ti.Platform.displayCaps.platformWidth
-app.properties.platformHeight = Ti.Platform.displayCaps.platformHeight
-app.properties.navToolHeight = 108
-app.properties.navHeight = 64
-
-# Ti.Gesture.addEventListener 'orientationchange', (e)->
-  # if e.orientation < 3
-    # app.properties.navToolHeight = 108
-    # app.properties.navHeight = 64
-  # else
-    # app.properties.navToolHeight = 100
-    # app.properties.navHeight = 60
-  # return
 
 properties = 
   Window: 
@@ -238,11 +224,14 @@ views =
       width:1
       top:0
       right:50
-    activeLabel:
+    rowLabel:
       width: 100
       height: 30
       color: '#000'
       left: 10      
+      font: 
+        fontWeight: 'bold'
+        fontSize: 16
     switches:
       right: 10
       

@@ -6,9 +6,13 @@ createWindow = (tab) ->
   dateToString = app.helpers.util.dateToString
   isIpad = app.helpers.conf.isIpad
   $$ = app.helpers.style.views.edit
-  repeats = app.helpers.conf.repeats
-  sounds = [L('edit.default'), L('conf.none')]
-  
+  repeats = [
+    L('conf.none'), 
+    L('conf.daily'), 
+    L('conf.weekly'), 
+    L('conf.monthly'), 
+    L('conf.yearly') 
+    ]  
   schedule = null
   
   trashBtn =  Ti.UI.createButton $$.trashBtn
@@ -28,11 +32,8 @@ createWindow = (tab) ->
   
   activeRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     idx: 1
-  activeRow.add Ti.UI.createLabel mix $$.activeLabel,
+  activeRow.add Ti.UI.createLabel mix $$.rowLabel,
     text : L('edit.active')
-    font: 
-      fontWeight: 'bold'
-      fontSize: 16
   activeSwitch = Ti.UI.createSwitch $$.switches
   activeRow.add activeSwitch
   
@@ -61,8 +62,11 @@ createWindow = (tab) ->
     
   soundRow = Ti.UI.createTableViewRow mix $$.tableViewRow,
     header: L 'edit.sound'
-    hasChild: true
     idx: 6
+  soundRow.add Ti.UI.createLabel mix $$.rowLabel,
+    text : L('edit.sound')
+  soundSwitch = Ti.UI.createSwitch $$.switches
+  soundRow.add soundSwitch
   
   rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow, soundRow]
   # tableView = Ti.UI.createTableView mix $$.tableView, 
@@ -77,19 +81,11 @@ createWindow = (tab) ->
     dateRow.add Ti.UI.createView $$.dummyView
     repeatRow.add Ti.UI.createView $$.dummyView
     repeatTableView = Ti.UI.createTableView()
-    soundRow.add Ti.UI.createView $$.dummyView
-    soundTableView = Ti.UI.createTableView()
     do ()->
       choice = []
       for repeat in repeats
         choice.push title: repeat
       repeatTableView.setData choice
-      return
-    do ()->
-      choice = []
-      for sound in sounds
-        choice.push title: sound
-      soundTableView.setData choice      
       return
     datePickerPopOver = Ti.UI.iPad.createPopover mix $$.popOver,
       title: L 'edit.date'
@@ -99,15 +95,10 @@ createWindow = (tab) ->
       title: L 'edit.repeat'
       arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
     repeatTablePopOver.add repeatTableView
-    soundTablePopOver = Ti.UI.iPad.createPopover mix $$.popOver,
-      title: L 'edit.sound'
-      arrowDirection: Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP
-    soundTablePopOver.add soundTableView
   else
     doneBtn = Ti.UI.createButton $$.doneBtn
     kbdDoneBtn = Ti.UI.createButton $$.doneBtn
     repeatPicker = Ti.UI.createPicker $$.picker
-    soundPicker = Ti.UI.createPicker $$.picker
     titleField.keyboardToolbar = [fs, kbdDoneBtn]
     schemeField.keyboardToolbar = [fs, kbdDoneBtn]
     pickerToolbar = Ti.UI.iOS.createToolbar mix $$.toolbar,
@@ -121,22 +112,12 @@ createWindow = (tab) ->
           title: repeat
       repeatPicker.add choice
       return
-    do ()->
-      choice = []
-      for sound in sounds
-        choice.push Ti.UI.createPickerRow
-          title: sound
-      soundPicker.add choice
-      return
     datePickerContainer = Ti.UI.createView $$.pickerContainer
     datePickerContainer.add datePicker
     repeatPickerContainer = Ti.UI.createView $$.pickerContainer
     repeatPickerContainer.add repeatPicker  
-    soundPickerContainer = Ti.UI.createView $$.pickerContainer
-    soundPickerContainer.add soundPicker  
     window.add datePickerContainer
     window.add repeatPickerContainer      
-    window.add soundPickerContainer      
   
   refresh = (data)->
     schedule = data
@@ -146,7 +127,7 @@ createWindow = (tab) ->
     titleField.value = data.title
     dateRow.title = dateToString(new Date(data.date))
     repeatRow.title = repeats[data.repeat]
-    soundRow.title = sounds[data.sound]
+    soundSwitch.value = if data.sound then true else false 
     saveBtn.enabled = false
     copyBtn.enabled = true
     return
@@ -194,13 +175,6 @@ createWindow = (tab) ->
             window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
             repeatPickerContainer.remove pickerToolbar
             return
-      if index isnt 6
-        if soundPickerContainer.visible
-          soundPickerContainer.animate $$.closePickerAnimation, ()->
-            soundPickerContainer.visible = false            
-            window.setToolbar [trashBtn, fs, copyBtn],{animated:true}
-            soundPickerContainer.remove pickerToolbar
-            return
     return        
 
   _textFieldHandler = (e)->
@@ -219,6 +193,7 @@ createWindow = (tab) ->
     _blur(e.source.idx)
     Ti.Platform.openURL schemeField.value    
     return
+    
   dateRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
     if schedule.date is null
@@ -235,6 +210,7 @@ createWindow = (tab) ->
       datePickerContainer.visible = true
       datePickerContainer.animate $$.openPickerAnimation
     return
+    
   repeatRow.addEventListener 'click' , (e)->
     _blur(e.source.idx)
     if isIpad
@@ -249,20 +225,7 @@ createWindow = (tab) ->
       repeatPickerContainer.visible = true
       repeatPickerContainer.animate $$.openPickerAnimation
     return
-  soundRow.addEventListener 'click' , (e)->
-    _blur(e.source.idx)
-    if isIpad
-      soundTableView.data[0].rows[schedule.sound].hasCheck = true
-      soundTablePopOver.show
-        view: soundRow.getChildren()[0]
-        animate: true
-    else if !soundPickerContainer.visible
-      window.setToolbar null,{animated:false}
-      soundPicker.setSelectedRow 0, schedule.sound
-      soundPickerContainer.add pickerToolbar
-      soundPickerContainer.visible = true
-      soundPickerContainer.animate $$.openPickerAnimation
-    return
+    
   datePicker.addEventListener 'change' , (e)->
     date = dateToString e.value
     dateRow.title = date
@@ -279,23 +242,10 @@ createWindow = (tab) ->
       _scheduleDataWasChanged()
       repeatTablePopOver.hide()
       return
-    soundTableView.addEventListener 'click' , (e)->
-      for row in soundTableView.data[0].rows
-        row.hasCheck = false
-      soundRow.title = sounds[e.index]
-      schedule.sound = e.index
-      _scheduleDataWasChanged()
-      soundTablePopOver.hide()
-      return
   else
     repeatPicker.addEventListener 'change' , (e)->
       repeatRow.title = repeats[e.rowIndex]
       schedule.repeat = e.rowIndex
-      _scheduleDataWasChanged()
-      return
-    soundPicker.addEventListener 'change' , (e)->
-      soundRow.title = sounds[e.rowIndex]
-      schedule.sound = e.rowIndex
       _scheduleDataWasChanged()
       return
 
@@ -323,13 +273,19 @@ createWindow = (tab) ->
   schemeField.addEventListener 'change' , _textFieldHandler
 
   activeSwitch.addEventListener 'change', (e)->
-    _blur(e.source.idx)
     value = if e.value then 1 else 0
     if schedule.active isnt value
       _scheduleDataWasChanged()
       schedule.active = value
       if Schedule.countAllActive() > 60
         alert L('edit.over')
+    return
+
+  soundSwitch.addEventListener 'change', (e)->
+    value = if e.value then 1 else 0
+    if schedule.sound isnt value
+      _scheduleDataWasChanged()
+      schedule.sound = value
     return
   
   saveBtn.addEventListener 'click' , ()->

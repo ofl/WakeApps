@@ -12,7 +12,7 @@ Schedule = (function() {
     this.date = date != null ? date : (new Date()).getTime();
     this.scheme = scheme != null ? scheme : 'http://www.google.com';
     this.repeat = repeat != null ? repeat : 0;
-    this.sound = sound != null ? sound : 0;
+    this.sound = sound != null ? sound : 1;
     this.options = options != null ? options : {};
     this.updated = updated != null ? updated : -1;
     this.id = id != null ? id : null;
