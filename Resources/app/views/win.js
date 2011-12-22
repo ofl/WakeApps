@@ -182,7 +182,7 @@ createWindow = function(tab) {
 };
 exports.win = {
   open: function() {
-    var detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, window;
+    var detailNavigationGroup, detailWindow, id, masterNavigationGroup, schedule, splitwin, tab, window;
     if (isIpad) {
       id = Ti.App.Properties.getInt('lastSchedule');
       schedule = null;
@@ -195,11 +195,11 @@ exports.win = {
       window = createWindow();
       app.views.windowStack.push(window);
       window.refresh();
-      detailView = app.views.edit.win.createWindow();
-      app.views.windowStack.push(detailView);
-      detailView.refresh(schedule);
+      detailWindow = app.views.edit.win.createWindow();
+      app.views.windowStack.push(detailWindow);
+      detailWindow.refresh(schedule);
       detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
-        window: detailView
+        window: detailWindow
       });
       masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
         window: window

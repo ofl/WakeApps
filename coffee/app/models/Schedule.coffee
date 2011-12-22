@@ -1,10 +1,12 @@
-if !Ti.App.Properties.getInt 'dbVersion'
-  Ti.API.info 'Database was installed.'
-  Ti.Database.install('schedule.sqlite', '../../Caches/db.sqlite')
-  Ti.App.Properties.setInt 'dbVersion', 1
+# if !Ti.App.Properties.getInt 'dbVersion'
+  # Ti.API.info 'Database was installed.'
+  # Ti.Database.install('schedule.sqlite', '../../Caches/db.sqlite')
+  # Ti.App.Properties.setInt 'dbVersion', 1
+# 
+# db = Ti.Database.open '../../Caches/db.sqlite'
 
-db = Ti.Database.open '../../Caches/db.sqlite'
-# db.execute "CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, OPTIONS TEXT, UPDATED TEXT)"
+db = Ti.Database.open 'db'
+db.execute "CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, SOUND INTEGER, OPTIONS TEXT, UPDATED TEXT)"
 
 class Schedule
   constructor: (@title, @active = 0, @date = (new Date()).getTime(), @scheme = 'http://www.google.com', @repeat = 0, @sound = 1, @options = {}, @updated = -1, @id = null) ->

@@ -188,12 +188,12 @@ exports.win =
       app.views.windowStack.push window      
       window.refresh()      
         
-      detailView = app.views.edit.win.createWindow()
-      app.views.windowStack.push detailView
-      detailView.refresh schedule
+      detailWindow = app.views.edit.win.createWindow()
+      app.views.windowStack.push detailWindow
+      detailWindow.refresh schedule
       
       detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup
-        window: detailView
+        window: detailWindow
       masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup
         window: window
         
