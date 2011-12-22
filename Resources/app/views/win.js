@@ -1,11 +1,11 @@
-var createWindow;
+var Schedule, createWindow, isIpad, trace;
+trace = app.helpers.util.trace;
+isIpad = app.helpers.conf.isIpad;
+Schedule = app.models.Schedule;
 createWindow = function(tab) {
-  var $$, Schedule, addBtn, confirm, dateToString, doneEditBtn, editBtn, fs, isIpad, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, timesToGo, trace, updateLabel, window, _tableViewHandler;
-  Schedule = app.models.Schedule;
+  var $$, addBtn, confirm, dateToString, doneEditBtn, editBtn, fs, messageLabel, messageWindow, mix, prettyDate, refresh, refreshBtn, service, showMessage, tableView, timesToGo, updateLabel, window, _registerBackgroundService, _tableViewHandler;
   mix = app.helpers.util.mix;
-  trace = app.helpers.util.trace;
   $$ = app.helpers.style.views.root;
-  isIpad = app.properties.isIpad;
   prettyDate = app.helpers.util.prettyDate;
   dateToString = app.helpers.util.dateToString;
   timesToGo = app.helpers.util.timesToGo;
@@ -106,6 +106,14 @@ createWindow = function(tab) {
       messageWindow.close();
     });
   };
+  _registerBackgroundService = function() {
+    if (service !== null) {
+      service.unregister();
+    }
+    service = Ti.App.iOS.registerBackgroundService({
+      url: 'app/helpers/background.js'
+    });
+  };
   _tableViewHandler = function(e) {
     var isDeleteCurrentSchedule, newSchedule, schedule;
     schedule = Schedule.findById(e.row.id);
@@ -160,32 +168,13 @@ createWindow = function(tab) {
   });
   Ti.App.iOS.addEventListener('notification', function(e) {
     trace('Fired From Notification');
-    if (service !== null) {
-      service.unregister();
-    }
-    service = Ti.App.iOS.registerBackgroundService({
-      url: 'app/helpers/background.js'
-    });
+    _registerBackgroundService();
     if (e.userInfo.scheme !== '') {
       Ti.Platform.openURL(e.userInfo.scheme);
     }
   });
-  window.addEventListener('open', function(e) {
-    if (service !== null) {
-      service.unregister();
-    }
-    service = Ti.App.iOS.registerBackgroundService({
-      url: 'app/helpers/background.js'
-    });
-  });
-  Ti.App.addEventListener('resume', function(e) {
-    if (service !== null) {
-      service.unregister();
-    }
-    service = Ti.App.iOS.registerBackgroundService({
-      url: 'app/helpers/background.js'
-    });
-  });
+  window.addEventListener('open', _registerBackgroundService);
+  Ti.App.addEventListener('resume', _registerBackgroundService);
   window.refresh = refresh;
   window.confirm = confirm;
   window.showMessage = showMessage;
@@ -193,10 +182,8 @@ createWindow = function(tab) {
 };
 exports.win = {
   open: function() {
-    var Schedule, detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, trace, window;
-    trace = app.helpers.util.trace;
-    if (app.properties.isIpad) {
-      Schedule = app.models.Schedule;
+    var detailNavigationGroup, detailView, id, masterNavigationGroup, schedule, splitwin, tab, window;
+    if (isIpad) {
       id = Ti.App.Properties.getInt('lastSchedule');
       schedule = null;
       if (id) {

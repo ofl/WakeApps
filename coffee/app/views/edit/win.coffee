@@ -1,17 +1,17 @@
+trace = app.helpers.util.trace    
+
 createWindow = (tab) ->
   Schedule = app.models.Schedule
   mix = app.helpers.util.mix
   dateToString = app.helpers.util.dateToString
-  trace = app.helpers.util.trace
-  isIpad = app.properties.isIpad
+  isIpad = app.helpers.conf.isIpad
   $$ = app.helpers.style.views.edit
-  repeats = app.properties.repeats
-  sounds = [L('edit.alert'), L('edit.default'), L('conf.none')]
+  repeats = app.helpers.conf.repeats
+  sounds = [L('edit.default'), L('conf.none')]
   
   schedule = null
   
-  trashBtn =  Ti.UI.createButton $$
-  .trashBtn
+  trashBtn =  Ti.UI.createButton $$.trashBtn
   copyBtn =  Ti.UI.createButton $$.copyBtn
   saveBtn =  Ti.UI.createButton $$.saveBtn
   fs = Ti.UI.createButton $$.fs
@@ -384,7 +384,6 @@ createWindow = (tab) ->
           
 exports.win = 
   open: (tab, data) ->
-    trace = app.helpers.util.trace    
     window = createWindow tab
     window.refresh data
     app.views.windowStack.push window

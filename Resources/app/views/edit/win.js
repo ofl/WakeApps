@@ -1,14 +1,14 @@
-var createWindow;
+var createWindow, trace;
+trace = app.helpers.util.trace;
 createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, titleField, titleRow, trace, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundPicker, soundPickerContainer, soundRow, soundTablePopOver, soundTableView, sounds, tableView, testRow, titleField, titleRow, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
   Schedule = app.models.Schedule;
   mix = app.helpers.util.mix;
   dateToString = app.helpers.util.dateToString;
-  trace = app.helpers.util.trace;
-  isIpad = app.properties.isIpad;
+  isIpad = app.helpers.conf.isIpad;
   $$ = app.helpers.style.views.edit;
-  repeats = app.properties.repeats;
-  sounds = [L('edit.alert'), L('edit.default'), L('conf.none')];
+  repeats = app.helpers.conf.repeats;
+  sounds = [L('edit.default'), L('conf.none')];
   schedule = null;
   trashBtn = Ti.UI.createButton($$.trashBtn);
   copyBtn = Ti.UI.createButton($$.copyBtn);
@@ -442,8 +442,7 @@ createWindow = function(tab) {
 };
 exports.win = {
   open: function(tab, data) {
-    var trace, window;
-    trace = app.helpers.util.trace;
+    var window;
     window = createWindow(tab);
     window.refresh(data);
     app.views.windowStack.push(window);

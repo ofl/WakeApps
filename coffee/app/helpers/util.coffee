@@ -1,8 +1,3 @@
-dateformat = (format, date = null) ->
-  dateFormat = new app.lib.DateFormat(format)
-  d = if date is null then new Date() else date
-  dateFormat.format d
-
 week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -92,6 +87,3 @@ exports =
       if repeat is 4
         text += ' on ' + d + ' every ' + months[date.getMonth()]      
     return text      
-
-  dateformat : dateformat
-  

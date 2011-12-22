@@ -1,10 +1,11 @@
+trace = app.helpers.util.trace
+isIpad = app.helpers.conf.isIpad
+Schedule = app.models.Schedule
+
 createWindow = (tab) ->
-#   グローバル変数をローカル変数に代入。
-  Schedule = app.models.Schedule
+# Shrotcuts
   mix = app.helpers.util.mix
-  trace = app.helpers.util.trace
   $$ = app.helpers.style.views.root
-  isIpad = app.properties.isIpad
   prettyDate = app.helpers.util.prettyDate
   dateToString = app.helpers.util.dateToString
   timesToGo = app.helpers.util.timesToGo
@@ -98,6 +99,14 @@ createWindow = (tab) ->
       return
     return
 
+  _registerBackgroundService = ()->
+    if service isnt null
+      service.unregister()
+    service = Ti.App.iOS.registerBackgroundService 
+      url: 'app/helpers/background.js'
+    return
+
+
   _tableViewHandler = (e)->
     schedule = Schedule.findById e.row.id
     switch e.type
@@ -150,27 +159,13 @@ createWindow = (tab) ->
 
   Ti.App.iOS.addEventListener 'notification', (e)->
     trace 'Fired From Notification'
-    if service isnt null
-      service.unregister()
-    service = Ti.App.iOS.registerBackgroundService 
-      url: 'app/helpers/background.js'
+    _registerBackgroundService()
     if e.userInfo.scheme isnt ''
       Ti.Platform.openURL e.userInfo.scheme
     return
 
-  window.addEventListener 'open', (e) -> 
-    if service isnt null
-      service.unregister()
-    service = Ti.App.iOS.registerBackgroundService 
-      url: 'app/helpers/background.js'
-    return
-    
-  Ti.App.addEventListener 'resume', (e) -> 
-    if service isnt null
-      service.unregister()
-    service = Ti.App.iOS.registerBackgroundService 
-      url: 'app/helpers/background.js'
-    return
+  window.addEventListener 'open', _registerBackgroundService    
+  Ti.App.addEventListener 'resume', _registerBackgroundService
     
   window.refresh = refresh
   window.confirm = confirm
@@ -180,11 +175,8 @@ createWindow = (tab) ->
 
           
 exports.win = 
-  open: () ->
-    trace = app.helpers.util.trace
-    
-    if app.properties.isIpad
-      Schedule = app.models.Schedule
+  open: () ->    
+    if isIpad
       id = Ti.App.Properties.getInt 'lastSchedule'    
       schedule = null
       if id

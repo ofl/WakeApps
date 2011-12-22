@@ -1,13 +1,4 @@
-var dateformat, exports, months, week;
-dateformat = function(format, date) {
-  var d, dateFormat;
-  if (date == null) {
-    date = null;
-  }
-  dateFormat = new app.lib.DateFormat(format);
-  d = date === null ? new Date() : date;
-  return dateFormat.format(d);
-};
+var exports, months, week;
 week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 exports = {
@@ -115,6 +106,5 @@ exports = {
       }
     }
     return text;
-  },
-  dateformat: dateformat
+  }
 };

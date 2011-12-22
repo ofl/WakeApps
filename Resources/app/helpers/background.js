@@ -20,8 +20,8 @@
           id: schedule.id
         }
       };
-      if (schedule.sound < 2) {
-        options.sound = ['sounds/Alarm0014.wav', 'default', null][schedule.sound];
+      if (schedule.sound < 1) {
+        options.sound = 'default';
       }
       Ti.App.iOS.scheduleLocalNotification(options);
     }
