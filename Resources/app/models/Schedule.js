@@ -1,10 +1,6 @@
 var Schedule, db, exports;
-if (!Ti.App.Properties.getInt('dbVersion')) {
-  Ti.API.info('Database was installed.');
-  Ti.Database.install('schedule.sqlite', '../../Caches/db.sqlite');
-  Ti.App.Properties.setInt('dbVersion', 1);
-}
-db = Ti.Database.open('../../Caches/db.sqlite');
+db = Ti.Database.open('db');
+db.execute("CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, SOUND INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
   function Schedule(title, active, date, scheme, repeat, sound, options, updated, id) {
     this.title = title;
