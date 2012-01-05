@@ -2,7 +2,7 @@
   var Schedule, now, options, schedule, schedules, _i, _len;
   Ti.API.info('Launched Background Serivice');
   Ti.App.iOS.cancelAllLocalNotifications();
-  Schedule = (require('app/models/Schedule')).Schedule;
+  Schedule = require('app/models/Schedule');
   schedules = Schedule.findAllActive();
   now = (new Date()).getTime();
   for (_i = 0, _len = schedules.length; _i < _len; _i++) {

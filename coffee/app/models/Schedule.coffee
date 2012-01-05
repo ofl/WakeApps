@@ -80,6 +80,5 @@ class Schedule
     db.execute "DELETE FROM main.SCHEDULEDB"
     return
     
-exports = 
-  Schedule: Schedule
+module.exports = Schedule
 

@@ -1,12 +1,13 @@
-var createWindow, trace;
-trace = app.helpers.util.trace;
-createWindow = function(tab) {
-  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundRow, soundSwitch, tableView, testRow, titleField, titleRow, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
-  Schedule = app.models.Schedule;
-  mix = app.helpers.util.mix;
-  dateToString = app.helpers.util.dateToString;
-  isIpad = app.helpers.conf.isIpad;
-  $$ = app.helpers.style.views.edit;
+var createWindow;
+createWindow = function(windowStack, tab) {
+  var $$, Schedule, activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, dateToString, doneBtn, fs, isIpad, kbdDoneBtn, mix, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundRow, soundSwitch, tableView, testRow, titleField, titleRow, trace, trashBtn, util, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
+  util = require('app/helpers/util');
+  Schedule = require('app/models/Schedule');
+  trace = util.trace;
+  mix = util.mix;
+  dateToString = util.dateToString;
+  isIpad = (require('app/helpers/conf')).isIpad;
+  $$ = (require('app/helpers/style')).views.edit;
   repeats = [L('conf.none'), L('conf.daily'), L('conf.weekly'), L('conf.monthly'), L('conf.yearly')];
   schedule = null;
   trashBtn = Ti.UI.createButton($$.trashBtn);
@@ -144,7 +145,7 @@ createWindow = function(tab) {
       dialog.addEventListener('click', function(e) {
         if (e.index === 0) {
           schedule.save();
-          app.views.windowStack[0].refresh();
+          windowStack[0].refresh();
           refresh(data);
         } else {
           refresh(data);
@@ -315,8 +316,8 @@ createWindow = function(tab) {
   });
   saveBtn.addEventListener('click', function() {
     schedule.save();
-    app.views.windowStack[0].refresh();
-    app.views.windowStack[0].showMessage(L('edit.saved'));
+    windowStack[0].refresh();
+    windowStack[0].showMessage(L('edit.saved'));
     saveBtn.enabled = false;
     copyBtn.enabled = true;
   });
@@ -332,9 +333,9 @@ createWindow = function(tab) {
       var newSchedule;
       if (e.index === 0) {
         schedule.del();
-        app.views.windowStack[0].refresh();
+        windowStack[0].refresh();
         if (isIpad) {
-          app.views.windowStack[0].showMessage(L('root.deleted'));
+          windowStack[0].showMessage(L('root.deleted'));
           newSchedule = Schedule.findLastUpdated();
           if (newSchedule === null) {
             newSchedule = new Schedule(L('root.newschedule'));
@@ -351,13 +352,13 @@ createWindow = function(tab) {
     var data;
     data = new Schedule(schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.sound, schedule.options);
     schedule = data;
-    app.views.windowStack[0].showMessage(L('edit.copied'));
+    windowStack[0].showMessage(L('edit.copied'));
     saveBtn.enabled = true;
     copyBtn.enabled = false;
   });
   window.addEventListener('close', function() {
     var stack;
-    stack = app.views.windowStack;
+    stack = windowStack;
     stack.pop();
     if (stack.length > 0 && saveBtn.enabled) {
       stack[stack.length - 1].confirm(schedule);
@@ -368,11 +369,11 @@ createWindow = function(tab) {
   return window;
 };
 exports.win = {
-  open: function(tab, data) {
+  open: function(windowStack, tab, data) {
     var window;
-    window = createWindow(tab);
+    window = createWindow(windowStack, tab);
     window.refresh(data);
-    app.views.windowStack.push(window);
+    windowStack.push(window);
     tab.open(window);
   },
   createWindow: createWindow

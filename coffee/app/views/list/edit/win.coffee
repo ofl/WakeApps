@@ -1,11 +1,11 @@
-trace = app.helpers.util.trace    
-
-createWindow = (tab) ->
-  Schedule = app.models.Schedule
-  mix = app.helpers.util.mix
-  dateToString = app.helpers.util.dateToString
-  isIpad = app.helpers.conf.isIpad
-  $$ = app.helpers.style.views.edit
+createWindow = (windowStack, tab) ->
+  util = require 'app/helpers/util' 
+  Schedule = require 'app/models/Schedule'
+  trace = util.trace    
+  mix = util.mix
+  dateToString = util.dateToString
+  isIpad = (require 'app/helpers/conf' ).isIpad
+  $$ = (require 'app/helpers/style' ).views.edit
   repeats = [
     L('conf.none'), 
     L('conf.daily'), 
@@ -140,7 +140,7 @@ createWindow = (tab) ->
       dialog.addEventListener 'click', (e)->
         if e.index is 0
           schedule.save()
-          app.views.windowStack[0].refresh()
+          windowStack[0].refresh()
           refresh data
         else
           refresh data          
@@ -290,8 +290,8 @@ createWindow = (tab) ->
   
   saveBtn.addEventListener 'click' , ()->
     schedule.save()
-    app.views.windowStack[0].refresh()
-    app.views.windowStack[0].showMessage L('edit.saved')
+    windowStack[0].refresh()
+    windowStack[0].showMessage L('edit.saved')
     saveBtn.enabled = false
     copyBtn.enabled = true
     return
@@ -305,9 +305,9 @@ createWindow = (tab) ->
     dialog.addEventListener 'click', (e)->
       if e.index is 0
         schedule.del()
-        app.views.windowStack[0].refresh()
+        windowStack[0].refresh()
         if isIpad
-          app.views.windowStack[0].showMessage(L('root.deleted'))
+          windowStack[0].showMessage(L('root.deleted'))
           newSchedule = Schedule.findLastUpdated()
           if newSchedule is null
              newSchedule = new Schedule(L('root.newschedule'))
@@ -321,13 +321,13 @@ createWindow = (tab) ->
   copyBtn.addEventListener 'click' , ()->
     data = new Schedule schedule.title, schedule.active, schedule.date, schedule.scheme, schedule.repeat, schedule.sound, schedule.options
     schedule = data
-    app.views.windowStack[0].showMessage L('edit.copied')
+    windowStack[0].showMessage L('edit.copied')
     saveBtn.enabled = true
     copyBtn.enabled = false    
     return
   
   window.addEventListener 'close' , ()->
-    stack = app.views.windowStack
+    stack = windowStack
     stack.pop()
     if stack.length > 0 and saveBtn.enabled
       stack[stack.length - 1].confirm schedule
@@ -339,10 +339,10 @@ createWindow = (tab) ->
   return window
           
 exports.win = 
-  open: (tab, data) ->
-    window = createWindow tab
+  open: (windowStack, tab, data) ->
+    window = createWindow windowStack, tab
     window.refresh data
-    app.views.windowStack.push window
+    windowStack.push window
     tab.open window
     return
     

@@ -1,6 +1,9 @@
 week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
+Ti.API.info 'Module was loaded.'
+# Ti.API.info 'rakko?' + app.rakko
+
 exports = 
 
 #for debug

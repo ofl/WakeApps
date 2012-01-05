@@ -1,4 +1,4 @@
-var Schedule, db, exports;
+var Schedule, db;
 db = Ti.Database.open('db');
 db.execute("CREATE TABLE IF NOT EXISTS main.SCHEDULEDB (ID INTEGER PRIMARY KEY, TITLE TEXT, ACTIVE INTEGER, DATE TEXT, SCHEME TEXT, REPEAT INTEGER, SOUND INTEGER, OPTIONS TEXT, UPDATED TEXT)");
 Schedule = (function() {
@@ -91,6 +91,4 @@ Schedule = (function() {
   };
   return Schedule;
 })();
-exports = {
-  Schedule: Schedule
-};
+module.exports = Schedule;

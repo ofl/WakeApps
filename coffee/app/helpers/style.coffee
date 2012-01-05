@@ -1,5 +1,7 @@
-mix = app.helpers.util.mix
-isIpad = app.helpers.conf.isIpad
+util = require 'app/helpers/util' 
+mix = util.mix
+isIpad = util.isIpad
+
 
 theme = 
   textColor: '#000000'

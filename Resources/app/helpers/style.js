@@ -1,6 +1,7 @@
-var exports, images, isIpad, mix, properties, theme, views;
-mix = app.helpers.util.mix;
-isIpad = app.helpers.conf.isIpad;
+var exports, images, isIpad, mix, properties, theme, util, views;
+util = require('app/helpers/util');
+mix = util.mix;
+isIpad = util.isIpad;
 theme = {
   textColor: '#000000',
   barColor: '#666',
