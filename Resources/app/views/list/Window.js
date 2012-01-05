@@ -124,7 +124,7 @@ Window = (function() {
           if (isIpad) {
             app.views.windowStack[1].confirm(schedule);
           } else {
-            (require('app/views/list/edit/win')).win.open(windowStack, tab, schedule);
+            (new (require('app/views/list/edit/Window')).Window(app)).open(schedule);
           }
           break;
         case 'delete':
@@ -149,7 +149,7 @@ Window = (function() {
       if (isIpad) {
         app.views.windowStack[1].refresh(schedule);
       } else {
-        (require('app/views/list/edit/win')).win.open(app.views.windowStack, tab, schedule);
+        (new (require('app/views/list/edit/Window')).Window(app)).open(schedule);
       }
     });
     editBtn.addEventListener('click', function(e) {

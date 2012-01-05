@@ -1,4 +1,5 @@
 # Shrotcuts
+
 $$ = (require 'app/helpers/style').views.root
 util = require 'app/helpers/util' 
 trace = util.trace
@@ -11,6 +12,7 @@ Schedule = require 'app/models/Schedule'
 
 class Window  
   constructor: (app)->
+    
   # Local Variables  
     service = null
   
@@ -118,7 +120,7 @@ class Window
           if isIpad
             app.views.windowStack[1].confirm schedule
           else
-            (require 'app/views/list/edit/win').win.open windowStack, tab, schedule
+            (new (require 'app/views/list/edit/Window').Window app).open schedule
         when 'delete'
           isDeleteCurrentSchedule = if e.row.id is Ti.App.Properties.getInt 'lastSchedule' then true else false
           schedule.del()
@@ -141,7 +143,7 @@ class Window
       if isIpad      
         app.views.windowStack[1].refresh schedule
       else
-        (require 'app/views/list/edit/win').win.open app.views.windowStack, tab, schedule
+        (new (require 'app/views/list/edit/Window').Window app).open schedule
       return
   
     editBtn.addEventListener 'click', (e) -> 
