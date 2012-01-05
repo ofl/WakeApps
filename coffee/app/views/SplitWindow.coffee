@@ -1,34 +1,38 @@
 class SplitWindow
-  Schedule = require 'app/models/Schedule'
-  id = Ti.App.Properties.getInt 'lastSchedule'    
-  schedule = null
-  if id
-    schedule = Schedule.findById id
-  if schedule is null
-    schedule = new Schedule(L('root.newschedule'))
+  constructor: (app)->    
+    app.views = {}
+    app.views.windowStack = []
     
-  window = createWindow windowStack
-  windowStack.push window      
-  window.refresh()      
-
-    
-  detailWindow = (require 'app/views/edit/win').win.createWindow windowStack
-  windowStack.push detailWindow
-  detailWindow.refresh schedule
+    Schedule = require 'app/models/Schedule'
+    id = Ti.App.Properties.getInt 'lastSchedule'    
+    schedule = null
+    if id
+      schedule = Schedule.findById id
+    if schedule is null
+      schedule = new Schedule(L('root.newschedule'))
+      
+    listWindow = new (require 'app/views/list/Window').Window app
+    app.views.windowStack.push listWindow      
+    listWindow.refresh()      
   
-  detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup
-    window: detailWindow
-  masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup
-    window: window
+      
+    editWindow = new (require 'app/views/list/edit/Window').Window app
+    app.views.windowStack.push editWindow
+    editWindow.refresh schedule
     
-  splitwin = Ti.UI.iPad.createSplitWindow
-    showMasterInPortrait: true
-    detailView: detailNavigationGroup
-    masterView: masterNavigationGroup
+    detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup
+      window: editWindow.window
+    masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup
+      window: listWindow.window
+      
+    splitwindow = Ti.UI.iPad.createSplitWindow
+      showMasterInPortrait: true
+      detailView: detailNavigationGroup
+      masterView: masterNavigationGroup
+      
     
-  splitwin.open()   
+    @open = ()->
+      splitwindow.open()   
+      return 
 
-  @view: Ti.UI.iPad.createSplitWindow
-    showMasterInPortrait: true
-    detailView: detailNavigationGroup
-    masterView: masterNavigationGroup
+exports.SplitWindow = SplitWindow

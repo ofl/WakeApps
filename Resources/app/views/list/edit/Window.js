@@ -5,7 +5,7 @@ trace = util.trace;
 mix = util.mix;
 dateToString = util.dateToString;
 isIpad = (require('app/helpers/conf')).isIpad;
-$$ = (require('app/helpers/style')).views.edit;
+$$ = (require('app/views/list/edit/style')).style;
 Window = (function() {
   function Window(app) {
     var activeRow, activeSwitch, confirm, copyBtn, datePicker, datePickerContainer, datePickerPopOver, dateRow, doneBtn, fs, kbdDoneBtn, open, pickerToolbar, refresh, repeatPicker, repeatPickerContainer, repeatRow, repeatTablePopOver, repeatTableView, repeats, rows, saveBtn, schedule, schemeField, schemeRow, soundRow, soundSwitch, tableView, testRow, titleField, titleRow, trashBtn, window, _blur, _scheduleDataWasChanged, _textFieldHandler;
@@ -19,14 +19,14 @@ Window = (function() {
       toolbar: [trashBtn, fs, copyBtn],
       rightNavButton: saveBtn
     }));
-    titleRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    titleRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       idx: 0
     }));
     titleField = Ti.UI.createTextField(mix($$.textField, {
       fieldName: 'title'
     }));
     titleRow.add(titleField);
-    activeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    activeRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       idx: 1
     }));
     activeRow.add(Ti.UI.createLabel(mix($$.rowLabel, {
@@ -34,7 +34,7 @@ Window = (function() {
     })));
     activeSwitch = Ti.UI.createSwitch($$.switches);
     activeRow.add(activeSwitch);
-    schemeRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    schemeRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       header: 'URL Scheme',
       idx: 2
     }));
@@ -42,23 +42,23 @@ Window = (function() {
       fieldName: 'scheme'
     }));
     schemeRow.add(schemeField);
-    testRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    testRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       title: L('edit.test'),
       color: '#1e90ff',
       hasChild: true,
       idx: 3
     }));
-    dateRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    dateRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       header: L('edit.date'),
       hasChild: true,
       idx: 4
     }));
-    repeatRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    repeatRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       header: L('edit.repeat'),
       hasChild: true,
       idx: 5
     }));
-    soundRow = Ti.UI.createTableViewRow(mix($$.tableViewRow, {
+    soundRow = Ti.UI.createTableViewRow(mix($$.groupedTableViewRow, {
       header: L('edit.sound'),
       idx: 6
     }));
@@ -68,7 +68,7 @@ Window = (function() {
     soundSwitch = Ti.UI.createSwitch($$.switches);
     soundRow.add(soundSwitch);
     rows = [titleRow, activeRow, schemeRow, testRow, dateRow, repeatRow, soundRow];
-    tableView = Ti.UI.createTableView($$.tableView);
+    tableView = Ti.UI.createTableView($$.groupedTableView);
     tableView.data = rows;
     window.add(tableView);
     datePicker = Ti.UI.createPicker($$.datePicker);

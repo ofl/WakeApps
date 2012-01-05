@@ -1,38 +1,39 @@
 var SplitWindow;
 SplitWindow = (function() {
-  var Schedule, detailNavigationGroup, detailWindow, id, masterNavigationGroup, schedule, splitwin, window;
-  function SplitWindow() {}
-  Schedule = require('app/models/Schedule');
-  id = Ti.App.Properties.getInt('lastSchedule');
-  schedule = null;
-  if (id) {
-    schedule = Schedule.findById(id);
+  function SplitWindow(app) {
+    var Schedule, detailNavigationGroup, editWindow, id, listWindow, masterNavigationGroup, schedule, splitwindow;
+    app.views = {};
+    app.views.windowStack = [];
+    Schedule = require('app/models/Schedule');
+    id = Ti.App.Properties.getInt('lastSchedule');
+    schedule = null;
+    if (id) {
+      schedule = Schedule.findById(id);
+    }
+    if (schedule === null) {
+      schedule = new Schedule(L('root.newschedule'));
+    }
+    listWindow = new (require('app/views/list/Window')).Window(app);
+    app.views.windowStack.push(listWindow);
+    listWindow.refresh();
+    editWindow = new (require('app/views/list/edit/Window')).Window(app);
+    app.views.windowStack.push(editWindow);
+    editWindow.refresh(schedule);
+    detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
+      window: editWindow.window
+    });
+    masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
+      window: listWindow.window
+    });
+    splitwindow = Ti.UI.iPad.createSplitWindow({
+      showMasterInPortrait: true,
+      detailView: detailNavigationGroup,
+      masterView: masterNavigationGroup
+    });
+    this.open = function() {
+      splitwindow.open();
+    };
   }
-  if (schedule === null) {
-    schedule = new Schedule(L('root.newschedule'));
-  }
-  window = createWindow(windowStack);
-  windowStack.push(window);
-  window.refresh();
-  detailWindow = (require('app/views/edit/win')).win.createWindow(windowStack);
-  windowStack.push(detailWindow);
-  detailWindow.refresh(schedule);
-  detailNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
-    window: detailWindow
-  });
-  masterNavigationGroup = Ti.UI.iPhone.createNavigationGroup({
-    window: window
-  });
-  splitwin = Ti.UI.iPad.createSplitWindow({
-    showMasterInPortrait: true,
-    detailView: detailNavigationGroup,
-    masterView: masterNavigationGroup
-  });
-  splitwin.open();
-  SplitWindow.view = Ti.UI.iPad.createSplitWindow({
-    showMasterInPortrait: true,
-    detailView: detailNavigationGroup,
-    masterView: masterNavigationGroup
-  });
   return SplitWindow;
 })();
+exports.SplitWindow = SplitWindow;

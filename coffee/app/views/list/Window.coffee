@@ -1,6 +1,6 @@
 # Shrotcuts
 
-$$ = (require 'app/helpers/style').views.root
+$$ = (require 'app/views/list/style').style
 util = require 'app/helpers/util' 
 trace = util.trace
 mix = util.mix
@@ -26,6 +26,7 @@ class Window
     fs = Ti.UI.createButton $$.fs  
     
     window = Ti.UI.createWindow(mix $$.window,
+      title: 'WakeApps'
       toolbar: [editBtn, fs, updateLabel, fs, refreshBtn]  
       rightNavButton: addBtn)
       

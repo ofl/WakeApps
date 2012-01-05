@@ -1,5 +1,5 @@
 var $$, Schedule, Window, dateToString, isIpad, mix, prettyDate, timesToGo, trace, util;
-$$ = (require('app/helpers/style')).views.root;
+$$ = (require('app/views/list/style')).style;
 util = require('app/helpers/util');
 trace = util.trace;
 mix = util.mix;
@@ -19,6 +19,7 @@ Window = (function() {
     updateLabel = Ti.UI.createLabel($$.updateLabel);
     fs = Ti.UI.createButton($$.fs);
     window = Ti.UI.createWindow(mix($$.window, {
+      title: 'WakeApps',
       toolbar: [editBtn, fs, updateLabel, fs, refreshBtn],
       rightNavButton: addBtn
     }));
